@@ -1,0 +1,65 @@
+/* Add any additional styles specific to App.jsx here */
+</x ­
+
+#### 6. `src/App.jsx`
+The main App component (provided code).
+
+<xaiArtifact artifact_id="8e9ebc43-367e-4291-a56a-9365cde542a7" artifact_version_id="2d51af6d-dda1-4afd-9c40-d2994457f9ac" title="App.jsx" contentType="application/javascript">
+import { useState } from "react";
+import { Toaster } from "./components/ui/toaster";
+import { Toaster as Sonner } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Sidebar from "./components/Sidebar";
+import Dashboard from "./pages/Dashboard";
+import PointOfSale from "./pages/PointOfSale";
+import InventoryManagement from "./pages/InventoryManagement";
+import CustomerManagement from "./pages/CustomerManagement";
+import Reports from "./pages/Reports";
+
+const queryClient = new QueryClient();
+
+const App = () => {
+  const [activePage, setActivePage] = useState("dashboard");
+
+  const renderPage = () => {
+    switch (activePage) {
+      case "dashboard":
+        return <Dashboard />;
+      case "pos":
+        return <PointOfSale />;
+      case "inventory":
+        return <InventoryManagement />;
+      case "customers":
+        return <CustomerManagement />;
+      case "reports":
+        return <Reports />;
+      case "settings":
+        return (
+          <div className="p-6">
+            <h1 className="text-3xl font-bold">Settings</h1>
+            <p className="text-gray-600 mt-2">Settings page coming soon...</p>
+          </div>
+        );
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <div className="flex min-h-screen bg-gray-50 w-full">
+          <Sidebar activePage={activePage} setActivePage={setActivePage} />
+          <div className="flex-1 ml-64">
+            {renderPage()}
+          </div>
+        </div>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
+
+export default App;
