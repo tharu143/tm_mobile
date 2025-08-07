@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { BarChart3, Download, TrendingUp, DollarSign, Printer, RefreshCw, Sun, Moon, Leaf, Grid } from "lucide-react";
 
 // Inline SVG Icons
-const BarChart3 = () => (
+const BarChart3Icon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="20" x2="12" y2="10"></line>
     <line x1="18" y1="20" x2="18" y2="4"></line>
@@ -11,45 +11,7 @@ const BarChart3 = () => (
   </svg>
 );
 
-const Download = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-    <polyline points="7 10 12 15 17 10"></polyline>
-    <line x1="12" y1="15" x2="12" y2="3"></line>
-  </svg>
-);
-
-const TrendingUp = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
-    <polyline points="17 6 23 6 23 12"></polyline>
-  </svg>
-);
-
-const DollarSign = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="1" x2="12" y2="23"></line>
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-  </svg>
-);
-
-const Printer = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="6 9 6 2 18 2 18 9"></polyline>
-    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-    <rect x="6" y="14" width="12" height="8"></rect>
-  </svg>
-);
-
-const RefreshCw = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="23 4 23 10 17 10"></polyline>
-    <polyline points="1 20 1 14 7 14"></polyline>
-    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-  </svg>
-);
-
-const Reports = ({ theme }) => {
+const Reports = ({ theme, setTheme }) => {
   const [selectedReport, setSelectedReport] = useState("sales");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -70,6 +32,7 @@ const Reports = ({ theme }) => {
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("");
   const [stockReportData, setStockReportData] = useState(null);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const itemsPerPage = 10;
 
   const currentYear = new Date().getFullYear();
@@ -78,6 +41,219 @@ const Reports = ({ theme }) => {
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
   ];
+
+  const themeStyles = {
+    light: {
+      bgColor: "hsl(240 20% 98%)",
+      foreground: "hsl(220 25% 15%)",
+      card: "#ffffff",
+      cardForeground: "hsl(220 25% 15%)",
+      primary: "hsl(217 91% 60%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(210 40% 96%)",
+      secondaryForeground: "hsl(220 25% 15%)",
+      muted: "hsl(220 13% 95%)",
+      mutedForeground: "hsl(220 9% 46%)",
+      accent: "hsl(38 92% 50%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(220 13% 91%)",
+      input: "hsl(220 13% 91%)",
+      ring: "hsl(217 91% 60%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      gradientAccent: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      shadowElegant: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.1)",
+      radius: "0.75rem",
+      textColor: "hsl(220 25% 15%)",
+      secondaryTextColor: "hsl(220 9% 46%)",
+      cardBg: "#ffffff",
+      borderColor: "hsl(220 13% 91%) / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "hsl(217 91% 60%)",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "hsl(210 40% 96%)",
+      buttonOutlineText: "hsl(220 25% 15%)",
+      dropdownBg: "#ffffff",
+      disabledBg: "hsl(220 13% 95%)",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "hsl(220 13% 95%)",
+      placeholderImageBg: "hsl(220 13% 95%)",
+      placeholderImageText: "hsl(220 9% 46%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    dark: {
+      bgColor: "hsl(240 10% 8%)",
+      foreground: "#ffffff",
+      card: "hsl(240 10% 12%)",
+      cardForeground: "#ffffff",
+      primary: "hsl(262 83% 58%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(240 4% 16%)",
+      secondaryForeground: "#ffffff",
+      muted: "hsl(240 4% 16%)",
+      mutedForeground: "hsl(240 5% 65%)",
+      accent: "hsl(142 71% 45%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(240 4% 16%)",
+      input: "hsl(240 4% 16%)",
+      ring: "hsl(262 83% 58%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      gradientAccent: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      shadowElegant: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.3)",
+      radius: "0.75rem",
+      textColor: "#ffffff",
+      secondaryTextColor: "hsl(240 5% 65%)",
+      cardBg: "hsl(240 10% 12%)",
+      borderColor: "hsl(240 4% 16%) / 50%",
+      inputBg: "hsl(240 4% 16%)",
+      buttonBg: "hsl(262 83% 58%)",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "hsl(240 4% 16%)",
+      buttonOutlineText: "#ffffff",
+      dropdownBg: "hsl(240 10% 12%)",
+      disabledBg: "hsl(240 4% 16%)",
+      shadow: "0 1px 3px rgba(0,0,0,0.3)",
+      popupBg: "hsl(240 10% 12%)",
+      inputReadOnlyBg: "hsl(240 4% 16%)",
+      placeholderImageBg: "hsl(240 4% 16%)",
+      placeholderImageText: "hsl(240 5% 65%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#4caf50",
+      primaryForeground: "#ffffff",
+      secondary: "#e8f5e9",
+      secondaryForeground: "#1f2937",
+      muted: "#e0f2f1",
+      mutedForeground: "#4b5563",
+      accent: "#ff9800",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#a7d4a0",
+      input: "#ffffff",
+      ring: "#4caf50",
+      gradientPrimary: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      gradientAccent: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      shadowElegant: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#a7d4a0 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#4caf50",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "#e8f5e9",
+      buttonOutlineText: "#1f2937",
+      dropdownBg: "#ffffff",
+      disabledBg: "#e0f2f1",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#e0f2f1",
+      placeholderImageBg: "#e0f2f1",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#ff9800",
+      primaryForeground: "#ffffff",
+      secondary: "#ffedd5",
+      secondaryForeground: "#1f2937",
+      muted: "#ffe7ba",
+      mutedForeground: "#4b5563",
+      accent: "#ff5722",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#fdba74",
+      input: "#ffffff",
+      ring: "#ff9800",
+      gradientPrimary: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      gradientAccent: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      shadowElegant: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#fdba74 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#ff9800",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "#ffedd5",
+      buttonOutlineText: "#1f2937",
+      dropdownBg: "#ffffff",
+      disabledBg: "#ffe7ba",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#ffe7ba",
+      placeholderImageBg: "#ffe7ba",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+  };
+
+  const styles = themeStyles[theme] || themeStyles.light;
 
   const fetchData = async () => {
     try {
@@ -206,7 +382,6 @@ const Reports = ({ theme }) => {
     }
   };
 
-  // Pagination logic for sales, products, and customers
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentSales = filteredSalesData.slice(indexOfFirstItem, indexOfLastItem);
@@ -432,7 +607,7 @@ const Reports = ({ theme }) => {
           </table>
           <p style="margin: 5mm 0;">Total Quantity Added: ${totalAdded}</p>
           <h3 style="font-size: 12pt; margin: 10mm 0 5mm;">Current Stock Balance</h3>
-          <table style="width decyzja: 100%; border-collapse: collapse;">
+          <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <th style="border: 1px solid #000000; padding: 5mm; text-align: left;">Product</th>
               <th style="border: 1px solid #000000; padding: 5mm; text-align: left;">Stock</th>
@@ -507,122 +682,112 @@ const Reports = ({ theme }) => {
   const topProducts = getTopProducts();
   const topCustomers = getTopCustomers();
 
+  const themeOptions = [
+    { id: "light", label: "Light", icon: Sun },
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "nature", label: "Nature", icon: Leaf },
+    { id: "sunset", label: "Sunset", icon: Grid },
+  ];
+
+  const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
+
   const renderSalesReport = () => (
-    <div className="space-y-4">
-      <div className="row row-cols-1 row-cols-md-5 g-4">
-        <div className="col">
-          <div className={`card h-100 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-            <div className="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Total Sales</p>
-                <p className={`h4 fw-bold mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>₹{stats.totalSales.toLocaleString()}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-success" />
+    <div style={{ marginTop: "1rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Sales</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.totalSales.toLocaleString()}</p>
             </div>
+            <DollarSign size={32} style={{ color: styles.statusSuccess }} />
           </div>
         </div>
-        <div className="col">
-          <div className={`card h-100 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-            <div className="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Total Stock Value</p>
-                <p className={`h4 fw-bold mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>₹{stats.totalStockValue.toLocaleString()}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-info" />
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Stock Value</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.totalStockValue.toLocaleString()}</p>
             </div>
+            <DollarSign size={32} style={{ color: styles.statusSuccess }} />
           </div>
         </div>
-        <div className="col">
-          <div className={`card h-100 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-            <div className="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Today's Sales</p>
-                <p className={`h4 fw-bold mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>₹{stats.todaySales.toLocaleString()}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-primary" />
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Today's Sales</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.todaySales.toLocaleString()}</p>
             </div>
+            <TrendingUp size={32} style={{ color: styles.primary }} />
           </div>
         </div>
-        <div className="col">
-          <div className={`card h-100 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-            <div className="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Total Transactions</p>
-                <p className={`h4 fw-bold mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>{stats.totalTransactions}</p>
-              </div>
-              <BarChart3 className="h-8 w-8 text-purple" />
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Transactions</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.totalTransactions}</p>
             </div>
+            <BarChart3Icon size={32} style={{ color: styles.accent }} />
           </div>
         </div>
-        <div className="col">
-          <div className={`card h-100 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-            <div className="card-body d-flex align-items-center justify-content-between">
-              <div>
-                <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Avg Transaction</p>
-                <p className={`h4 fw-bold mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>₹{Math.round(stats.avgTransaction).toLocaleString()}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-warning" />
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div>
+              <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Avg Transaction</p>
+              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{Math.round(stats.avgTransaction).toLocaleString()}</p>
             </div>
+            <DollarSign size={32} style={{ color: styles.warning }} />
           </div>
         </div>
       </div>
-      <div className={`card ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-        <div className={`card-header d-flex justify-content-between align-items-center ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-          <h5 className={`card-title mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Recent Sales Transactions</h5>
-          <div>
-            <button className="btn btn-primary btn-sm me-2" onClick={() => handlePrint('sales')}>
+      <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h5 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: styles.textColor }}>Recent Sales Transactions</h5>
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={() => handlePrint('sales')}>
               Print All Sales
             </button>
-            <button className="btn btn-outline-primary btn-sm" onClick={fetchData}>
-              <RefreshCw className="me-1" /> Refresh
+            <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonOutlineBg, color: styles.buttonOutlineText, border: `1px solid ${styles.border}`, borderRadius: styles.radius, cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }} onClick={fetchData}>
+              <RefreshCw size={16} /> Refresh
             </button>
           </div>
         </div>
-        <div className="card-body">
+        <div style={{ padding: "1.5rem" }}>
           {loading ? (
-            <div className={`text-center py-5 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Loading sales...</div>
+            <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading sales...</div>
           ) : error ? (
-            <div className={`text-center py-5 ${theme === 'light' ? 'text-danger' : 'text-danger'}`}>{error}</div>
+            <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>
           ) : (
             <>
-              <div className="table-responsive">
-                <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Invoice ID</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Date</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Customer</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Product</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Quantity</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Amount</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Grand Total</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Payment</th>
-                      <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Action</th>
+                      {["Invoice ID", "Date", "Customer", "Product", "Quantity", "Amount", "Grand Total", "Payment", "Action"].map((header) => (
+                        <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {currentSales.map((sale) => (
                       <tr key={sale._id}>
-                        <td className="fw-medium" style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{sale.invoiceId}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{new Date(sale.timestamp).toLocaleString()}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{sale.customer.name}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{sale.invoiceId}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{new Date(sale.timestamp).toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.customer.name}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
                           {sale.items.map((item, index) => (
                             <div key={index}>{item.name} (₹{item.price.toLocaleString()} x {item.quantity})</div>
                           ))}
                         </td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>₹{sale.subtotal.toLocaleString()}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>₹{sale.total.toLocaleString()}</td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>
-                          <span className={`badge ${theme === 'light' ? 'bg-secondary' : 'bg-secondary'}`}>{sale.paymentMethod}</span>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.subtotal.toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.total.toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
+                          <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.secondary, color: styles.secondaryForeground }}>{sale.paymentMethod}</span>
                         </td>
-                        <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>
-                          <button
-                            className={`btn btn-sm ${theme === 'light' ? 'btn-outline-dark' : 'btn-outline-light'}`}
-                            onClick={() => handlePrint('sales', sale)}
-                          >
-                            <Printer />
+                        <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
+                          <button style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.buttonOutlineBg, color: styles.buttonOutlineText, border: `1px solid ${styles.border}`, borderRadius: styles.radius, cursor: "pointer" }} onClick={() => handlePrint('sales', sale)}>
+                            <Printer size={16} />
                           </button>
                         </td>
                       </tr>
@@ -630,22 +795,12 @@ const Reports = ({ theme }) => {
                   </tbody>
                 </table>
               </div>
-              <div className="d-flex justify-content-between align-items-center mt-4">
-                <button
-                  className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1 || loading}
-                >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+                <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handlePrevPage} disabled={currentPage === 1 || loading}>
                   Previous
                 </button>
-                <span className={theme === 'light' ? 'text-dark' : 'text-white'}>
-                  Page {currentPage} of {totalSalesPages}
-                </span>
-                <button
-                  className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalSalesPages || loading}
-                >
+                <span style={{ color: styles.textColor }}>Page {currentPage} of {totalSalesPages}</span>
+                <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handleNextPage} disabled={currentPage === totalSalesPages || loading}>
                   Next
                 </button>
               </div>
@@ -657,50 +812,40 @@ const Reports = ({ theme }) => {
   );
 
   const renderProductReport = () => (
-    <div className={`card ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-      <div className={`card-header d-flex justify-content-between align-items-center ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-        <h5 className={`card-title mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Top Selling Products</h5>
-        <button className="btn btn-primary btn-sm" onClick={() => handlePrint('products')}>
+    <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, marginTop: "1rem" }}>
+      <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h5 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: styles.textColor }}>Top Selling Products</h5>
+        <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={() => handlePrint('products')}>
           Print Report
         </button>
       </div>
-      <div className="card-body">
-        <div className="table-responsive">
-          <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+      <div style={{ padding: "1.5rem" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Product</th>
-                <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Quantity Sold</th>
-                <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Revenue</th>
+                {["Product", "Quantity Sold", "Revenue"].map((header) => (
+                  <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {currentTopProducts.map((item, index) => (
                 <tr key={index}>
-                  <td className="fw-medium" style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.product}</td>
-                  <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.quantity}</td>
-                  <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>₹{item.revenue.toLocaleString()}</td>
+                  <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{item.product}</td>
+                  <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{item.quantity}</td>
+                  <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{item.revenue.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="d-flex justify-content-between align-items-center mt-4">
-          <button
-            className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-            onClick={handlePrevPage}
-            disabled={currentPage === 1 || loading}
-          >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+          <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handlePrevPage} disabled={currentPage === 1 || loading}>
             Previous
           </button>
-          <span className={theme === 'light' ? 'text-dark' : 'text-white'}>
-            Page {currentPage} of {totalProductPages}
-          </span>
-          <button
-            className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-            onClick={handleNextPage}
-            disabled={currentPage === totalProductPages || loading}
-          >
+          <span style={{ color: styles.textColor }}>Page {currentPage} of {totalProductPages}</span>
+          <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handleNextPage} disabled={currentPage === totalProductPages || loading}>
             Next
           </button>
         </div>
@@ -709,48 +854,39 @@ const Reports = ({ theme }) => {
   );
 
   const renderCustomerReport = () => (
-    <div className={`card ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-      <div className={`card-header d-flex justify-content-between align-items-center ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-        <h5 className={`card-title mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Top Customers</h5>
-        <button className="btn btn-primary btn-sm" onClick={() => handlePrint('customers')}>
+    <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, marginTop: "1rem" }}>
+      <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h5 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: styles.textColor }}>Top Customers</h5>
+        <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={() => handlePrint('customers')}>
           Print Report
         </button>
       </div>
-      <div className="card-body">
-        <div className="table-responsive">
-          <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+      <div style={{ padding: "1.5rem" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Customer</th>
-                <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Total Purchases</th>
+                {["Customer", "Total Purchases"].map((header) => (
+                  <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {currentTopCustomers.map((item, index) => (
                 <tr key={index}>
-                  <td className="fw-medium" style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.customer}</td>
-                  <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>₹{item.amount.toLocaleString()}</td>
+                  <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{item.customer}</td>
+                  <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{item.amount.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="d-flex justify-content-between align-items-center mt-4">
-          <button
-            className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-            onClick={handlePrevPage}
-            disabled={currentPage === 1 || loading}
-          >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+          <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handlePrevPage} disabled={currentPage === 1 || loading}>
             Previous
           </button>
-          <span className={theme === 'light' ? 'text-dark' : 'text-white'}>
-            Page {currentPage} of {totalCustomerPages}
-          </span>
-          <button
-            className={`btn btn-outline-secondary ${theme === 'light' ? 'text-dark border-dark' : 'text-white border-light'}`}
-            onClick={handleNextPage}
-            disabled={currentPage === totalCustomerPages || loading}
-          >
+          <span style={{ color: styles.textColor }}>Page {currentPage} of {totalCustomerPages}</span>
+          <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={handleNextPage} disabled={currentPage === totalCustomerPages || loading}>
             Next
           </button>
         </div>
@@ -760,13 +896,13 @@ const Reports = ({ theme }) => {
 
   const renderStockReport = () => {
     if (loading) {
-      return <div className={`text-center py-5 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Loading stock report...</div>;
+      return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading stock report...</div>;
     }
     if (error) {
-      return <div className={`text-center py-5 ${theme === 'light' ? 'text-danger' : 'text-danger'}`}>{error}</div>;
+      return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
     }
     if (!stockReportData) {
-      return <div className={`text-center py-5 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Please generate the stock report</div>;
+      return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Please generate the stock report</div>;
     }
 
     const productMap = {};
@@ -780,83 +916,85 @@ const Reports = ({ theme }) => {
     const totalStock = stockReportData.current_stock.reduce((sum, item) => sum + item.stock, 0);
 
     return (
-      <div className={`card ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-        <div className={`card-header d-flex justify-content-between align-items-center ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-          <h5 className={`card-title mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>
+      <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, marginTop: "1rem" }}>
+        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h5 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: styles.textColor }}>
             {selectedReport === "monthlyStock" 
               ? `Monthly Stock Report for ${monthNames[selectedMonth - 1]} ${selectedYear}` 
               : `Yearly Stock Report for ${selectedYear}`}
           </h5>
-          <button className="btn btn-primary btn-sm" onClick={() => handlePrint(selectedReport)}>
+          <button style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }} onClick={() => handlePrint(selectedReport)}>
             Print Report
           </button>
         </div>
-        <div className="card-body">
-          <h6 className={theme === 'light' ? 'text-dark' : 'text-white'}>Stock Sold</h6>
-          <div className="table-responsive">
-            <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+        <div style={{ padding: "1.5rem" }}>
+          <h6 style={{ color: styles.textColor, marginBottom: "1rem" }}>Stock Sold</h6>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Product</th>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Quantity Sold</th>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Revenue</th>
+                  {["Product", "Quantity Sold", "Revenue"].map((header) => (
+                    <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {stockReportData.sales.map((item) => (
                   <tr key={item._id}>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{productMap[item._id] || 'Unknown Product'}</td>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.totalSold}</td>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>₹{item.totalRevenue.toLocaleString()}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{productMap[item._id] || 'Unknown Product'}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{item.totalSold}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{item.totalRevenue.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className={theme === 'light' ? 'text-dark' : 'text-white'}>Total Quantity Sold: {totalSold}</p>
-          <p className={theme === 'light' ? 'text-dark' : 'text-white'}>Total Revenue: ₹{totalRevenue.toLocaleString()}</p>
+          <p style={{ color: styles.textColor, margin: "0.5rem 0" }}>Total Quantity Sold: {totalSold}</p>
+          <p style={{ color: styles.textColor, margin: "0.5rem 0" }}>Total Revenue: ₹{totalRevenue.toLocaleString()}</p>
 
-          <h6 className={theme === 'light' ? 'text-dark' : 'text-white'}>Stock Added</h6>
-          <div className="table-responsive">
-            <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+          <h6 style={{ color: styles.textColor, margin: "1rem 0" }}>Stock Added</h6>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Product</th>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Quantity Added</th>
+                  {["Product", "Quantity Added"].map((header) => (
+                    <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {stockReportData.additions.map((item) => (
                   <tr key={item._id}>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{productMap[item._id] || 'Unknown Product'}</td>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.totalAdded}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{productMap[item._id] || 'Unknown Product'}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{item.totalAdded}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className={theme === 'light' ? 'text-dark' : 'text-white'}>Total Quantity Added: {totalAdded}</p>
+          <p style={{ color: styles.textColor, margin: "0.5rem 0" }}>Total Quantity Added: {totalAdded}</p>
 
-          <h6 className={theme === 'light' ? 'text-dark' : 'text-white'}>Current Stock Balance</h6>
-          <div className="table-responsive">
-            <table className={`table table-hover ${theme === 'light' ? 'table-light' : 'table-dark'}`}>
+          <h6 style={{ color: styles.textColor, margin: "1rem 0" }}>Current Stock Balance</h6>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Product</th>
-                  <th style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>Stock</th>
+                  {["Product", "Stock"].map((header) => (
+                    <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {stockReportData.current_stock.map((item) => (
                   <tr key={item._id}>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.name}</td>
-                    <td style={{ borderColor: theme === 'light' ? '#000000' : '#ffffff', color: theme === 'light' ? '#000000' : '#ffffff' }}>{item.stock}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{item.name}</td>
+                    <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{item.stock}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className={theme === 'light' ? 'text-dark' : 'text-white'}>Total Current Stock: {totalStock}</p>
+          <p style={{ color: styles.textColor, margin: "0.5rem 0" }}>Total Current Stock: {totalStock}</p>
         </div>
       </div>
     );
@@ -876,143 +1014,256 @@ const Reports = ({ theme }) => {
   const isReportReady = isMonthlyReportReady || isYearlyReportReady;
 
   return (
-    <div className={`container py-4 ${theme === 'light' ? 'bg-light text-dark' : 'bg-dark text-white'}`} style={{ minHeight: '100vh' }}>
-      <div className="mb-4">
-        <h1 className={`display-6 fw-bold ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Reports & Analytics</h1>
-        <p className={theme === 'light' ? 'text-muted' : 'text-light'}>Analyze your business performance and trends</p>
-      </div>
-      <div className={`card mb-4 ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-        <div className={`card-header d-flex align-items-center ${theme === 'light' ? 'bg-white border-dark' : 'bg-dark border-light'}`}>
-          <BarChart3 className="me-2" />
-          <h5 className={`card-title mb-0 ${theme === 'light' ? 'text-dark' : 'text-white'}`}>Report Configuration</h5>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+        <div>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Reports & Analytics</h1>
+          <p style={{ fontSize: "1rem", color: styles.secondaryTextColor, marginBottom: "1rem" }}>Analyze your business performance and trends</p>
         </div>
-        <div className="card-body">
-          <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
-            <div className="btn-group">
-              <button
-                className={`btn ${selectedReport === "sales" ? "btn-primary" : theme === 'light' ? "btn-outline-dark" : "btn-outline-light"}`}
-                onClick={() => handleReportTypeChange("sales")}
-              >
-                Sales Report
-              </button>
-              <button
-                className={`btn ${selectedReport === "products" ? "btn-primary" : theme === 'light' ? "btn-outline-dark" : "btn-outline-light"}`}
-                onClick={() => handleReportTypeChange("products")}
-              >
-                Product Report
-              </button>
-              <button
-                className={`btn ${selectedReport === "customers" ? "btn-primary" : theme === 'light' ? "btn-outline-dark" : "btn-outline-light"}`}
-                onClick={() => handleReportTypeChange("customers")}
-              >
-                Customer Report
-              </button>
-              <button
-                className={`btn ${selectedReport === "monthlyStock" ? "btn-primary" : theme === 'light' ? "btn-outline-dark" : "btn-outline-light"}`}
-                onClick={() => handleReportTypeChange("monthlyStock")}
-              >
-                Monthly Stock Report
-              </button>
-              <button
-                className={`btn ${selectedReport === "yearlyStock" ? "btn-primary" : theme === 'light' ? "btn-outline-dark" : "btn-outline-light"}`}
-                onClick={() => handleReportTypeChange("yearlyStock")}
-              >
-                Yearly Stock Report
-              </button>
+        <div style={{ position: "relative" }}>
+          <div 
+            onClick={() => setShowThemeDropdown(!showThemeDropdown)} 
+            style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "0.5rem", 
+              padding: "0.5rem 1rem", 
+              backgroundColor: styles.card, 
+              color: styles.primary, 
+              border: `1px solid ${styles.border}`, 
+              borderRadius: styles.radius, 
+              cursor: "pointer", 
+              fontWeight: "500", 
+              transition: "all 0.2s ease-in-out" 
+            }}
+          >
+            {selectedTheme && <selectedTheme.icon size={16} />}
+            {selectedTheme && selectedTheme.label}
+          </div>
+          {showThemeDropdown && (
+            <div style={{ 
+              position: "absolute", 
+              right: 0,
+              top: "100%",
+              backgroundColor: styles.dropdownBg, 
+              border: `1px solid ${styles.border}`, 
+              borderRadius: styles.radius, 
+              marginTop: "0.5rem", 
+              zIndex: 10 
+            }}>
+              {themeOptions.map((option) => (
+                <button 
+                  key={option.id} 
+                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }} 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.5rem", 
+                    padding: "0.5rem", 
+                    backgroundColor: theme === option.id ? styles.primary : "transparent", 
+                    color: theme === option.id ? styles.primaryForeground : styles.foreground, 
+                    border: "none", 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer", 
+                    textAlign: "left" 
+                  }}
+                >
+                  <option.icon size={16} />
+                  {option.label}
+                </button>
+              ))}
             </div>
-            <button className="btn btn-outline-success d-flex align-items-center" onClick={exportReport}>
-              <Download className="me-2" />
-              Export
+          )}
+        </div>
+      </div>
+      <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, marginBottom: "2rem" }}>
+        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", alignItems: "center" }}>
+          <BarChart3Icon size={20} style={{ marginRight: "0.5rem", color: styles.textColor }} />
+          <h5 style={{ fontSize: "1.25rem", fontWeight: "600", margin: 0, color: styles.textColor }}>Report Configuration</h5>
+        </div>
+        <div style={{ padding: "1.5rem" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              {["sales", "products", "customers", "monthlyStock", "yearlyStock"].map((type) => (
+                <button
+                  key={type}
+                  style={{ 
+                    padding: "0.5rem 1rem", 
+                    backgroundColor: selectedReport === type ? styles.primary : styles.buttonOutlineBg, 
+                    color: selectedReport === type ? styles.primaryForeground : styles.buttonOutlineText, 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer" 
+                  }}
+                  onClick={() => handleReportTypeChange(type)}
+                >
+                  {type === "sales" ? "Sales Report" : 
+                   type === "products" ? "Product Report" : 
+                   type === "customers" ? "Customer Report" : 
+                   type === "monthlyStock" ? "Monthly Stock Report" : "Yearly Stock Report"}
+                </button>
+              ))}
+            </div>
+            <button 
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "0.5rem", 
+                padding: "0.5rem 1rem", 
+                backgroundColor: styles.statusSuccess, 
+                color: styles.successForeground, 
+                border: "none", 
+                borderRadius: styles.radius, 
+                cursor: "pointer" 
+              }} 
+              onClick={exportReport}
+            >
+              <Download size={16} /> Export
             </button>
           </div>
           {selectedReport === "sales" && (
-            <div className="d-flex flex-wrap gap-3 align-items-center">
-              <div className="d-flex align-items-center gap-2">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
                   type="date"
-                  className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                  style={{ 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground,
+                    width: "auto" 
+                  }}
                   value={dateFrom}
                   onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
-                  placeholder="From Date"
-                  style={{ width: "auto" }}
                 />
-                <span className={theme === 'light' ? 'text-dark' : 'text-white'}>to</span>
+                <span style={{ color: styles.textColor }}>to</span>
                 <input
                   type="date"
-                  className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                  style={{ 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground,
+                    width: "auto" 
+                  }}
                   value={dateTo}
                   onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
-                  placeholder="To Date"
-                  style={{ width: "auto" }}
                 />
               </div>
-              <div className="d-flex align-items-center gap-2">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
                   type="time"
-                  className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                  style={{ 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground,
+                    width: "auto" 
+                  }}
                   value={timeFrom}
                   onChange={(e) => { setTimeFrom(e.target.value); setCurrentPage(1); }}
-                  placeholder="From Time"
-                  style={{ width: "auto" }}
                 />
-                <span className={theme === 'light' ? 'text-dark' : 'text-white'}>to</span>
+                <span style={{ color: styles.textColor }}>to</span>
                 <input
                   type="time"
-                  className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                  style={{ 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground,
+                    width: "auto" 
+                  }}
                   value={timeTo}
                   onChange={(e) => { setTimeTo(e.target.value); setCurrentPage(1); }}
-                  placeholder="To Time"
-                  style={{ width: "auto" }}
                 />
               </div>
               <input
                 type="text"
-                className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                style={{ 
+                  padding: "0.5rem", 
+                  border: `1px solid ${styles.border}`, 
+                  borderRadius: styles.radius, 
+                  backgroundColor: styles.input, 
+                  color: styles.foreground,
+                  width: "200px" 
+                }}
                 value={productFilter}
                 onChange={(e) => { setProductFilter(e.target.value); setCurrentPage(1); }}
                 placeholder="Filter by Product"
-                style={{ width: "200px" }}
               />
               <input
                 type="text"
-                className={`form-control ${theme === 'light' ? 'bg-white text-dark border-dark' : 'bg-dark text-white border-white'}`}
+                style={{ 
+                  padding: "0.5rem", 
+                  border: `1px solid ${styles.border}`, 
+                  borderRadius: styles.radius, 
+                  backgroundColor: styles.input, 
+                  color: styles.foreground,
+                  width: "200px" 
+                }}
                 value={customerFilter}
                 onChange={(e) => { setCustomerFilter(e.target.value); setCurrentPage(1); }}
                 placeholder="Filter by Customer"
-                style={{ width: "200px" }}
               />
             </div>
           )}
           {(selectedReport === "monthlyStock" || selectedReport === "yearlyStock") && (
-            <div className="mt-3">
-              <label className="me-2">Year:</label>
-              <select
-                value={selectedYear}
-                onChange={(e) => setSelectedYear(e.target.value)}
-                className={`form-select d-inline-block w-auto ${theme === 'light' ? 'bg-white text-dark' : 'bg-dark text-white'}`}
-              >
-                <option value="">Select Year</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
+            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div>
+                <label style={{ marginRight: "0.5rem", color: styles.textColor }}>Year:</label>
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  style={{ 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground,
+                    width: "auto" 
+                  }}
+                >
+                  <option value="">Select Year</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
               {selectedReport === "monthlyStock" && (
-                <>
-                  <label className="ms-3 me-2">Month:</label>
+                <div>
+                  <label style={{ marginRight: "0.5rem", color: styles.textColor }}>Month:</label>
                   <select
                     value={selectedMonth}
                     onChange={(e) => setSelectedMonth(e.target.value)}
-                    className={`form-select d-inline-block w-auto ${theme === 'light' ? 'bg-white text-dark' : 'bg-dark text-white'}`}
+                    style={{ 
+                      padding: "0.5rem", 
+                      border: `1px solid ${styles.border}`, 
+                      borderRadius: styles.radius, 
+                      backgroundColor: styles.input, 
+                      color: styles.foreground,
+                      width: "auto" 
+                    }}
                   >
                     <option value="">Select Month</option>
                     {monthNames.map((month, index) => (
                       <option key={index} value={index + 1}>{month}</option>
                     ))}
                   </select>
-                </>
+                </div>
               )}
               <button
-                className="btn btn-primary ms-3"
+                style={{ 
+                  padding: "0.5rem 1rem", 
+                  backgroundColor: isReportReady ? styles.primary : styles.disabledBg, 
+                  color: isReportReady ? styles.primaryForeground : styles.mutedForeground, 
+                  border: "none", 
+                  borderRadius: styles.radius, 
+                  cursor: isReportReady ? "pointer" : "not-allowed" 
+                }}
                 disabled={!isReportReady}
                 onClick={generateStockReport}
               >

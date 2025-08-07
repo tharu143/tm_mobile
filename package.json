@@ -1,34 +1,139 @@
 {
   "name": "retail",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "description": "Retail application with Flask backend and Electron frontend",
+  "author": "Your Name <your.email@example.com>",
+  "main": "electron.cjs",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "electron": "electron .",
+    "start-flask": "python app.py",
+    "start": "concurrently \"npm run start-flask\" \"npm run electron\"",
+    "build:flask": "pyinstaller app.spec",
+    "postbuild:flask": "if exist dist\\flask_server.exe if not exist flask_server mkdir flask_server & move dist\\flask_server.exe flask_server\\flask_server.exe",
+    "copy-flask-dist": "if not exist flask_server\\dist mkdir flask_server\\dist && xcopy dist\\assets flask_server\\dist\\assets /E /I /Y && copy dist\\index.html flask_server\\dist\\index.html",
+    "build:electron": "electron-builder --win nsis --x64",
+    "build-all": "npm run build && npm run build:flask && npm run postbuild:flask && npm run copy-flask-dist && npm run build:electron",
+    "start-prod": "dist\\win-unpacked\\RetailApp.exe",
+    "clear-esbuild": "rmdir /s /q node_modules\\.bin\\esbuild && npm install"
   },
   "dependencies": {
-    "@radix-ui/react-tooltip": "^1.1.2",
-    "@tanstack/react-query": "^5.51.1",
-    "axios": "^1.10.0",
+    "@reduxjs/toolkit": "^2.5.1",
+    "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.441.0",
+    "electron-store": "^10.0.1",
+    "electron-updater": "^6.6.2",
+    "exceljs": "^4.4.0",
+    "jspdf": "^3.0.0",
+    "jspdf-autotable": "^4.0.0",
+    "lucide-react": "^0.511.0",
+    "nodemailer": "^6.10.0",
+    "number-to-words": "^1.2.4",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.9",
+    "react-bootstrap-typeahead": "^6.4.1",
     "react-chartjs-2": "^5.3.0",
+    "react-datepicker": "^8.1.0",
     "react-dom": "^18.3.1",
-    "react-hot-toast": "^2.4.1",
-    "react-router-dom": "^7.6.2",
-    "recharts": "^3.0.2",
-    "sonner": "^1.5.0",
-    "tailwind-merge": "^3.3.1",
-    "xlsx": "^0.18.5"
+    "react-icons": "^5.5.0",
+    "react-qr-code": "^2.0.15",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.4.0",
+    "react-select": "^5.10.1",
+    "redux-persist": "^6.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.8"
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^7.6.0",
+    "electron": "^34.5.8",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.8",
+    "eslint": "^9.17.0",
+    "eslint-plugin-react": "^7.37.2",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.13.0",
+    "vite": "^6.3.5"
+  },
+  "build": {
+    "appId": "com.manoj.retail",
+    "productName": "RetailApp",
+    "asar": true,
+    "asarUnpack": [
+      "mongodb-binaries/mongod.exe",
+      "flask_server/flask_server.exe",
+      "flask_server/dist/**/*",
+      "Uploads/**/*"
+    ],
+    "files": [
+      "electron.cjs",
+      "dist/**/*",
+      "mongodb-binaries/mongod.exe",
+      "flask_server/flask_server.exe",
+      "flask_server/dist/**/*",
+      "Uploads/**/*",
+      "LICENSE.txt",
+      "public/kyle-logo.ico",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "mongodb-binaries/mongod.exe",
+        "to": "mongodb-binaries/mongod.exe"
+      },
+      {
+        "from": "flask_server/flask_server.exe",
+        "to": "flask_server/flask_server.exe"
+      },
+      {
+        "from": "flask_server/dist/",
+        "to": "flask_server/dist/"
+      },
+      {
+        "from": "Uploads/",
+        "to": "Uploads/",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "LICENSE.txt",
+        "to": "LICENSE.txt"
+      },
+      {
+        "from": "public/kyle-logo.ico",
+        "to": "public/kyle-logo.ico"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/kyle-logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "public/kyle-logo.ico",
+      "uninstallerIcon": "public/kyle-logo.ico",
+      "artifactName": "RetailApp-Setup-${version}.exe"
+    },
+    "directories": {
+      "output": "dist"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "your-github-username",
+        "repo": "retail",
+        "releaseType": "release"
+      }
+    ]
   }
 }

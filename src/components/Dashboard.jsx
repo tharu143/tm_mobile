@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { DollarSign, Users, AlertTriangle, TrendingUp, ShoppingCart, Eye, Phone } from "lucide-react";
+import { DollarSign, Users, AlertTriangle, TrendingUp, ShoppingCart, Eye, Phone, Sun, Moon, Leaf, Grid } from "lucide-react";
 import Chart from 'chart.js/auto';
 
-const Dashboard = ({ theme }) => {
+const Dashboard = ({ theme, setTheme }) => {
   const [stats, setStats] = useState({
     todaySales: 0,
     totalCustomers: 0,
@@ -21,11 +21,224 @@ const Dashboard = ({ theme }) => {
   const [showAllSales, setShowAllSales] = useState(false);
   const [salesChartData, setSalesChartData] = useState(null);
   const [inventoryChartData, setInventoryChartData] = useState(null);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
 
   const salesChartRef = useRef(null);
   const inventoryChartRef = useRef(null);
 
-  // Fetch dashboard data from backend
+  const themeStyles = {
+    light: {
+      bgColor: "hsl(240 20% 98%)",
+      foreground: "hsl(220 25% 15%)",
+      card: "#ffffff",
+      cardForeground: "hsl(220 25% 15%)",
+      primary: "hsl(217 91% 60%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(210 40% 96%)",
+      secondaryForeground: "hsl(220 25% 15%)",
+      muted: "hsl(220 13% 95%)",
+      mutedForeground: "hsl(220 9% 46%)",
+      accent: "hsl(38 92% 50%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(220 13% 91%)",
+      input: "hsl(220 13% 91%)",
+      ring: "hsl(217 91% 60%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      gradientAccent: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      shadowElegant: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.1)",
+      radius: "0.75rem",
+      textColor: "hsl(220 25% 15%)",
+      secondaryTextColor: "hsl(220 9% 46%)",
+      cardBg: "#ffffff",
+      borderColor: "hsl(220 13% 91%) / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "hsl(217 91% 60%)",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "hsl(210 40% 96%)",
+      buttonOutlineText: "hsl(220 25% 15%)",
+      dropdownBg: "#ffffff",
+      disabledBg: "hsl(220 13% 95%)",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "hsl(220 13% 95%)",
+      placeholderImageBg: "hsl(220 13% 95%)",
+      placeholderImageText: "hsl(220 9% 46%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    dark: {
+      bgColor: "hsl(240 10% 8%)",
+      foreground: "#ffffff",
+      card: "hsl(240 10% 12%)",
+      cardForeground: "#ffffff",
+      primary: "hsl(262 83% 58%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(240 4% 16%)",
+      secondaryForeground: "#ffffff",
+      muted: "hsl(240 4% 16%)",
+      mutedForeground: "hsl(240 5% 65%)",
+      accent: "hsl(142 71% 45%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(240 4% 16%)",
+      input: "hsl(240 4% 16%)",
+      ring: "hsl(262 83% 58%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      gradientAccent: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      shadowElegant: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.3)",
+      radius: "0.75rem",
+      textColor: "#ffffff",
+      secondaryTextColor: "hsl(240 5% 65%)",
+      cardBg: "hsl(240 10% 12%)",
+      borderColor: "hsl(240 4% 16%) / 50%",
+      inputBg: "hsl(240 4% 16%)",
+      buttonBg: "hsl(262 83% 58%)",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "hsl(240 4% 16%)",
+      buttonOutlineText: "#ffffff",
+      dropdownBg: "hsl(240 10% 12%)",
+      disabledBg: "hsl(240 4% 16%)",
+      shadow: "0 1px 3px rgba(0,0,0,0.3)",
+      popupBg: "hsl(240 10% 12%)",
+      inputReadOnlyBg: "hsl(240 4% 16%)",
+      placeholderImageBg: "hsl(240 4% 16%)",
+      placeholderImageText: "hsl(240 5% 65%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#4caf50",
+      primaryForeground: "#ffffff",
+      secondary: "#e8f5e9",
+      secondaryForeground: "#1f2937",
+      muted: "#e0f2f1",
+      mutedForeground: "#4b5563",
+      accent: "#ff9800",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#a7d4a0",
+      input: "#ffffff",
+      ring: "#4caf50",
+      gradientPrimary: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      gradientAccent: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      shadowElegant: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#a7d4a0 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#4caf50",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "#e8f5e9",
+      buttonOutlineText: "#1f2937",
+      dropdownBg: "#ffffff",
+      disabledBg: "#e0f2f1",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#e0f2f1",
+      placeholderImageBg: "#e0f2f1",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#ff9800",
+      primaryForeground: "#ffffff",
+      secondary: "#ffedd5",
+      secondaryForeground: "#1f2937",
+      muted: "#ffe7ba",
+      mutedForeground: "#4b5563",
+      accent: "#ff5722",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#fdba74",
+      input: "#ffffff",
+      ring: "#ff9800",
+      gradientPrimary: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      gradientAccent: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      shadowElegant: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#fdba74 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#ff9800",
+      buttonText: "#ffffff",
+      buttonOutlineBg: "#ffedd5",
+      buttonOutlineText: "#1f2937",
+      dropdownBg: "#ffffff",
+      disabledBg: "#ffe7ba",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#ffe7ba",
+      placeholderImageBg: "#ffe7ba",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+  };
+
+  const styles = themeStyles[theme] || themeStyles.light;
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -78,8 +291,8 @@ const Dashboard = ({ theme }) => {
         datasets: [{
           label: 'Sales',
           data: data,
-          borderColor: theme === "light" ? '#007bff' : '#ffffff', // White line in dark theme
-          backgroundColor: theme === "light" ? 'rgba(0, 123, 255, 0.1)' : 'rgba(255, 255, 255, 0.1)',
+          borderColor: styles.primary,
+          backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)'),
           fill: true,
           tension: 0.4,
         }]
@@ -135,14 +348,14 @@ const Dashboard = ({ theme }) => {
             legend: { 
               position: 'top',
               labels: {
-                color: theme === "light" ? "#1f2937" : "#ffffff"
+                color: styles.textColor
               }
             },
             title: { 
               display: true, 
               text: 'Sales Trend (Last 7 Days)', 
               font: { size: 16 },
-              color: theme === "light" ? "#1f2937" : "#ffffff"
+              color: styles.textColor
             }
           },
           scales: {
@@ -151,26 +364,26 @@ const Dashboard = ({ theme }) => {
               title: { 
                 display: true, 
                 text: 'Sales Amount (₹)',
-                color: theme === "light" ? "#1f2937" : "#ffffff"
+                color: styles.textColor
               },
               ticks: {
-                color: theme === "light" ? "#6b7280" : "#ffffff" // White ticks in dark theme
+                color: styles.secondaryTextColor
               },
               grid: {
-                color: theme === "light" ? "rgba(0, 0, 0, 0.1)" : "rgba(255, 255, 255, 0.1)"
+                color: styles.borderColor
               }
             },
             x: {
               title: { 
                 display: true, 
                 text: 'Date',
-                color: theme === "light" ? "#1f2937" : "#ffffff"
+                color: styles.textColor
               },
               ticks: {
-                color: theme === "light" ? "#6b7280" : "#ffffff" // White ticks in dark theme
+                color: styles.secondaryTextColor
               },
               grid: {
-                color: theme === "light" ? "rgba(0, 0, 0, 0.1)" : "rgba(255, 255, 255, 0.1)"
+                color: styles.borderColor
               }
             }
           }
@@ -197,7 +410,7 @@ const Dashboard = ({ theme }) => {
               labels: {
                 boxWidth: 20,
                 padding: 20,
-                color: theme === "light" ? "#1f2937" : "#ffffff",
+                color: styles.textColor,
                 generateLabels: function(chart) {
                   const data = chart.data;
                   if (data.labels.length && data.datasets.length) {
@@ -221,7 +434,7 @@ const Dashboard = ({ theme }) => {
               display: true,
               text: 'Low Stock Items Distribution',
               font: { size: 16 },
-              color: theme === "light" ? "#1f2937" : "#ffffff"
+              color: styles.textColor
             },
             tooltip: {
               callbacks: {
@@ -233,9 +446,9 @@ const Dashboard = ({ theme }) => {
                   return `${label}: ${value} units (${percentage}%)`;
                 }
               },
-              backgroundColor: theme === "light" ? "#1f2937" : "#ffffff",
-              titleColor: theme === "light" ? "#ffffff" : "#1f2937",
-              bodyColor: theme === "light" ? "#ffffff" : "#1f2937"
+              backgroundColor: styles.cardBg,
+              titleColor: styles.textColor,
+              bodyColor: styles.textColor
             }
           }
         }
@@ -296,268 +509,378 @@ const Dashboard = ({ theme }) => {
     }
   };
 
+  const themeOptions = [
+    { id: "light", label: "Light", icon: Sun },
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "nature", label: "Nature", icon: Leaf },
+    { id: "sunset", label: "Sunset", icon: Grid },
+  ];
+
+  const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
+
   if (loading) {
-    return <div className="text-center py-5">Loading dashboard...</div>;
+    return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading dashboard...</div>;
   }
 
   if (error) {
-    return <div className="text-center py-5 text-danger">{error}</div>;
+    return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
   }
 
   return (
-    <div className={`container-fluid p-4 ${theme === "light" ? "bg-light" : "bg-dark text-white"}`}>
-      <div className="d-flex align-items-center justify-content-between mb-4">
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <div>
-          <h1 className="h3 fw-bold">Dashboard</h1>
-          <p className={theme === "light" ? "text-muted" : "text-light"}>Welcome back! Here's what's happening at your shop today.</p>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Dashboard</h1>
+          <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>
+            Welcome back! Here's what's happening at your shop today.
+          </p>
         </div>
-        <div className={`d-flex align-items-center ${theme === "light" ? "text-muted" : "text-light"} small`}>
-          <Phone size={16} className="me-2" />
-          Last updated: {new Date().toLocaleTimeString()}
-        </div>
-      </div>
-
-      <div className="row g-4 mb-4">
-        <div className="col-lg-3 col-md-6">
-          <div className={`card shadow-sm h-100 ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className="card-body p-4">
-              <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
-                  <div className="p-2 rounded bg-success bg-opacity-10 me-3">
-                    <DollarSign size={20} className="text-success" />
-                  </div>
-                  <div>
-                    <p className={theme === "light" ? "text-muted small mb-1" : "text-white small mb-1"}>Today's Sales</p>
-                    <h5 className={`fw-bold mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>₹{stats.todaySales.toLocaleString()}</h5>
-                  </div>
-                </div>
-                <span className={`badge bg-success bg-opacity-10 ${theme === "light" ? "text-success" : "text-white"}`}>+12%</span>
-              </div>
-            </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>
+            <Phone size={16} />
+            Last updated: {new Date().toLocaleTimeString()}
           </div>
-        </div>
-        <div className="col-lg-3 col-md-6">
-          <div className={`card shadow-sm h-100 ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className="card-body p-4">
-              <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
-                  <div className="p-2 rounded bg-primary bg-opacity-10 me-3">
-                    <Users size={20} className="text-primary" />
-                  </div>
-                  <div>
-                    <p className={theme === "light" ? "text-muted small mb-1" : "text-white small mb-1"}>Total Customers</p>
-                    <h5 className={`fw-bold mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>{stats.totalCustomers}</h5>
-                  </div>
-                </div>
-                <span className={`badge bg-primary bg-opacity-10 ${theme === "light" ? "text-primary" : "text-white"}`}>+5%</span>
-              </div>
+          <div style={{ position: "relative" }}>
+            <div 
+              onClick={() => setShowThemeDropdown(!showThemeDropdown)} 
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "0.5rem", 
+                padding: "0.5rem 1rem", 
+                backgroundColor: styles.card, 
+                color: styles.primary, 
+                border: `1px solid ${styles.border}`, 
+                borderRadius: styles.radius, 
+                cursor: "pointer", 
+                fontWeight: "500", 
+                transition: "all 0.2s ease-in-out" 
+              }}
+            >
+              {selectedTheme && <selectedTheme.icon size={16} />}
+              {selectedTheme && selectedTheme.label}
             </div>
-          </div>
-        </div>
-        <div className="col-lg-3 col-md-6">
-          <div className={`card shadow-sm h-100 ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className="card-body p-4">
-              <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
-                  <div className="p-2 rounded bg-danger bg-opacity-10 me-3">
-                    <AlertTriangle size={20} className="text-danger" />
-                  </div>
-                  <div>
-                    <p className={theme === "light" ? "text-muted small mb-1" : "text-white small mb-1"}>Low Stock Items</p>
-                    <h5 className={`fw-bold mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>{stats.lowStockItems}</h5>
-                  </div>
-                </div>
-                <span className={`badge ${theme === "light" ? "bg-danger text-white" : "bg-danger text-white"}`}>Alert</span>
+            {showThemeDropdown && (
+              <div style={{ 
+                position: "absolute", 
+                right: 0,
+                top: "100%",
+                backgroundColor: styles.dropdownBg, 
+                border: `1px solid ${styles.border}`, 
+                borderRadius: styles.radius, 
+                marginTop: "0.5rem", 
+                zIndex: 10 
+              }}>
+                {themeOptions.map((option) => (
+                  <button 
+                    key={option.id} 
+                    onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }} 
+                    style={{ 
+                      display: "flex", 
+                      alignItems: "center", 
+                      gap: "0.5rem", 
+                      padding: "0.5rem", 
+                      backgroundColor: theme === option.id ? styles.primary : "transparent", 
+                      color: theme === option.id ? styles.primaryForeground : styles.foreground, 
+                      border: "none", 
+                      borderRadius: styles.radius, 
+                      cursor: "pointer", 
+                      textAlign: "left" 
+                    }}
+                  >
+                    <option.icon size={16} />
+                    {option.label}
+                  </button>
+                ))}
               </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-lg-3 col-md-6">
-          <div className={`card shadow-sm h-100 ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className="card-body p-4">
-              <div className="d-flex align-items-center justify-content-between">
-                <div className="d-flex align-items-center">
-                  <div className="p-2 rounded me-3" style={{ backgroundColor: "rgba(128, 0, 128, 0.1)" }}>
-                    <TrendingUp size={20} style={{ color: "purple" }} />
-                  </div>
-                  <div>
-                    <p className={theme === "light" ? "text-muted small mb-1" : "text-white small mb-1"}>Total Revenue</p>
-                    <h5 className={`fw-bold mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>₹{stats.totalRevenue.toLocaleString()}</h5>
-                  </div>
-                </div>
-                <span className={`badge ${theme === "light" ? "text-purple" : "text-white"}`} style={{ backgroundColor: "rgba(128, 0, 128, 0.1)" }}>+8%</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="row g-4">
-        <div className="col-lg-8">
-          <div className={`card shadow-sm ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className={`card-header border-bottom d-flex align-items-center justify-content-between ${theme === "light" ? "bg-white" : "bg-dark"}`}>
-              <h5 className={`mb-0 d-flex align-items-center ${theme === "light" ? "text-dark" : "text-white"}`}>
-                <ShoppingCart size={20} className="me-2" />
-                Recent Sales
-              </h5>
-              {allTodaySales.length > 3 && (
-                <button className={`btn btn-outline-primary btn-sm ${theme === "light" ? "" : "text-light border-light"}`} onClick={showAllSales ? handleShowLess : handleViewAll}>
-                  {showAllSales ? "Show Less" : "View All"}
-                </button>
-              )}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                <DollarSign size={20} style={{ color: styles.statusSuccess }} />
+              </div>
+              <div>
+                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Today's Sales</p>
+                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.todaySales.toLocaleString()}</h5>
+              </div>
             </div>
-            <div className="card-body p-4">
-              {recentSales.length === 0 ? (
-                <p className={theme === "light" ? "text-center text-muted" : "text-center text-white"}>No sales today</p>
-              ) : (
-                <div className="table-responsive">
-                  <table className={`table table-hover ${theme === "light" ? "" : "table-dark"}`}>
-                    <thead>
-                      <tr>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Invoice ID</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Date</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Customer</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Product</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Quantity</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Amount</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Grand Total</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Payment</th>
-                        <th className={theme === "light" ? "text-dark" : "text-white"}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentSales.map((sale) => (
-                        <tr
-                          key={sale._id}
-                          style={{ transition: "background-color 0.2s" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = theme === "light" ? "#f8f9fa" : "#4b5563")}
-                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = theme === "light" ? "white" : "#343a40")}
-                        >
-                          <td className={`fw-medium ${theme === "light" ? "text-dark" : "text-white"}`}>{sale.invoiceId}</td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>{new Date(sale.timestamp).toLocaleDateString()}</td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>{sale.customer?.name || "N/A"}</td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>
-                            {sale.items.map((item, index) => (
-                              <div key={index}>
-                                {item.name} (₹{item.price.toLocaleString()} x {item.quantity})
-                              </div>
-                            ))}
-                          </td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>₹{sale.subtotal.toLocaleString()}</td>
-                          <td className={theme === "light" ? "text-dark" : "text-white"}>₹{sale.total.toLocaleString()}</td>
-                          <td>
-                            <span
-                              className={`badge ${
-                                sale.paymentMethod === "cash"
-                                  ? "bg-success bg-opacity-10 text-success"
-                                  : "bg-secondary bg-opacity-10 text-secondary"
-                              }`}
-                            >
-                              {sale.paymentMethod}
-                            </span>
-                          </td>
-                          <td>
-                            <button className={`btn btn-outline-secondary btn-sm ${theme === "light" ? "" : "text-light border-light"}`}>
-                              <Eye size={16} />
-                            </button>
-                          </td>
-                        </tr>
+            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.statusSuccess }}>+12%</span>
+          </div>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                <Users size={20} style={{ color: styles.primary }} />
+              </div>
+              <div>
+                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Customers</p>
+                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.totalCustomers}</h5>
+              </div>
+            </div>
+            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.primary }}>+5%</span>
+          </div>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusDestructive.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                <AlertTriangle size={20} style={{ color: styles.statusDestructive }} />
+              </div>
+              <div>
+                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Low Stock Items</p>
+                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.lowStockItems}</h5>
+              </div>
+            </div>
+            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusDestructive, color: styles.destructiveForeground }}>Alert</span>
+          </div>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                <TrendingUp size={20} style={{ color: styles.accent }} />
+              </div>
+              <div>
+                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Revenue</p>
+                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.totalRevenue.toLocaleString()}</h5>
+              </div>
+            </div>
+            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.accent }}>+8%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "1rem" }}>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.textColor, margin: 0 }}>
+              <ShoppingCart size={20} />
+              Recent Sales
+            </h5>
+            {allTodaySales.length > 3 && (
+              <button 
+                style={{ 
+                  padding: "0.5rem 1rem", 
+                  backgroundColor: styles.buttonOutlineBg, 
+                  color: styles.buttonOutlineText, 
+                  border: `1px solid ${styles.border}`, 
+                  borderRadius: styles.radius, 
+                  cursor: "pointer" 
+                }} 
+                onClick={showAllSales ? handleShowLess : handleViewAll}
+              >
+                {showAllSales ? "Show Less" : "View All"}
+              </button>
+            )}
+          </div>
+          <div style={{ padding: "1rem" }}>
+            {recentSales.length === 0 ? (
+              <p style={{ textAlign: "center", color: styles.mutedForeground }}>No sales today</p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr>
+                      {["Invoice ID", "Date", "Customer", "Product", "Quantity", "Amount", "Grand Total", "Payment", "Actions"].map((header) => (
+                        <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentSales.map((sale) => (
+                      <tr 
+                        key={sale._id}
+                        style={{ transition: "background-color 0.2s" }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = styles.muted}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.cardBg}
+                      >
+                        <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{sale.invoiceId}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{new Date(sale.timestamp).toLocaleDateString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.customer?.name || "N/A"}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
+                          {sale.items.map((item, index) => (
+                            <div key={index}>
+                              {item.name} (₹{item.price.toLocaleString()} x {item.quantity})
+                            </div>
+                          ))}
+                        </td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.subtotal.toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.total.toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
+                          <span
+                            style={{
+                              padding: "0.25rem 0.5rem",
+                              borderRadius: styles.radius,
+                              backgroundColor: sale.paymentMethod === "cash" ? styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') : styles.secondary,
+                              color: sale.paymentMethod === "cash" ? styles.statusSuccess : styles.secondaryForeground
+                            }}
+                          >
+                            {sale.paymentMethod}
+                          </span>
+                        </td>
+                        <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
+                          <button 
+                            style={{ 
+                              padding: "0.25rem 0.5rem", 
+                              backgroundColor: styles.buttonOutlineBg, 
+                              color: styles.buttonOutlineText, 
+                              border: `1px solid ${styles.border}`, 
+                              borderRadius: styles.radius,
+                              cursor: "pointer"
+                            }}
+                          >
+                            <Eye size={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
-        <div className="col-lg-4">
-          <div className={`card shadow-sm ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className={`card-header border-bottom ${theme === "light" ? "bg-white" : "bg-dark"}`}>
-              <h5 className={`mb-0 d-flex align-items-center ${theme === "light" ? "text-warning" : "text-warning"}`}>
-                <AlertTriangle size={20} className="me-2" />
-                Inventory Alerts
-              </h5>
-            </div>
-            <div className="card-body p-4">
-              {lowStockItems.length === 0 ? (
-                <p className={theme === "light" ? "text-center text-muted" : "text-center text-white"}>No low stock items</p>
-              ) : (
-                lowStockItems.map((item) => (
-                  <div key={item._id} className={`d-flex align-items-center justify-content-between p-3 border rounded mb-3 ${theme === "light" ? "border-light" : "border-dark"}`}>
-                    <div className="d-flex align-items-center">
-                      {item.image && (
-                        <img
-                          src={`http://localhost:5000${item.image}`}
-                          alt={item.name}
-                          style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "0.25rem", marginRight: "0.75rem" }}
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.warning, margin: 0 }}>
+              <AlertTriangle size={20} />
+              Inventory Alerts
+            </h5>
+          </div>
+          <div style={{ padding: "1rem" }}>
+            {lowStockItems.length === 0 ? (
+              <p style={{ textAlign: "center", color: styles.mutedForeground }}>No low stock items</p>
+            ) : (
+              lowStockItems.map((item) => (
+                <div 
+                  key={item._id} 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "space-between", 
+                    padding: "0.75rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    marginBottom: "0.75rem" 
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                    {item.image && (
+                      <img
+                        src={`http://localhost:5000${item.image}`}
+                        alt={item.name}
+                        style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "0.25rem" }}
+                      />
+                    )}
+                    <div>
+                      <p style={{ fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>{item.name}</p>
+                      <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>
+                        Units: {item.stock} left
+                      </p>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <input
+                          type="number"
+                          style={{ 
+                            width: "80px", 
+                            padding: "0.5rem", 
+                            border: `1px solid ${styles.border}`, 
+                            borderRadius: styles.radius, 
+                            backgroundColor: styles.input, 
+                            color: styles.foreground 
+                          }}
+                          placeholder="Restock Qty"
+                          value={stockInputs[item._id] || ''}
+                          onChange={(e) => handleStockInputChange(item._id, e.target.value)}
+                          min="0"
                         />
-                      )}
-                      <div>
-                        <p className={`fw-medium mb-1 ${theme === "light" ? "text-dark" : "text-white"}`}>{item.name}</p>
-                        <p className={theme === "light" ? "text-muted small mb-1" : "text-white small mb-1"}>
-                          Units: {item.stock} left
-                        </p>
-                        <div className="d-flex align-items-center">
-                          <input
-                            type="number"
-                            className={`form-control form-control-sm me-2 ${theme === "light" ? "" : "bg-dark text-white border-light"}`}
-                            style={{ width: "80px" }}
-                            placeholder="Restock Qty"
-                            value={stockInputs[item._id] || ''}
-                            onChange={(e) => handleStockInputChange(item._id, e.target.value)}
-                            min="0"
-                          />
-                          <input
-                            type="number"
-                            className={`form-control form-control-sm ${theme === "light" ? "" : "bg-dark text-white border-light"}`}
-                            style={{ width: "80px" }}
-                            placeholder="Min Stock"
-                            value={minStockInputs[item._id] || item.minStock}
-                            onChange={(e) => handleMinStockInputChange(item._id, e.target.value)}
-                            min="1"
-                          />
-                        </div>
+                        <input
+                          type="number"
+                          style={{ 
+                            width: "80px", 
+                            padding: "0.5rem", 
+                            border: `1px solid ${styles.border}`, 
+                            borderRadius: styles.radius, 
+                            backgroundColor: styles.input, 
+                            color: styles.foreground 
+                          }}
+                          placeholder="Min Stock"
+                          value={minStockInputs[item._id] || item.minStock}
+                          onChange={(e) => handleMinStockInputChange(item._id, e.target.value)}
+                          min="1"
+                        />
                       </div>
                     </div>
-                    <span className={`badge ${item.stock === 0 ? "bg-danger text-white" : "bg-warning text-dark"}`}>
-                      {item.stock === 0 ? "Out of Stock" : "Low Stock"}
-                    </span>
                   </div>
-                ))
-              )}
-              <div className="d-flex justify-content-between">
-                <button className={`btn btn-outline-primary w-100 me-2 mt-3 ${theme === "light" ? "" : "text-light border-light"}`} onClick={handleManualRestock}>
-                  Restock Selected
-                </button>
-                <button className={`btn btn-outline-secondary w-100 mt-3 ${theme === "light" ? "" : "text-light border-light"}`} onClick={handleAutoRestock}>
-                  Auto Restock
-                </button>
-              </div>
+                  <span 
+                    style={{ 
+                      padding: "0.25rem 0.5rem", 
+                      borderRadius: styles.radius, 
+                      backgroundColor: item.stock === 0 ? styles.statusDestructive : styles.statusWarning,
+                      color: item.stock === 0 ? styles.destructiveForeground : styles.warningForeground
+                    }}
+                  >
+                    {item.stock === 0 ? "Out of Stock" : "Low Stock"}
+                  </span>
+                </div>
+              ))
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem", marginTop: "1rem" }}>
+              <button 
+                style={{ 
+                  flex: 1, 
+                  padding: "0.5rem", 
+                  backgroundColor: styles.primary, 
+                  color: styles.primaryForeground, 
+                  border: "none", 
+                  borderRadius: styles.radius, 
+                  cursor: "pointer" 
+                }} 
+                onClick={handleManualRestock}
+              >
+                Restock Selected
+              </button>
+              <button 
+                style={{ 
+                  flex: 1, 
+                  padding: "0.5rem", 
+                  backgroundColor: styles.buttonOutlineBg, 
+                  color: styles.buttonOutlineText, 
+                  border: `1px solid ${styles.border}`, 
+                  borderRadius: styles.radius, 
+                  cursor: "pointer" 
+                }} 
+                onClick={handleAutoRestock}
+              >
+                Auto Restock
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="row g-4 mt-4">
-        <div className="col-lg-6">
-          <div className={`card shadow-sm ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className={`card-header border-bottom ${theme === "light" ? "bg-white" : "bg-dark"}`}>
-              <h5 className={`mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>Sales Trend (Last 7 Days)</h5>
-            </div>
-            <div className="card-body">
-              <canvas id="salesChart" style={{ height: '300px' }}></canvas>
-            </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Sales Trend (Last 7 Days)</h5>
+          </div>
+          <div style={{ padding: "1rem" }}>
+            <canvas id="salesChart" style={{ height: '300px' }}></canvas>
           </div>
         </div>
-        <div className="col-lg-6">
-          <div className={`card shadow-sm ${theme === "light" ? "bg-white" : "bg-dark border-light"}`}>
-            <div className={`card-header border-bottom ${theme === "light" ? "bg-white" : "bg-dark"}`}>
-              <h5 className={`mb-0 ${theme === "light" ? "text-dark" : "text-white"}`}>Low Stock Items Distribution</h5>
-            </div>
-            <div className="card-body">
-              <canvas id="inventoryChart" style={{ height: '300px' }}></canvas>
-            </div>
+        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Low Stock Items Distribution</h5>
+          </div>
+          <div style={{ padding: "1rem" }}>
+            <canvas id="inventoryChart" style={{ height: '300px' }}></canvas>
           </div>
         </div>
       </div>

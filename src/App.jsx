@@ -14,9 +14,10 @@ function App() {
   const [theme, setTheme] = useState("light");
 
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
+    const newTheme = theme === "light" ? "dark" : theme === "dark" ? "nature" : theme === "nature" ? "sunset" : "light";
     setTheme(newTheme);
-    document.body.classList.toggle("dark", newTheme === "dark");
+    document.body.classList.remove("light", "dark", "nature", "sunset");
+    document.body.classList.add(newTheme);
   };
 
   return (
@@ -25,7 +26,7 @@ function App() {
         className={`d-flex ${theme}`}
         style={{
           minHeight: "100%",
-          backgroundColor: theme === "light" ? "#f8f9fa" : "#1a1a1a",
+          backgroundColor: theme === "light" ? "#f8f9fa" : theme === "dark" ? "#1a1a1a" : theme === "nature" ? "#f0f7f4" : "#fff7ed",
         }}
       >
         <style>
@@ -34,15 +35,23 @@ function App() {
               height: 100%;
               margin: 0;
               padding: 0;
-              background-color: ${theme === "light" ? "#f8f9fa" : "#1a1a1a"};
+              background-color: ${theme === "light" ? "#f8f9fa" : theme === "dark" ? "#1a1a1a" : theme === "nature" ? "#f0f7f4" : "#fff7ed"};
+            }
+            .light {
+              background-color: #f8f9fa;
+              color: #000000;
             }
             .dark {
               background-color: #1a1a1a;
               color: #ffffff;
             }
-            .light {
-              background-color: #f8f9fa;
-              color: #000000;
+            .nature {
+              background-color: #f0f7f4;
+              color: #1f2937;
+            }
+            .sunset {
+              background-color: #fff7ed;
+              color: #1f2937;
             }
           `}
         </style>
@@ -55,7 +64,7 @@ function App() {
           toggleTheme={toggleTheme}
         />
         <main
-          className={`flex-grow-1 p-4 ${theme === "light" ? "bg-light text-dark" : "bg-dark text-white"}`}
+          className={`flex-grow-1 p-4 ${theme === "light" ? "bg-light text-dark" : theme === "dark" ? "bg-dark text-white" : theme === "nature" ? "bg-nature text-dark" : "bg-sunset text-dark"}`}
           style={{
             marginLeft: isSidebarOpen ? "250px" : "70px",
             transition: "margin-left 0.3s",
@@ -63,12 +72,12 @@ function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={<Dashboard theme={theme} />} />
-            <Route path="/pos" element={<PointOfSale theme={theme} />} />
-            <Route path="/customers" element={<CustomerManagement theme={theme} />} />
-            <Route path="/inventory" element={<InventoryManagement theme={theme} />} />
-            <Route path="/reports" element={<Reports theme={theme} />} />
-            <Route path="/settings" element={<SettingsPage theme={theme} />} />
+            <Route path="/" element={<Dashboard theme={theme} setTheme={setTheme} />} />
+            <Route path="/pos" element={<PointOfSale theme={theme} setTheme={setTheme} />} />
+            <Route path="/customers" element={<CustomerManagement theme={theme} setTheme={setTheme} />} />
+            <Route path="/inventory" element={<InventoryManagement theme={theme} setTheme={setTheme} />} />
+            <Route path="/reports" element={<Reports theme={theme} setTheme={setTheme} />} />
+            <Route path="/settings" element={<SettingsPage theme={theme} setTheme={setTheme} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>

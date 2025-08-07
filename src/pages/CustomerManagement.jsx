@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, UserPlus, Edit, Trash2 } from "lucide-react";
+import { Search, UserPlus, Edit, Trash2, Sun, Moon, Leaf, Grid } from "lucide-react";
 
 // Simulated initial customer data
 const initialCustomers = [
@@ -33,7 +33,7 @@ const initialCustomers = [
   },
 ];
 
-const CustomerManagement = ({ theme }) => {
+const CustomerManagement = ({ theme, setTheme }) => {
   const [customers, setCustomers] = useState(initialCustomers);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -50,7 +50,153 @@ const CustomerManagement = ({ theme }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const customersPerPage = 10;
+
+  const themeStyles = {
+    light: {
+      bgColor: "hsl(240 20% 98%)",
+      foreground: "hsl(220 25% 15%)",
+      card: "#ffffff",
+      cardForeground: "hsl(220 25% 15%)",
+      primary: "hsl(217 91% 60%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(210 40% 96%)",
+      secondaryForeground: "hsl(220 25% 15%)",
+      muted: "hsl(220 13% 95%)",
+      mutedForeground: "hsl(220 9% 46%)",
+      accent: "hsl(38 92% 50%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(220 13% 91%)",
+      input: "hsl(220 13% 91%)",
+      ring: "hsl(217 91% 60%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      shadowElegant: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.1)",
+      radius: "0.75rem",
+      textColor: "hsl(220 25% 15%)",
+      secondaryTextColor: "hsl(220 9% 46%)",
+      cardBg: "#ffffff",
+      borderColor: "hsl(220 13% 91%) / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "hsl(217 91% 60%)",
+      buttonText: "#ffffff",
+      dropdownBg: "#ffffff",
+    },
+    dark: {
+      bgColor: "hsl(240 10% 8%)",
+      foreground: "#ffffff",
+      card: "hsl(240 10% 12%)",
+      cardForeground: "#ffffff",
+      primary: "hsl(262 83% 58%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(240 4% 16%)",
+      secondaryForeground: "#ffffff",
+      muted: "hsl(240 4% 16%)",
+      mutedForeground: "hsl(240 5% 65%)",
+      accent: "hsl(142 71% 45%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(240 4% 16%)",
+      input: "hsl(240 4% 16%)",
+      ring: "hsl(262 83% 58%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      shadowElegant: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.3)",
+      radius: "0.75rem",
+      textColor: "#ffffff",
+      secondaryTextColor: "hsl(240 5% 65%)",
+      cardBg: "hsl(240 10% 12%)",
+      borderColor: "hsl(240 4% 16%) / 50%",
+      inputBg: "hsl(240 4% 16%)",
+      buttonBg: "hsl(262 83% 58%)",
+      buttonText: "#ffffff",
+      dropdownBg: "hsl(240 10% 12%)",
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#4caf50",
+      primaryForeground: "#ffffff",
+      secondary: "#e8f5e9",
+      secondaryForeground: "#1f2937",
+      muted: "#e0f2f1",
+      mutedForeground: "#4b5563",
+      accent: "#ff9800",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#a7d4a0",
+      input: "#ffffff",
+      ring: "#4caf50",
+      gradientPrimary: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      shadowElegant: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#a7d4a0 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#4caf50",
+      buttonText: "#ffffff",
+      dropdownBg: "#ffffff",
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#ff9800",
+      primaryForeground: "#ffffff",
+      secondary: "#ffedd5",
+      secondaryForeground: "#1f2937",
+      muted: "#ffe7ba",
+      mutedForeground: "#4b5563",
+      accent: "#ff5722",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#fdba74",
+      input: "#ffffff",
+      ring: "#ff9800",
+      gradientPrimary: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      shadowElegant: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#fdba74 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#ff9800",
+      buttonText: "#ffffff",
+      dropdownBg: "#ffffff",
+    },
+  };
+
+  const styles = themeStyles[theme] || themeStyles.light;
 
   // Simulated API fetch
   useEffect(() => {
@@ -216,221 +362,375 @@ const CustomerManagement = ({ theme }) => {
     }
   };
 
+  const themeOptions = [
+    { id: "light", label: "Light", icon: Sun },
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "nature", label: "Nature", icon: Leaf },
+    { id: "sunset", label: "Sunset", icon: Grid },
+  ];
+
+  const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
+
   return (
-    <div className={`container p-4 ${theme === "dark" ? "bg-dark text-white" : "bg-light text-dark"}`}>
-      <div className="d-flex align-items-center justify-content-between mb-4">
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <div>
-          <h1 className={`display-6 fw-bold ${theme === "dark" ? "text-white" : "text-dark"}`}>Customer Management</h1>
-          <p className={`small ${theme === "dark" ? "text-white" : "text-muted"}`}>Manage your customer database</p>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Customer Management</h1>
+          <p style={{ fontSize: "1rem", color: styles.secondaryTextColor, marginBottom: "1rem" }}>Manage your customer database</p>
+        </div>
+        <div style={{ position: "relative" }}>
+          <div 
+            onClick={() => setShowThemeDropdown(!showThemeDropdown)} 
+            style={{ 
+              display: "flex", 
+              alignItems: "center", 
+              gap: "0.5rem", 
+              padding: "0.5rem 1rem", 
+              backgroundColor: styles.card, 
+              color: styles.primary, 
+              border: `1px solid ${styles.border}`, 
+              borderRadius: styles.radius, 
+              cursor: "pointer", 
+              fontWeight: "500", 
+              transition: "all 0.2s ease-in-out" 
+            }}
+          >
+            {selectedTheme && <selectedTheme.icon size={16} />}
+            {selectedTheme && selectedTheme.label}
+          </div>
+          {showThemeDropdown && (
+            <div style={{ 
+              position: "absolute", 
+              right: 0,
+              top: "100%",
+              backgroundColor: styles.dropdownBg, 
+              border: `1px solid ${styles.border}`, 
+              borderRadius: styles.radius, 
+              marginTop: "0.5rem", 
+              zIndex: 10 
+            }}>
+              {themeOptions.map((option) => (
+                <button 
+                  key={option.id} 
+                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }} 
+                  style={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.5rem", 
+                    padding: "0.5rem", 
+                    backgroundColor: theme === option.id ? styles.primary : "transparent", 
+                    color: theme === option.id ? styles.primaryForeground : styles.foreground, 
+                    border: "none", 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer", 
+                    textAlign: "left" 
+                  }}
+                >
+                  <option.icon size={16} />
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        <div style={{ position: "relative", flex: 1 }}>
+          <Search style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} size={16} />
+          <input
+            type="text"
+            placeholder="Search customers by name, phone, email, or city..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            disabled={loading}
+            style={{ 
+              paddingLeft: "2.5rem", 
+              width: "100%", 
+              padding: "0.5rem", 
+              border: `1px solid ${styles.border}`, 
+              borderRadius: styles.radius, 
+              backgroundColor: styles.input, 
+              color: styles.foreground 
+            }}
+          />
         </div>
         <button
-          className={`btn btn-primary d-flex align-items-center ${theme === "dark" ? "bg-primary text-white" : ""}`}
           onClick={addCustomer}
           disabled={loading}
+          style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "0.5rem", 
+            padding: "0.5rem 1rem", 
+            background: styles.gradientPrimary, 
+            color: styles.buttonText, 
+            border: "none", 
+            borderRadius: styles.radius, 
+            cursor: "pointer",
+            transition: "all 0.2s"
+          }}
+          onMouseEnter={(e) => { 
+            e.currentTarget.style.background = styles.gradientAccent; 
+            e.currentTarget.style.transform = "translateY(-1px)"; 
+          }}
+          onMouseLeave={(e) => { 
+            e.currentTarget.style.background = styles.gradientPrimary; 
+            e.currentTarget.style.transform = "translateY(0)"; 
+          }}
         >
-          <UserPlus size={16} className="me-2" />
-          Add Customer
+          <UserPlus size={16} /> Add Customer
         </button>
       </div>
 
-      <div className="input-group mb-4">
-        <span className={`input-group-text ${theme === "dark" ? "bg-dark text-white border-light" : "bg-light text-dark"}`}>
-          <Search size={16} />
-        </span>
-        <input
-          type="text"
-          className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-          placeholder="Search customers by name, phone, email, or city..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          disabled={loading}
-        />
-      </div>
-
       {error && (
-        <div className={`alert ${theme === "dark" ? "alert-dark text-white" : "alert-danger text-dark"}`} role="alert">
+        <div style={{ 
+          backgroundColor: styles.destructive, 
+          color: styles.destructiveForeground, 
+          padding: "1rem", 
+          borderRadius: styles.radius, 
+          marginBottom: "1rem" 
+        }}>
           {error}
         </div>
       )}
 
       {showAddForm && (
-        <div className={`card shadow-sm mb-4 ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}>
-          <div className={`card-header border-bottom ${theme === "dark" ? "bg-dark text-white border-light" : "bg-light text-dark"}`}>
-            <h5 className={`card-title ${theme === "dark" ? "text-white" : "text-dark"}`}>
-              {editingCustomer ? "Edit Customer" : "Add New Customer"}
-            </h5>
-          </div>
-          <div className="card-body p-4">
-            <form onSubmit={handleSubmit}>
-              <div className="row g-4">
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Customer Name *
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="Enter name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Phone Number *
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="+91 9876543210"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="example@gmail.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Date of Birth
-                  </label>
-                  <input
-                    type="date"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    value={formData.dateOfBirth}
-                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    City
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="Enter city"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Pincode
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="600017"
-                    value={formData.pincode}
-                    onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-                    disabled={loading}
-                  />
-                </div>
-                <div className="col-12">
-                  <label className={`form-label fw-medium ${theme === "dark" ? "text-white" : "text-dark"}`}>
-                    Address
-                  </label>
-                  <input
-                    type="text"
-                    className={`form-control ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}
-                    placeholder="Enter address"
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    disabled={loading}
-                  />
-                </div>
-              </div>
-              <div className="d-flex gap-2 pt-4">
-                <button
-                  type="submit"
-                  className={`btn btn-primary ${theme === "dark" ? "bg-primary text-white" : ""}`}
+        <div style={{ backgroundColor: styles.cardBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
+            {editingCustomer ? "Edit Customer" : "Add New Customer"}
+          </h2>
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem" }}>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Customer Name *</label>
+                <input
+                  type="text"
+                  placeholder="Enter name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
                   disabled={loading}
-                >
-                  {loading ? "Processing..." : (editingCustomer ? "Update Customer" : "Add Customer")}
-                </button>
-                <button
-                  type="button"
-                  className={`btn btn-outline-secondary ${theme === "dark" ? "text-white border-light" : "text-dark border-dark"}`}
-                  onClick={resetForm}
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
               </div>
-            </form>
-          </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Phone Number *</label>
+                <input
+                  type="text"
+                  placeholder="+91 9876543210"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  required
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Email</label>
+                <input
+                  type="email"
+                  placeholder="example@gmail.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Date of Birth</label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>City</label>
+                <input
+                  type="text"
+                  placeholder="Enter city"
+                  value={formData.city}
+                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Pincode</label>
+                <input
+                  type="text"
+                  placeholder="600017"
+                  value={formData.pincode}
+                  onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Address</label>
+                <input
+                  type="text"
+                  placeholder="Enter address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  disabled={loading}
+                  style={{ 
+                    width: "100%", 
+                    padding: "0.5rem", 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    fontSize: "1rem", 
+                    backgroundColor: styles.input, 
+                    color: styles.foreground 
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+              <button
+                type="submit"
+                disabled={loading}
+                style={{ 
+                  padding: "0.5rem 1rem", 
+                  backgroundColor: styles.buttonBg, 
+                  color: styles.buttonText, 
+                  border: "none", 
+                  borderRadius: styles.radius, 
+                  cursor: "pointer" 
+                }}
+              >
+                {loading ? "Processing..." : (editingCustomer ? "Update Customer" : "Add Customer")}
+              </button>
+              <button
+                type="button"
+                onClick={resetForm}
+                disabled={loading}
+                style={{ 
+                  padding: "0.5rem 1rem", 
+                  backgroundColor: styles.secondary, 
+                  color: styles.secondaryForeground, 
+                  border: "none", 
+                  borderRadius: styles.radius, 
+                  cursor: "pointer" 
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
-      <div className={`card shadow-sm ${theme === "dark" ? "bg-dark text-white border-light" : "bg-white text-dark"}`}>
-        <div className={`card-header border-bottom ${theme === "dark" ? "bg-dark text-white border-light" : "bg-light text-dark"}`}>
-          <h5 className={`card-title ${theme === "dark" ? "text-white" : "text-dark"}`}>Customer List</h5>
+      <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>
+          Customer List
         </div>
-        <div className="card-body p-4">
-          {loading && <p className={`text-center ${theme === "dark" ? "text-white" : "text-dark"}`}>Loading...</p>}
+        <div style={{ padding: "1.5rem" }}>
+          {loading && <p style={{ textAlign: "center", color: styles.textColor }}>Loading...</p>}
           {!loading && filteredCustomers.length === 0 ? (
-            <p className={`text-center ${theme === "dark" ? "text-white" : "text-muted"}`}>No customers found</p>
+            <p style={{ textAlign: "center", color: styles.mutedForeground }}>No customers found</p>
           ) : (
             <>
-              <div className="table-responsive">
-                <table className={`table ${theme === "dark" ? "table-dark" : "table-light"}`}>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
                   <thead>
                     <tr>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Name</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Phone</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Email</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Address</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>City</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Pincode</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Date of Birth</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Purchases</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Total (₹)</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Last Purchase</th>
-                      <th className={theme === "dark" ? "text-white" : "text-dark"}>Actions</th>
+                      {["Name", "Phone", "Email", "Address", "City", "Pincode", "Date of Birth", "Purchases", "Total (₹)", "Last Purchase", "Actions"].map((header) => (
+                        <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
+                          {header}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {currentCustomers.map((customer) => (
                       <tr key={customer._id}>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.name}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.phone}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.email}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.address}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.city}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.pincode}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.dateOfBirth || "N/A"}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.purchases}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.totalPurchases.toLocaleString()}</td>
-                        <td className={theme === "dark" ? "text-white" : "text-dark"}>{customer.lastPurchase || "N/A"}</td>
-                        <td>
-                          <div className="d-flex gap-2">
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.name}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.phone}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.email}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.address}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.city}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.pincode}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.dateOfBirth || "N/A"}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.purchases}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.totalPurchases.toLocaleString()}</td>
+                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.lastPurchase || "N/A"}</td>
+                        <td style={{ padding: "0.75rem" }}>
+                          <div style={{ display: "flex", gap: "0.5rem" }}>
                             <button
-                              className={`btn btn-outline-primary btn-sm ${theme === "dark" ? "text-white border-light" : "text-dark border-dark"}`}
                               onClick={() => editCustomer(customer)}
                               disabled={loading}
+                              style={{ 
+                                padding: "0.25rem 0.5rem", 
+                                backgroundColor: styles.primary, 
+                                color: styles.primaryForeground, 
+                                border: "none", 
+                                borderRadius: styles.radius 
+                              }}
                             >
                               <Edit size={16} />
                             </button>
                             <button
-                              className={`btn btn-outline-danger btn-sm ${theme === "dark" ? "text-white border-light" : "text-dark border-dark"}`}
                               onClick={() => deleteCustomer(customer._id)}
                               disabled={loading}
+                              style={{ 
+                                padding: "0.25rem 0.5rem", 
+                                backgroundColor: styles.destructive, 
+                                color: styles.destructiveForeground, 
+                                border: "none", 
+                                borderRadius: styles.radius 
+                              }}
                             >
                               <Trash2 size={16} />
                             </button>
@@ -441,21 +741,33 @@ const CustomerManagement = ({ theme }) => {
                   </tbody>
                 </table>
               </div>
-              <div className="d-flex justify-content-between align-items-center mt-4">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
                 <button
-                  className={`btn btn-outline-secondary ${theme === "dark" ? "text-white border-light" : "text-dark border-dark"}`}
                   onClick={handlePrevPage}
                   disabled={currentPage === 1 || loading}
+                  style={{ 
+                    padding: "0.5rem 1rem", 
+                    backgroundColor: styles.primary, 
+                    color: styles.primaryForeground, 
+                    border: "none", 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer" 
+                  }}
                 >
                   Previous
                 </button>
-                <span className={theme === "dark" ? "text-white" : "text-dark"}>
-                  Page {currentPage} of {totalPages}
-                </span>
+                <span style={{ color: styles.textColor }}>Page {currentPage} of {totalPages}</span>
                 <button
-                  className={`btn btn-outline-secondary ${theme === "dark" ? "text-white border-light" : "text-dark border-dark"}`}
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages || loading}
+                  style={{ 
+                    padding: "0.5rem 1rem", 
+                    backgroundColor: styles.primary, 
+                    color: styles.primaryForeground, 
+                    border: "none", 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer" 
+                  }}
                 >
                   Next
                 </button>

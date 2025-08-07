@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, PackagePlus, Edit, Trash2, Package, AlertTriangle, X, FileSpreadsheet, FileUp } from "lucide-react";
+import { Search, PackagePlus, Edit, Trash2, Package, AlertTriangle, X, FileSpreadsheet, FileUp, DollarSign, Grid3x3, Sun, Moon, Leaf, Grid } from "lucide-react";
 import axios from "axios";
-
 // Custom Confirmation Modal Component
 const ConfirmModal = ({ message, onConfirm, onCancel, theme }) => {
   const themeStyles = {
@@ -11,7 +10,7 @@ const ConfirmModal = ({ message, onConfirm, onCancel, theme }) => {
       borderColor: "#d1d5db",
       buttonBgConfirm: "#dc2626",
       buttonBgCancel: "#e5e7eb",
-      buttonTextCancel: "#4b5563",
+      buttonTextCancel: "#4b5563"
     },
     dark: {
       bgColor: "#374151",
@@ -19,140 +18,57 @@ const ConfirmModal = ({ message, onConfirm, onCancel, theme }) => {
       borderColor: "#4b5563",
       buttonBgConfirm: "#ef4444",
       buttonBgCancel: "#4b5563",
-      buttonTextCancel: "#ffffff",
+      buttonTextCancel: "#ffffff"
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      textColor: "#1f2937",
+      borderColor: "#a7d4a0",
+      buttonBgConfirm: "#dc2626",
+      buttonBgCancel: "#e5e7eb",
+      buttonTextCancel: "#4b5563"
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      textColor: "#1f2937",
+      borderColor: "#fdba74",
+      buttonBgConfirm: "#dc2626",
+      buttonBgCancel: "#e5e7eb",
+      buttonTextCancel: "#4b5563"
     },
   };
-  const styles = themeStyles[theme];
-
+  const styles = themeStyles[theme] || themeStyles.light;
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 2000,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: styles.bgColor,
-          borderRadius: "0.5rem",
-          padding: "1.5rem",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          width: "min(90%, 400px)",
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: "1.125rem", fontWeight: "500", marginBottom: "1.5rem", color: styles.textColor }}>{message}</p>
-        <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
-          <button
-            onClick={onConfirm}
-            style={{
-              padding: "0.6rem 1.2rem",
-              backgroundColor: styles.buttonBgConfirm,
-              color: "#ffffff",
-              border: "none",
-              borderRadius: "0.375rem",
-              cursor: "pointer",
-              fontWeight: "600",
-              fontSize: "0.95rem",
-              transition: "background-color 0.2s ease-in-out",
-            }}
-          >
-            Confirm
-          </button>
-          <button
-            onClick={onCancel}
-            style={{
-              padding: "0.6rem 1.2rem",
-              backgroundColor: styles.buttonBgCancel,
-              color: styles.buttonTextCancel,
-              border: "none",
-              borderRadius: "0.375rem",
-              cursor: "pointer",
-              fontWeight: "600",
-              fontSize: "0.95rem",
-              transition: "background-color 0.2s ease-in-out",
-            }}
-          >
-            Cancel
-          </button>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+      <div style={{ backgroundColor: styles.bgColor, padding: "1.5rem", borderRadius: "0.5rem", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", maxWidth: "24rem", width: "100%", textAlign: "center" }}>
+        <p style={{ color: styles.textColor, marginBottom: "1rem" }}>{message}</p>
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <button onClick={onConfirm} style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonBgConfirm, color: "#ffffff", border: "none", borderRadius: "0.25rem", cursor: "pointer" }}>Confirm</button>
+          <button onClick={onCancel} style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonBgCancel, color: styles.buttonTextCancel, border: "none", borderRadius: "0.25rem", cursor: "pointer" }}>Cancel</button>
         </div>
       </div>
     </div>
   );
 };
-
 // Custom Alert Modal Component
 const AlertModal = ({ message, onClose, theme }) => {
   const themeStyles = {
-    light: {
-      bgColor: "#ffffff",
-      textColor: "#1f2937",
-      buttonBg: "#3b82f6",
-    },
-    dark: {
-      bgColor: "#374151",
-      textColor: "#ffffff",
-      buttonBg: "#2563eb",
-    },
+    light: { bgColor: "#ffffff", textColor: "#1f2937", buttonBg: "#3b82f6" },
+    dark: { bgColor: "#374151", textColor: "#ffffff", buttonBg: "#2563eb" },
+    nature: { bgColor: "#f0f7f4", textColor: "#1f2937", buttonBg: "#4caf50" },
+    sunset: { bgColor: "#fff7ed", textColor: "#1f2937", buttonBg: "#ff9800" },
   };
-  const styles = themeStyles[theme];
-
+  const styles = themeStyles[theme] || themeStyles.light;
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0,0,0,0.6)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 2000,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: styles.bgColor,
-          borderRadius: "0.5rem",
-          padding: "1.5rem",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          width: "min(90%, 400px)",
-          textAlign: "center",
-        }}
-      >
-        <p style={{ fontSize: "1.125rem", fontWeight: "500", marginBottom: "1.5rem", color: styles.textColor }}>{message}</p>
-        <button
-          onClick={onClose}
-          style={{
-            padding: "0.6rem 1.2rem",
-            backgroundColor: styles.buttonBg,
-            color: "#ffffff",
-            border: "none",
-            borderRadius: "0.375rem",
-            cursor: "pointer",
-            fontWeight: "600",
-            fontSize: "0.95rem",
-            transition: "background-color 0.2s ease-in-out",
-          }}
-        >
-          OK
-        </button>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+      <div style={{ backgroundColor: styles.bgColor, padding: "1.5rem", borderRadius: "0.5rem", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", maxWidth: "24rem", width: "100%", textAlign: "center" }}>
+        <p style={{ color: styles.textColor, marginBottom: "1rem" }}>{message}</p>
+        <button onClick={onClose} style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonBg, color: "#ffffff", border: "none", borderRadius: "0.25rem", cursor: "pointer" }}>OK</button>
       </div>
     </div>
   );
 };
-
-const InventoryManagement = ({ theme }) => {
+const InventoryManagement = ({ theme, setTheme }) => {
   const [products, setProducts] = useState([]);
   const [mobiles, setMobiles] = useState([]);
   const [accessories, setAccessories] = useState([]);
@@ -192,76 +108,253 @@ const InventoryManagement = ({ theme }) => {
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 8;
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const productsPerPage = 5;
   const fileInputRef = useRef(null);
+  const imageInputRef = useRef(null);
   const categoryOptions = ["Mobile", "Accessories"];
-
-  // Define theme styles
   const themeStyles = {
     light: {
-      bgColor: "#f9fafb",
-      textColor: "#1f2937",
-      secondaryTextColor: "#6b7280",
+      bgColor: "hsl(240 20% 98%)",
+      foreground: "hsl(220 25% 15%)",
+      card: "#ffffff",
+      cardForeground: "hsl(220 25% 15%)",
+      primary: "hsl(217 91% 60%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(210 40% 96%)",
+      secondaryForeground: "hsl(220 25% 15%)",
+      muted: "hsl(220 13% 95%)",
+      mutedForeground: "hsl(220 9% 46%)",
+      accent: "hsl(38 92% 50%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(220 13% 91%)",
+      input: "hsl(220 13% 91%)",
+      ring: "hsl(217 91% 60%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      gradientAccent: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      shadowElegant: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.1)",
+      radius: "0.75rem",
+      textColor: "hsl(220 25% 15%)",
+      secondaryTextColor: "hsl(220 9% 46%)",
       cardBg: "#ffffff",
-      borderColor: "#d1d5db",
+      borderColor: "hsl(220 13% 91%) / 50%",
       inputBg: "#ffffff",
-      buttonBg: "#3b82f6",
+      buttonBg: "hsl(217 91% 60%)",
       buttonText: "#ffffff",
-      buttonAddMobile: "#10b981",
-      buttonAddAccessory: "#8b5cf6",
-      buttonMobileList: "#f59e0b",
-      buttonAccessoriesList: "#ef4444",
-      buttonExcel: "#22c55e",
+      buttonAddMobile: "hsl(217 91% 60%)",
+      buttonAddAccessory: "hsl(217 91% 60%)",
+      buttonMobileList: "hsl(210 40% 96%)",
+      buttonAccessoriesList: "hsl(210 40% 96%)",
+      buttonExcel: "hsl(217 91% 60%)",
+      buttonUploadImage: "hsl(217 91% 60%)",
       dropdownBg: "#ffffff",
-      disabledBg: "#e5e7eb",
+      disabledBg: "hsl(220 13% 95%)",
       shadow: "0 1px 3px rgba(0,0,0,0.1)",
       popupBg: "#ffffff",
-      inputReadOnlyBg: "#f3f4f6",
-      placeholderImageBg: "#cccccc",
-      placeholderImageText: "#ffffff",
+      inputReadOnlyBg: "hsl(220 13% 95%)",
+      placeholderImageBg: "hsl(220 13% 95%)",
+      placeholderImageText: "hsl(220 9% 46%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      btnGradientHoverTransform: "translateY(-1px)",
     },
     dark: {
-      bgColor: "#1f2937",
+      bgColor: "hsl(240 10% 8%)",
+      foreground: "#ffffff",
+      card: "hsl(240 10% 12%)",
+      cardForeground: "#ffffff",
+      primary: "hsl(262 83% 58%)",
+      primaryForeground: "#ffffff",
+      secondary: "hsl(240 4% 16%)",
+      secondaryForeground: "#ffffff",
+      muted: "hsl(240 4% 16%)",
+      mutedForeground: "hsl(240 5% 65%)",
+      accent: "hsl(142 71% 45%)",
+      accentForeground: "#ffffff",
+      success: "hsl(120 60% 50%)",
+      successForeground: "#ffffff",
+      warning: "hsl(38 92% 50%)",
+      warningForeground: "#ffffff",
+      destructive: "hsl(0 84% 60%)",
+      destructiveForeground: "#ffffff",
+      border: "hsl(240 4% 16%)",
+      input: "hsl(240 4% 16%)",
+      ring: "hsl(262 83% 58%)",
+      gradientPrimary: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      gradientAccent: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      shadowElegant: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.3)",
+      radius: "0.75rem",
       textColor: "#ffffff",
-      secondaryTextColor: "#9ca3af",
-      cardBg: "#374151",
-      borderColor: "#4b5563",
-      inputBg: "#4b5563",
-      buttonBg: "#2563eb",
+      secondaryTextColor: "hsl(240 5% 65%)",
+      cardBg: "hsl(240 10% 12%)",
+      borderColor: "hsl(240 4% 16%) / 50%",
+      inputBg: "hsl(240 4% 16%)",
+      buttonBg: "hsl(262 83% 58%)",
       buttonText: "#ffffff",
-      buttonAddMobile: "#059669",
-      buttonAddAccessory: "#7c3aed",
-      buttonMobileList: "#d97706",
-      buttonAccessoriesList: "#dc2626",
-      buttonExcel: "#16a34a",
-      dropdownBg: "#374151",
-      disabledBg: "#6b7280",
+      buttonAddMobile: "hsl(262 83% 58%)",
+      buttonAddAccessory: "hsl(262 83% 58%)",
+      buttonMobileList: "hsl(240 4% 16%)",
+      buttonAccessoriesList: "hsl(240 4% 16%)",
+      buttonExcel: "hsl(262 83% 58%)",
+      buttonUploadImage: "hsl(262 83% 58%)",
+      dropdownBg: "hsl(240 10% 12%)",
+      disabledBg: "hsl(240 4% 16%)",
       shadow: "0 1px 3px rgba(0,0,0,0.3)",
-      popupBg: "#374151",
-      inputReadOnlyBg: "#6b7280",
-      placeholderImageBg: "#4b5563",
-      placeholderImageText: "#d1d5db",
+      popupBg: "hsl(240 10% 12%)",
+      inputReadOnlyBg: "hsl(240 4% 16%)",
+      placeholderImageBg: "hsl(240 4% 16%)",
+      placeholderImageText: "hsl(240 5% 65%)",
+      statusSuccess: "hsl(120 60% 50%)",
+      statusWarning: "hsl(38 92% 50%)",
+      statusDestructive: "hsl(0 84% 60%)",
+      cardHoverShadow: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
+      btnGradientHoverBg: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#4caf50",
+      primaryForeground: "#ffffff",
+      secondary: "#e8f5e9",
+      secondaryForeground: "#1f2937",
+      muted: "#e0f2f1",
+      mutedForeground: "#4b5563",
+      accent: "#ff9800",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#a7d4a0",
+      input: "#ffffff",
+      ring: "#4caf50",
+      gradientPrimary: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      gradientAccent: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      shadowElegant: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#a7d4a0 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#4caf50",
+      buttonText: "#ffffff",
+      buttonAddMobile: "#4caf50",
+      buttonAddAccessory: "#4caf50",
+      buttonMobileList: "#e8f5e9",
+      buttonAccessoriesList: "#e8f5e9",
+      buttonExcel: "#4caf50",
+      buttonUploadImage: "#4caf50",
+      dropdownBg: "#ffffff",
+      disabledBg: "#e0f2f1",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#e0f2f1",
+      placeholderImageBg: "#e0f2f1",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(76,175,80,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #4caf50, #66bb6a)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverTransform: "translateY(-1px)",
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      foreground: "#1f2937",
+      card: "#ffffff",
+      cardForeground: "#1f2937",
+      primary: "#ff9800",
+      primaryForeground: "#ffffff",
+      secondary: "#ffedd5",
+      secondaryForeground: "#1f2937",
+      muted: "#ffe7ba",
+      mutedForeground: "#4b5563",
+      accent: "#ff5722",
+      accentForeground: "#ffffff",
+      success: "#4caf50",
+      successForeground: "#ffffff",
+      warning: "#ff9800",
+      warningForeground: "#ffffff",
+      destructive: "#f44336",
+      destructiveForeground: "#ffffff",
+      border: "#fdba74",
+      input: "#ffffff",
+      ring: "#ff9800",
+      gradientPrimary: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      gradientAccent: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      shadowElegant: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
+      radius: "0.75rem",
+      textColor: "#1f2937",
+      secondaryTextColor: "#4b5563",
+      cardBg: "#ffffff",
+      borderColor: "#fdba74 / 50%",
+      inputBg: "#ffffff",
+      buttonBg: "#ff9800",
+      buttonText: "#ffffff",
+      buttonAddMobile: "#ff9800",
+      buttonAddAccessory: "#ff9800",
+      buttonMobileList: "#ffedd5",
+      buttonAccessoriesList: "#ffedd5",
+      buttonExcel: "#ff9800",
+      buttonUploadImage: "#ff9800",
+      dropdownBg: "#ffffff",
+      disabledBg: "#ffe7ba",
+      shadow: "0 1px 3px rgba(0,0,0,0.1)",
+      popupBg: "#ffffff",
+      inputReadOnlyBg: "#ffe7ba",
+      placeholderImageBg: "#ffe7ba",
+      placeholderImageText: "#4b5563",
+      statusSuccess: "#4caf50",
+      statusWarning: "#ff9800",
+      statusDestructive: "#f44336",
+      cardHoverShadow: "0 4px 20px -2px rgba(255,152,0,0.15)",
+      cardHoverTransform: "translateY(-2px)",
+      btnGradientBg: "linear-gradient(135deg, #ff9800, #ffb74d)",
+      btnGradientHoverBg: "linear-gradient(135deg, #ff5722, #ff8a65)",
+      btnGradientHoverTransform: "translateY(-1px)",
     },
   };
-  const styles = themeStyles[theme];
-
+  const styles = themeStyles[theme] || themeStyles.light;
   const showAlert = (message) => {
     setAlertMessage(message);
     setShowAlertModal(true);
   };
-
   const showConfirmation = (message, action) => {
     setConfirmMessage(message);
     setOnConfirmAction(() => action);
     setShowConfirmModal(true);
   };
-
   useEffect(() => {
     fetchProducts();
     fetchMobiles();
     fetchAccessories();
   }, []);
-
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -274,7 +367,6 @@ const InventoryManagement = ({ theme }) => {
       console.error("Error fetching products:", error);
     }
   };
-
   const fetchMobiles = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/mobiles");
@@ -283,7 +375,6 @@ const InventoryManagement = ({ theme }) => {
       console.error("Error fetching mobiles:", error);
     }
   };
-
   const fetchAccessories = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/accessories");
@@ -292,7 +383,6 @@ const InventoryManagement = ({ theme }) => {
       console.error("Error fetching accessories:", error);
     }
   };
-
   const filteredProducts = products.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -302,22 +392,17 @@ const InventoryManagement = ({ theme }) => {
       (product.type && product.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.accessoryType && product.accessoryType.toLowerCase().includes(searchTerm.toLowerCase()))
   );
-
   const lowStockProducts = products.filter((product) => product.stock <= product.minStock);
-
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   const currentProducts = filteredProducts.slice(indexOfFirstProduct, indexOfLastProduct);
   const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
-
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
-
   const handlePrevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
-
   const resetForm = () => {
     setFormData({
       name: "",
@@ -334,7 +419,7 @@ const InventoryManagement = ({ theme }) => {
       newAccessoryName: "",
       newAccessoryModel: "",
       image_id: "",
-      image_path: "",
+      image_path: ""
     });
     setImageFile(null);
     setImagePreview("");
@@ -345,8 +430,8 @@ const InventoryManagement = ({ theme }) => {
     setEditingAccessory(null);
     setShowConfirmModal(false);
     setShowAlertModal(false);
+    setUploadedImages([]);
   };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -358,11 +443,23 @@ const InventoryManagement = ({ theme }) => {
       setImagePreview("");
     }
   };
-
+  const handleUploadImages = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    const formData = new FormData();
+    files.forEach((file, index) => formData.append(`images[${index}]`, file));
+    try {
+      const response = await axios.post("http://localhost:5000/api/upload/images", formData, { headers: { "Content-Type": "multipart/form-data" } });
+      setUploadedImages((prev) => [...prev, ...response.data.uploadedImages]);
+      showAlert("Images uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading images:", error);
+      showAlert(`Failed to upload images. Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     const dataToSend = new FormData();
-
     if (formType === "product") {
       if (!formData.name || !formData.price || !formData.stock || !formData.category) {
         showAlert("Please fill all required fields for product (Name, Price, Stock, Category).");
@@ -376,7 +473,6 @@ const InventoryManagement = ({ theme }) => {
       dataToSend.append("minStock", Number(formData.minStock) || 5);
       dataToSend.append("barcode", formData.barcode || `BC${Date.now()}`);
       dataToSend.append("type", formData.type || "");
-
       if (formData.category === "Mobile") {
         if (formData.newMobile) {
           dataToSend.append("newMobile", formData.newMobile);
@@ -405,12 +501,8 @@ const InventoryManagement = ({ theme }) => {
         dataToSend.append("newAccessoryName", "");
         dataToSend.append("newAccessoryModel", "");
       }
-
-      if (imageFile) {
-        dataToSend.append("image", imageFile);
-      } else if (editingProduct && !imagePreview && (editingProduct.image_id || editingProduct.image_path)) {
-        dataToSend.append("image_path", "");
-      }
+      if (imageFile) dataToSend.append("image", imageFile);
+      else if (editingProduct && !imagePreview && (editingProduct.image_id || editingProduct.image_path)) dataToSend.append("image_path", "");
     } else if (formType === "accessories") {
       if (!formData.newAccessoryName || !formData.newAccessoryModel) {
         showAlert("Please fill all required fields for accessory (Accessory Name, Accessory Model).");
@@ -428,7 +520,6 @@ const InventoryManagement = ({ theme }) => {
       dataToSend.append("name", formData.newMobile);
       dataToSend.append("category", "Mobile");
     }
-
     try {
       const endpoint = editingProduct
         ? `http://localhost:5000/api/products/${editingProduct._id}`
@@ -437,12 +528,8 @@ const InventoryManagement = ({ theme }) => {
         : editingAccessory
         ? `http://localhost:5000/api/accessories/${editingAccessory._id}`
         : `http://localhost:5000/api/${formType === "product" ? "products" : formType === "mobile" ? "mobiles" : "accessories"}`;
-
       const method = editingProduct || editingMobile || editingAccessory ? "put" : "post";
-
-      await axios[method](endpoint, dataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios[method](endpoint, dataToSend, { headers: { "Content-Type": "multipart/form-data" } });
       showAlert(`${editingProduct ? "Product" : editingMobile ? "Mobile" : editingAccessory ? "Accessory" : formType} ${editingProduct || editingMobile || editingAccessory ? "updated" : "added"} successfully!`);
       fetchProducts();
       fetchMobiles();
@@ -450,11 +537,9 @@ const InventoryManagement = ({ theme }) => {
       resetForm();
     } catch (error) {
       console.error("Error saving:", error);
-      const errorMsg = error.response?.data?.error || error.message;
-      showAlert(`Failed to save ${formType}. Error: ${errorMsg}`);
+      showAlert(`Failed to save ${formType}. Error: ${error.response?.data?.error || error.message}`);
     }
   };
-
   const editProduct = (product) => {
     setFormData({
       name: product.name,
@@ -480,7 +565,6 @@ const InventoryManagement = ({ theme }) => {
     setShowAddForm(true);
     setShowExcelOptions(false);
   };
-
   const editMobile = (mobile) => {
     setFormData({
       name: "",
@@ -497,7 +581,7 @@ const InventoryManagement = ({ theme }) => {
       newAccessoryName: "",
       newAccessoryModel: "",
       image_id: "",
-      image_path: "",
+      image_path: ""
     });
     setImageFile(null);
     setImagePreview("");
@@ -506,7 +590,6 @@ const InventoryManagement = ({ theme }) => {
     setShowAddForm(true);
     setShowExcelOptions(false);
   };
-
   const editAccessory = (accessory) => {
     setFormData({
       name: "",
@@ -523,7 +606,7 @@ const InventoryManagement = ({ theme }) => {
       newAccessoryName: accessory.accessoryName,
       newAccessoryModel: accessory.accessoryModel,
       image_id: "",
-      image_path: "",
+      image_path: ""
     });
     setImageFile(null);
     setImagePreview("");
@@ -532,7 +615,6 @@ const InventoryManagement = ({ theme }) => {
     setShowAddForm(true);
     setShowExcelOptions(false);
   };
-
   const deleteProduct = (id) => {
     showConfirmation("Are you sure you want to delete this product?", async () => {
       try {
@@ -547,7 +629,6 @@ const InventoryManagement = ({ theme }) => {
       }
     });
   };
-
   const deleteMobile = (id) => {
     showConfirmation("Are you sure you want to delete this mobile type? This will not remove products using this type.", async () => {
       try {
@@ -562,7 +643,6 @@ const InventoryManagement = ({ theme }) => {
       }
     });
   };
-
   const deleteAccessory = (id) => {
     showConfirmation("Are you sure you want to delete this accessory type? This will not remove products using this type.", async () => {
       try {
@@ -577,19 +657,15 @@ const InventoryManagement = ({ theme }) => {
       }
     });
   };
-
   const updateStock = async (id, newStock) => {
     try {
       await axios.put(`http://localhost:5000/api/products/${id}/stock`, { stock: Number(newStock) });
-      setProducts(
-        products.map((product) => (product._id === id ? { ...product, stock: newStock } : product))
-      );
+      setProducts(products.map((product) => (product._id === id ? { ...product, stock: newStock } : product)));
     } catch (error) {
       console.error("Error updating stock:", error);
       showAlert(`Failed to update stock. Error: ${error.response?.data?.error || error.message}`);
     }
   };
-
   const openAddForm = (type) => {
     setFormType(type);
     setFormData({
@@ -607,7 +683,7 @@ const InventoryManagement = ({ theme }) => {
       newAccessoryName: "",
       newAccessoryModel: "",
       image_id: "",
-      image_path: "",
+      image_path: ""
     });
     setImageFile(null);
     setImagePreview("");
@@ -617,12 +693,9 @@ const InventoryManagement = ({ theme }) => {
     setShowAddForm(true);
     setShowExcelOptions(false);
   };
-
   const handleExportMobiles = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/export/mobiles", {
-        responseType: "blob",
-      });
+      const response = await axios.get("http://localhost:5000/api/export/mobiles", { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -637,12 +710,9 @@ const InventoryManagement = ({ theme }) => {
       showAlert(`Failed to export mobile products template. Error: ${error.response?.data?.error || error.message}`);
     }
   };
-
   const handleExportAccessories = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/export/accessories", {
-        responseType: "blob",
-      });
+      const response = await axios.get("http://localhost:5000/api/export/accessories", { responseType: "blob" });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -657,7 +727,6 @@ const InventoryManagement = ({ theme }) => {
       showAlert(`Failed to export accessory products template. Error: ${error.response?.data?.error || error.message}`);
     }
   };
-
   const handleImportExcel = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -665,9 +734,7 @@ const InventoryManagement = ({ theme }) => {
     formData.append("file", file);
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:5000/api/import/products", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await axios.post("http://localhost:5000/api/import/products", formData, { headers: { "Content-Type": "multipart/form-data" } });
       showAlert(response.data.message);
       fetchProducts();
       fetchMobiles();
@@ -681,822 +748,311 @@ const InventoryManagement = ({ theme }) => {
       event.target.value = "";
     }
   };
-
-  if (loading) return <div style={{ textAlign: "center", padding: "1.25rem", fontSize: "1rem", color: styles.secondaryTextColor }}>Loading inventory...</div>;
-  if (error) return <div style={{ textAlign: "center", padding: "1.25rem", fontSize: "1rem", color: "#dc2626" }}>{error}</div>;
-
+  if (loading) return <div style={{ padding: "2rem", color: styles.textColor }}>Loading inventory...</div>;
+  if (error) return <div style={{ padding: "2rem", color: styles.destructive }}>{error}</div>;
+  const stats = {
+    totalProducts: products.length,
+    lowStockItems: lowStockProducts.length,
+    totalStockValue: products.reduce((sum, p) => sum + (p.price * p.stock), 0),
+    categories: [...new Set(products.map(p => p.category))].length,
+  };
+  const themeOptions = [
+    { id: "light", label: "Light", icon: Sun },
+    { id: "dark", label: "Dark", icon: Moon },
+    { id: "nature", label: "Nature", icon: Leaf },
+    { id: "sunset", label: "Sunset", icon: Grid },
+  ];
+  const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
   return (
-    <div style={{ padding: "1.5rem", backgroundColor: styles.bgColor, color: styles.textColor, fontFamily: "Inter, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Inventory Management</h1>
-          <p style={{ color: styles.secondaryTextColor, fontSize: "1rem" }}>Manage your product inventory</p>
+          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", marginBottom: "0.5rem", color: styles.textColor }}>Inventory Management</h1>
+          <p style={{ fontSize: "1rem", color: styles.secondaryTextColor, marginBottom: "2rem" }}>Manage your product inventory</p>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem", position: "relative", flexWrap: "wrap", justifyContent: "flex-end" }}>
-          <button
+        <div style={{ position: "relative" }}>
+          <div
+            onClick={() => setShowThemeDropdown(!showThemeDropdown)}
             style={{
               display: "flex",
               alignItems: "center",
+              gap: "0.5rem",
               padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonBg,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
+              backgroundColor: styles.card,
+              color: styles.primary,
+              border: `1px solid ${styles.border}`,
+              borderRadius: styles.radius,
               cursor: "pointer",
               fontWeight: "500",
-              minWidth: "120px",
-              justifyContent: "center",
-            }}
-            onClick={() => openAddForm("product")}
-          >
-            <PackagePlus size={16} style={{ marginRight: "0.5rem" }} />
-            Add Product
-          </button>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonAddMobile,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
-              cursor: "pointer",
-              fontWeight: "500",
-              minWidth: "120px",
-              justifyContent: "center",
-            }}
-            onClick={() => openAddForm("mobile")}
-          >
-            <PackagePlus size={16} style={{ marginRight: "0.5rem" }} />
-            Add Mobile Type
-          </button>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonAddAccessory,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
-              cursor: "pointer",
-              fontWeight: "500",
-              minWidth: "120px",
-              justifyContent: "center",
-            }}
-            onClick={() => openAddForm("accessories")}
-          >
-            <PackagePlus size={16} style={{ marginRight: "0.5rem" }} />
-            Add Accessory Type
-          </button>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonMobileList,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
-              cursor: "pointer",
-              fontWeight: "500",
-              minWidth: "100px",
-              justifyContent: "center",
-            }}
-            onClick={() => setShowMobilePopup(true)}
-          >
-            Mobile List
-          </button>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonAccessoriesList,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
-              cursor: "pointer",
-              fontWeight: "500",
-              minWidth: "100px",
-              justifyContent: "center",
-            }}
-            onClick={() => setShowAccessoriesPopup(true)}
-          >
-            Accessories List
-          </button>
-          <button
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0.5rem 1rem",
-              backgroundColor: styles.buttonExcel,
-              color: styles.buttonText,
-              border: "none",
-              borderRadius: "0.25rem",
-              cursor: "pointer",
-              fontWeight: "500",
-              minWidth: "120px",
-              justifyContent: "center",
-            }}
-            onClick={() => {
-              setShowExcelOptions(!showExcelOptions);
-              setShowAddForm(false);
+              transition: "all 0.2s ease-in-out"
             }}
           >
-            <FileSpreadsheet size={16} style={{ marginRight: "0.5rem" }} />
-            Excel Options
-          </button>
-          {showExcelOptions && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                backgroundColor: styles.dropdownBg,
-                borderRadius: "0.25rem",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                marginTop: "0.5rem",
-                zIndex: 10,
-                padding: "0.5rem",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.5rem",
-                minWidth: "180px",
-              }}
-            >
-              <button
-                onClick={handleExportMobiles}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: theme === "light" ? "#60a5fa" : "#3b82f6",
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  justifyContent: "center",
-                }}
-              >
-                Export Mobiles Template
-              </button>
-              <button
-                onClick={handleExportAccessories}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: theme === "light" ? "#a78bfa" : "#8b5cf6",
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  justifyContent: "center",
-                }}
-              >
-                Export Accessories Template
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImportExcel}
-                accept=".xlsx, .xls"
-                style={{ display: "none" }}
-              />
-              <button
-                onClick={() => fileInputRef.current.click()}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "0.5rem 1rem",
-                  backgroundColor: theme === "light" ? "#0ea5e9" : "#0284c7",
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  justifyContent: "center",
-                }}
-              >
-                <FileUp size={16} style={{ marginRight: "0.5rem" }} />
-                Import Products
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem", marginBottom: "1.5rem" }}>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow, padding: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Total Products</p>
-              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{products.length}</p>
-            </div>
-            <Package style={{ height: "2rem", width: "2rem", color: "#2563eb" }} />
+            {selectedTheme && <selectedTheme.icon size={16} />}
+            {selectedTheme && selectedTheme.label}
           </div>
-        </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow, padding: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Low Stock Items</p>
-              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: "#dc2626" }}>{lowStockProducts.length}</p>
-            </div>
-            <AlertTriangle style={{ height: "2rem", width: "2rem", color: "#dc2626" }} />
-          </div>
-        </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow, padding: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Total Stock Value</p>
-              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>
-                ₹{products.reduce((total, p) => total + p.price * p.stock, 0).toLocaleString()}
-              </p>
-            </div>
-            <Package style={{ height: "2rem", width: "2rem", color: "#16a34a" }} />
-          </div>
-        </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow, padding: "1rem" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <p style={{ color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Categories</p>
-              <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>
-                {[...new Set(products.map((p) => p.category))].length}
-              </p>
-            </div>
-            <Package style={{ height: "2rem", width: "2rem", color: "#9333ea" }} />
-          </div>
-        </div>
-      </div>
-      <div style={{ position: "relative", marginBottom: "1.5rem" }}>
-        <Search style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: styles.secondaryTextColor, height: "1rem", width: "1rem" }} />
-        <input
-          type="text"
-          placeholder="Search products by name, category, supplier, model, type, or accessory type..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1);
-          }}
-          style={{
-            width: "100%",
-            padding: "0.5rem 0.5rem 0.5rem 2.25rem",
-            border: `1px solid ${styles.borderColor}`,
-            borderRadius: "0.25rem",
-            fontSize: "1rem",
-            color: styles.textColor,
-            backgroundColor: styles.inputBg,
-          }}
-        />
-      </div>
-      {showAddForm && (
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow, marginBottom: "1.5rem" }}>
-          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.borderColor}` }}>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>
-              {editingProduct
-                ? "Edit Product"
-                : editingMobile
-                ? "Edit Mobile Type"
-                : editingAccessory
-                ? "Edit Accessory Type"
-                : formType === "mobile"
-                ? "Add Mobile Type"
-                : formType === "accessories"
-                ? "Add Accessory Type"
-                : "Add Product"}
-            </h2>
-          </div>
-          <form onSubmit={handleSubmit} style={{ padding: "1rem", display: "grid", gap: "1rem" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
-              {formType === "product" && (
-                <>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Name *</label>
-                    <input
-                      type="text"
-                      placeholder="Product Name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Price (₹) *</label>
-                    <input
-                      type="number"
-                      placeholder="89900"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Stock Quantity *</label>
-                    <input
-                      type="number"
-                      placeholder="10"
-                      value={formData.stock}
-                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Category *</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value, model: "", accessoryType: "", newMobile: "", newAccessoryName: "", newAccessoryModel: "", type: "" })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    >
-                      <option value="" disabled>Select a category</option>
-                      {categoryOptions.map((category) => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {formData.category === "Mobile" && (
-                    <>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Existing Model</label>
-                        <select
-                          value={formData.model}
-                          onChange={(e) => setFormData({ ...formData, model: e.target.value, newMobile: "" })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        >
-                          <option value="">Select a model</option>
-                          {mobiles.map((mobile) => (
-                            <option key={mobile._id} value={mobile.name}>{mobile.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>New Mobile Type</label>
-                        <input
-                          type="text"
-                          placeholder="Enter new mobile name (e.g., iPhone 15)"
-                          value={formData.newMobile}
-                          onChange={(e) => setFormData({ ...formData, newMobile: e.target.value, model: "" })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Type (Brand/General Model)</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Apple, Samsung, Oppo"
-                          value={formData.type}
-                          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        />
-                      </div>
-                    </>
-                  )}
-                  {formData.category === "Accessories" && (
-                    <>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Existing Accessory Type</label>
-                        <select
-                          value={formData.accessoryType}
-                          onChange={(e) => setFormData({ ...formData, accessoryType: e.target.value, newAccessoryName: "", newAccessoryModel: "" })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        >
-                          <option value="">Select an accessory type</option>
-                          {accessories.map((accessory) => (
-                            <option key={accessory._id} value={`${accessory.accessoryModel} - ${accessory.accessoryName}`}>
-                              {accessory.accessoryModel} - {accessory.accessoryName}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>New Accessory Name</label>
-                        <input
-                          type="text"
-                          placeholder="Enter new accessory name (e.g., Clear Case)"
-                          value={formData.newAccessoryName}
-                          onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value, accessoryType: "" })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>New Accessory Model</label>
-                        <input
-                          type="text"
-                          placeholder="Enter new accessory model (e.g., iPhone 14 Pro)"
-                          value={formData.newAccessoryModel}
-                          onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value, accessoryType: "" })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Type (Brand/General Model)</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Apple, Samsung, Generic"
-                          value={formData.type}
-                          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                          style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Supplier</label>
-                    <input
-                      type="text"
-                      placeholder="Apple Store"
-                      value={formData.supplier}
-                      onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Minimum Stock Level</label>
-                    <input
-                      type="number"
-                      placeholder="5"
-                      value={formData.minStock}
-                      onChange={(e) => setFormData({ ...formData, minStock: e.target.value })}
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Barcode</label>
-                    <input
-                      type="text"
-                      placeholder="Auto-generated if empty"
-                      value={formData.barcode}
-                      onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Image ID (Read-only)</label>
-                    <input
-                      type="text"
-                      value={formData.image_id}
-                      readOnly
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputReadOnlyBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Product Image</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                    {imagePreview && (
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        style={{ maxWidth: "100px", marginTop: "0.5rem", borderRadius: "0.25rem" }}
-                      />
-                    )}
-                  </div>
-                </>
-              )}
-              {formType === "mobile" && (
-                <div>
-                  <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Mobile Name *</label>
-                  <input
-                    type="text"
-                    placeholder="iPhone 14"
-                    value={formData.newMobile}
-                    onChange={(e) => setFormData({ ...formData, newMobile: e.target.value })}
-                    required
-                    style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                  />
-                </div>
-              )}
-              {formType === "accessories" && (
-                <>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Accessory Name *</label>
-                    <input
-                      type="text"
-                      placeholder="Phone Case"
-                      value={formData.newAccessoryName}
-                      onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Accessory Model *</label>
-                    <input
-                      type="text"
-                      placeholder="iPhone 14"
-                      value={formData.newAccessoryModel}
-                      onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value })}
-                      required
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                  <div>
-                    <label style={{ display: "block", fontSize: "0.875rem", fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>Type (Brand/General Model)</label>
-                    <input
-                      type="text"
-                      placeholder="e.g., Apple, Samsung, Generic"
-                      value={formData.type}
-                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                      style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", fontSize: "1rem", backgroundColor: styles.inputBg, color: styles.textColor }}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", paddingTop: "1rem", flexWrap: "wrap" }}>
-              <button
-                type="submit"
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: styles.buttonBg,
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  flexGrow: 1,
-                }}
-              >
-                {editingProduct
-                  ? "Update Product"
-                  : editingMobile
-                  ? "Update Mobile Type"
-                  : editingAccessory
-                  ? "Update Accessory Type"
-                  : "Add " + (formType === "mobile" ? "Mobile Type" : formType === "accessories" ? "Accessory Type" : "Product")}
-              </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: styles.cardBg,
-                  color: styles.secondaryTextColor,
-                  border: `1px solid ${styles.borderColor}`,
-                  borderRadius: "0.25rem",
-                  cursor: "pointer",
-                  fontWeight: "500",
-                  flexGrow: 1,
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-      {showMobilePopup && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
-          <div style={{ backgroundColor: styles.popupBg, borderRadius: "0.5rem", padding: "1.5rem", width: "min(95%, 500px)", maxHeight: "80vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>Mobile List</h2>
-              <button onClick={() => setShowMobilePopup(false)} style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <X size={24} color={styles.secondaryTextColor} />
-              </button>
-            </div>
-            {mobiles.length === 0 ? (
-              <p style={{ textAlign: "center", color: styles.secondaryTextColor }}>No mobiles found</p>
-            ) : (
-              mobiles.map((mobile) => (
-                <div
-                  key={mobile._id}
-                  style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.75rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}
-                >
-                  <span style={{ flexGrow: 1, color: styles.textColor }}>{mobile.name}</span>
-                  <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                    <button
-                      onClick={() => {
-                        editMobile(mobile);
-                        setShowMobilePopup(false);
-                      }}
-                      style={{ padding: "0.5rem", backgroundColor: styles.cardBg, border: `1px solid ${styles.buttonBg}`, borderRadius: "0.25rem", cursor: "pointer", color: styles.buttonBg, display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => deleteMobile(mobile._id)}
-                      style={{ padding: "0.5rem", backgroundColor: styles.cardBg, border: "1px solid #dc2626", borderRadius: "0.25rem", cursor: "pointer", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-      {showAccessoriesPopup && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
-          <div style={{ backgroundColor: styles.popupBg, borderRadius: "0.5rem", padding: "1.5rem", width: "min(95%, 500px)", maxHeight: "80vh", overflowY: "auto" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>Accessories List</h2>
-              <button onClick={() => setShowAccessoriesPopup(false)} style={{ background: "none", border: "none", cursor: "pointer" }}>
-                <X size={24} color={styles.secondaryTextColor} />
-              </button>
-            </div>
-            {accessories.length === 0 ? (
-              <p style={{ textAlign: "center", color: styles.secondaryTextColor }}>No accessories found</p>
-            ) : (
-              accessories.map((accessory) => (
-                <div
-                  key={accessory._id}
-                  style={{ display: "flex", justifyContent: "space-between",  alignItems: "center", padding: "0.75rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}
-                >
-                  <span style={{ flexGrow: 1, color: styles.textColor }}>{accessory.accessoryModel} - {accessory.accessoryName}</span>
-                  {accessory.type && <span style={{ flexGrow: 1, color: styles.secondaryTextColor }}>Type: {accessory.type}</span>}
-                  <div style={{ display: "flex", gap: "0.5rem", flexShrink: 0 }}>
-                    <button
-                      onClick={() => {
-                        editAccessory(accessory);
-                        setShowAccessoriesPopup(false);
-                      }}
-                      style={{ padding: "0.5rem", backgroundColor: styles.cardBg, border: `1px solid ${styles.buttonBg}`, borderRadius: "0.25rem", cursor: "pointer", color: styles.buttonBg, display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      <Edit size={16} />
-                    </button>
-                    <button
-                      onClick={() => deleteAccessory(accessory._id)}
-                      style={{ padding: "0.5rem", backgroundColor: styles.cardBg, border: "1px solid #dc2626", borderRadius: "0.25rem", cursor: "pointer", color: "#dc2626", display: "flex", alignItems: "center", justifyContent: "center" }}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-      <div style={{ backgroundColor: styles.cardBg, borderRadius: "0.5rem", boxShadow: styles.shadow }}>
-        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.borderColor}` }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>Product List</h2>
-        </div>
-        <div style={{ padding: "1rem" }}>
-          {currentProducts.length === 0 ? (
-            <p style={{ textAlign: "center", color: styles.secondaryTextColor }}>No products found</p>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem", maxWidth: "1200px", margin: "0 auto" }}>
-              {currentProducts.map((product) => (
-                <div
-                  key={product._id}
+          {showThemeDropdown && (
+            <div style={{
+              position: "absolute",
+              right: 0,
+              top: "100%",
+              backgroundColor: styles.dropdownBg,
+              border: `1px solid ${styles.border}`,
+              borderRadius: styles.radius,
+              marginTop: "0.5rem",
+              zIndex: 10
+            }}>
+              {themeOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }}
                   style={{
-                    backgroundColor: styles.cardBg,
-                    borderRadius: "0.5rem",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                    padding: "1rem",
                     display: "flex",
-                    flexDirection: "column",
-                    gap: "0.75rem",
-                    height: "100%",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.5rem",
+                    backgroundColor: theme === option.id ? styles.primary : "transparent",
+                    color: theme === option.id ? styles.primaryForeground : styles.foreground,
+                    border: "none",
+                    borderRadius: styles.radius,
+                    cursor: "pointer",
+                    textAlign: "left"
                   }}
                 >
-                  {product.image ? (
-                    <img
-                      src={`http://localhost:5000${product.image}`}
-                      alt={product.name}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`;
-                      }}
-                      style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: "0.25rem", marginBottom: "0.5rem" }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "150px",
-                        backgroundColor: styles.placeholderImageBg,
-                        borderRadius: "0.25rem",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: styles.placeholderImageText,
-                        fontSize: "0.875rem",
-                        textAlign: "center",
-                        marginBottom: "0.5rem",
-                      }}
-                    >
-                      No Image
-                    </div>
-                  )}
-                  <div style={{ flexGrow: 1 }}>
-                    <p style={{ fontWeight: "600", fontSize: "1rem", color: styles.textColor, marginBottom: "0.25rem" }}>{product.name}</p>
-                    <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Price: ₹{product.price.toLocaleString()}</p>
-                    <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Category: {product.category}</p>
-                    {product.model && <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Model: {product.model}</p>}
-                    {product.type && <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Type: {product.type}</p>}
-                    {product.accessoryType && <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Accessory Type: {product.accessoryType}</p>}
-                    {product.image_id && <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Image ID: {product.image_id}</p>}
-                    {product.image_path && <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Image Path: {product.image_path}</p>}
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "0.25rem 0.5rem",
-                        borderRadius: "0.25rem",
-                        fontSize: "0.75rem",
-                        color: "#ffffff",
-                        backgroundColor: product.stock > 10 ? "#16a34a" : product.stock > 0 ? "#f59e0b" : "#dc2626",
-                      }}
-                    >
-                      Stock: {product.stock}
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", gap: "0.5rem", marginTop: "auto" }}>
-                    <button
-                      onClick={() => editProduct(product)}
-                      style={{
-                        flex: 1,
-                        padding: "0.5rem",
-                        backgroundColor: styles.buttonBg,
-                        color: styles.buttonText,
-                        border: "none",
-                        borderRadius: "0.25rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.875rem",
-                        fontWeight: "500",
-                      }}
-                    >
-                      <Edit size={16} style={{ marginRight: "0.25rem" }} /> Edit
-                    </button>
-                    <button
-                      onClick={() => deleteProduct(product._id)}
-                      style={{
-                        flex: 1,
-                        padding: "0.5rem",
-                        backgroundColor: "#dc2626",
-                        color: styles.buttonText,
-                        border: "none",
-                        borderRadius: "0.25rem",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "0.875rem",
-                        fontWeight: "500",
-                      }}
-                    >
-                      <Trash2 size={16} style={{ marginRight: "0.25rem" }} /> Delete
-                    </button>
-                  </div>
-                </div>
+                  <option.icon size={16} />
+                  {option.label}
+                </button>
               ))}
             </div>
           )}
-          {filteredProducts.length > productsPerPage && (
-            <div style={{ display: "flex", justifyContent: "center", gap: "1rem", marginTop: "1.5rem" }}>
-              <button
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: currentPage === 1 ? styles.disabledBg : styles.buttonBg,
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                  fontWeight: "500",
-                }}
-              >
-                Previous
-              </button>
-              <span style={{ alignSelf: "center", fontSize: "1rem", color: styles.textColor }}>Page {currentPage} of {totalPages}</span>
-              <button
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: "0.5rem 1rem",
-                  backgroundColor: currentPage === totalPages ? styles.disabledBg : styles.buttonBg,
-                  color: styles.buttonText,
-                  border: "none",
-                  borderRadius: "0.25rem",
-                  cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                  fontWeight: "500",
-                }}
-              >
-                Next
-              </button>
-            </div>
-          )}
         </div>
       </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Products</h3>
+          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.totalProducts}</p>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Low Stock Items</h3>
+          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.lowStockItems}</p>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Stock Value</h3>
+          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.totalStockValue.toLocaleString()}</p>
+        </div>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Categories</h3>
+          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.categories}</p>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        <button onClick={() => openAddForm("product")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", background: styles.gradientPrimary, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.background = styles.gradientAccent; e.currentTarget.style.transform = styles.btnGradientHoverTransform; }} onMouseLeave={(e) => { e.currentTarget.style.background = styles.gradientPrimary; e.currentTarget.style.transform = "translateY(0)"; }}>
+          <PackagePlus size={16} /> Add Product
+        </button>
+        <button onClick={() => openAddForm("mobile")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonAddMobile, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Add Mobile Type</button>
+        <button onClick={() => openAddForm("accessories")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonAddAccessory, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Add Accessory Type</button>
+        <button onClick={() => setShowMobilePopup(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonMobileList, color: styles.secondaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Mobile List</button>
+        <button onClick={() => setShowAccessoriesPopup(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonAccessoriesList, color: styles.secondaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Accessories List</button>
+        <button onClick={() => { setShowExcelOptions(!showExcelOptions); setShowAddForm(false); }} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonExcel, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Excel Options</button>
+        {showExcelOptions && (
+          <div style={{ display: "flex", gap: "1rem" }}>
+            <button onClick={handleExportMobiles} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Export Mobiles Template</button>
+            <button onClick={handleExportAccessories} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Export Accessories Template</button>
+            <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleImportExcel} accept=".xlsx, .xls" />
+            <button onClick={() => fileInputRef.current.click()} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Import Products</button>
+            <input type="file" ref={imageInputRef} style={{ display: "none" }} onChange={handleUploadImages} accept="image/*" multiple />
+            <button onClick={() => imageInputRef.current.click()} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Upload Images</button>
+          </div>
+        )}
+      </div>
+      <div style={{ position: "relative", marginBottom: "2rem" }}>
+        <Search style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} size={16} />
+        <input placeholder="Search products..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} style={{ paddingLeft: "2.5rem", width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, backgroundColor: styles.input, color: styles.foreground }} />
+      </div>
+      {showAddForm && (
+        <form onSubmit={handleSubmit} style={{ backgroundColor: styles.cardBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadow, marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>{editingProduct ? "Edit Product" : editingMobile ? "Edit Mobile Type" : editingAccessory ? "Edit Accessory Type" : formType === "mobile" ? "Add Mobile Type" : formType === "accessories" ? "Add Accessory Type" : "Add Product"}</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem" }}>
+            {formType === "product" && (
+              <>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Name *</label>
+                  <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Price (₹) *</label>
+                  <input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Stock Quantity *</label>
+                  <input type="number" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Category *</label>
+                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value, model: "", accessoryType: "", newMobile: "", newAccessoryName: "", newAccessoryModel: "", type: "" })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
+                    <option value="">Select a category</option>
+                    {categoryOptions.map((category) => <option key={category} value={category}>{category}</option>)}
+                  </select>
+                </div>
+                {formData.category === "Mobile" && (
+                  <>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Existing Model</label>
+                      <select value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value, newMobile: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
+                        <option value="">Select a model</option>
+                        {mobiles.map((mobile) => <option key={mobile._id} value={mobile.name}>{mobile.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Mobile Type</label>
+                      <input type="text" value={formData.newMobile} onChange={(e) => setFormData({ ...formData, newMobile: e.target.value, model: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
+                      <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                    </div>
+                  </>
+                )}
+                {formData.category === "Accessories" && (
+                  <>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Existing Accessory Type</label>
+                      <select value={formData.accessoryType} onChange={(e) => setFormData({ ...formData, accessoryType: e.target.value, newAccessoryName: "", newAccessoryModel: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
+                        <option value="">Select an accessory type</option>
+                        {accessories.map((accessory) => <option key={accessory._id} value={accessory.accessoryType}>{accessory.accessoryModel} - {accessory.accessoryName}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Accessory Name</label>
+                      <input type="text" value={formData.newAccessoryName} onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value, accessoryType: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Accessory Model</label>
+                      <input type="text" value={formData.newAccessoryModel} onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value, accessoryType: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                    </div>
+                    <div>
+                      <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
+                      <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                    </div>
+                  </>
+                )}
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Supplier</label>
+                  <input type="text" value={formData.supplier} onChange={(e) => setFormData({ ...formData, supplier: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Minimum Stock Level</label>
+                  <input type="number" value={formData.minStock} onChange={(e) => setFormData({ ...formData, minStock: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Barcode</label>
+                  <input type="text" value={formData.barcode} onChange={(e) => setFormData({ ...formData, barcode: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Image ID (Read-only)</label>
+                  <input type="text" value={formData.image_id} readOnly style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.inputReadOnlyBg, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Product Image</label>
+                  <input type="file" accept="image/*" onChange={handleImageChange} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                  {imagePreview && <img src={imagePreview} alt="Preview" style={{ marginTop: "0.5rem", maxWidth: "100%", height: "auto", borderRadius: styles.radius }} />}
+                </div>
+              </>
+            )}
+            {formType === "mobile" && (
+              <div>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Mobile Name *</label>
+                <input type="text" value={formData.newMobile} onChange={(e) => setFormData({ ...formData, newMobile: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+              </div>
+            )}
+            {formType === "accessories" && (
+              <>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Accessory Name *</label>
+                  <input type="text" value={formData.newAccessoryName} onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Accessory Model *</label>
+                  <input type="text" value={formData.newAccessoryModel} onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
+                  <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
+                </div>
+              </>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+            <button type="submit" style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonBg, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>
+              {editingProduct ? "Update Product" : editingMobile ? "Update Mobile Type" : editingAccessory ? "Update Accessory Type" : "Add " + (formType === "mobile" ? "Mobile Type" : formType === "accessories" ? "Accessory Type" : "Product")}
+            </button>
+            <button type="button" onClick={resetForm} style={{ padding: "0.5rem 1rem", backgroundColor: styles.secondary, color: styles.secondaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Cancel</button>
+          </div>
+        </form>
+      )}
+      <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Product List</h2>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))", gap: "1rem" }}>
+        {currentProducts.map((product) => (
+          <div key={product._id} style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}>
+            <img src={product.image || `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`} alt={product.name} style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: styles.radius, marginBottom: "0.5rem", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`; }} />
+            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>{product.name}</h3>
+            <p style={{ color: styles.secondaryTextColor }}>₹{product.price.toLocaleString()}</p>
+            <p style={{ color: styles.secondaryTextColor }}>Category: {product.category}</p>
+            {product.model && <p style={{ color: styles.secondaryTextColor }}>Model: {product.model}</p>}
+            {product.type && <p style={{ color: styles.secondaryTextColor }}>Type: {product.type}</p>}
+            {product.accessoryType && <p style={{ color: styles.secondaryTextColor }}>Accessory Type: {product.accessoryType}</p>}
+            {product.image_id && <p style={{ color: styles.secondaryTextColor }}>Image ID: {product.image_id}</p>}
+            {product.image_path && <p style={{ color: styles.secondaryTextColor }}>Image Path: {product.image_path}</p>}
+            <div style={{ marginTop: "0.5rem", padding: "0.25rem 0.5rem", borderRadius: styles.radius, color: product.stock > 20 ? styles.successForeground : product.stock > 0 ? styles.warningForeground : styles.destructiveForeground, backgroundColor: product.stock > 20 ? styles.statusSuccess : product.stock > 0 ? styles.statusWarning : styles.statusDestructive }}>
+              {product.stock > 0 ? `Stock ${product.stock}` : "Out of Stock"}
+            </div>
+            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+              <button onClick={() => editProduct(product)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius }}><Edit size={16} /></button>
+              <button onClick={() => deleteProduct(product._id)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius }}><Trash2 size={16} /></button>
+            </div>
+          </div>
+        ))}
+        {filteredProducts.length === 0 && <p style={{ gridColumn: "1 / -1", textAlign: "center", color: styles.mutedForeground }}>No products found matching your search.</p>}
+      </div>
+      {filteredProducts.length > productsPerPage && (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
+          <button onClick={handlePrevPage} disabled={currentPage === 1} style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Previous</button>
+          <span>Page {currentPage} of {totalPages}</span>
+          <button onClick={handleNextPage} disabled={currentPage === totalPages} style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Next</button>
+        </div>
+      )}
+      {showMobilePopup && (
+        <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", backgroundColor: styles.popupBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadowElegant, zIndex: 1000, maxWidth: "24rem", width: "100%" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Mobile List</h2>
+          <button onClick={() => setShowMobilePopup(false)} style={{ background: "none", border: "none", cursor: "pointer", color: styles.mutedForeground }}><X size={20} /></button>
+          {mobiles.map((mobile) => (
+            <div key={mobile._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+              <span>{mobile.name}</span>
+              <div>
+                <button onClick={() => editMobile(mobile)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius }}>Edit</button>
+                <button onClick={() => deleteMobile(mobile._id)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius }}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {showAccessoriesPopup && (
+        <div style={{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)", backgroundColor: styles.popupBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadowElegant, zIndex: 1000, maxWidth: "24rem", width: "100%" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Accessories List</h2>
+          <button onClick={() => setShowAccessoriesPopup(false)} style={{ background: "none", border: "none", cursor: "pointer", color: styles.mutedForeground }}><X size={20} /></button>
+          {accessories.map((accessory) => (
+            <div key={accessory._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+              <span>{accessory.accessoryModel} - {accessory.accessoryName}</span>
+              <div>
+                <button onClick={() => editAccessory(accessory)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius }}>Edit</button>
+                <button onClick={() => deleteAccessory(accessory._id)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius }}>Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {showConfirmModal && <ConfirmModal message={confirmMessage} onConfirm={onConfirmAction} onCancel={() => setShowConfirmModal(false)} theme={theme} />}
       {showAlertModal && <AlertModal message={alertMessage} onClose={() => setShowAlertModal(false)} theme={theme} />}
     </div>
   );
 };
-
 export default InventoryManagement;
