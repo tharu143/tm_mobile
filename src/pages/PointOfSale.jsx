@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Plus, Minus, Trash2, CreditCard, Banknote, Smartphone, ShoppingCart, Sun, Moon, Leaf, Grid } from "lucide-react";
-
 // Inline SVG Icons
 const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -9,7 +8,6 @@ const SearchIcon = () => (
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
 );
-
 const PointOfSale = ({ theme, setTheme }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -28,7 +26,7 @@ const PointOfSale = ({ theme, setTheme }) => {
   const [accessories, setAccessories] = useState([]);
   const [showModelPopup, setShowModelPopup] = useState(false);
   const [selectedModel, setSelectedModel] = useState("");
-  const [showPrintPreview, setShowPrintPreview] = useState(true)
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [shopDetails, setShopDetails] = useState({
@@ -36,7 +34,6 @@ const PointOfSale = ({ theme, setTheme }) => {
     address: "123 Shop Street, City, Country",
     gstin: "12ABCDE1234F1Z5",
   });
-
   const themeStyles = {
     light: {
       bgColor: "hsl(240 20% 98%)",
@@ -247,9 +244,7 @@ const PointOfSale = ({ theme, setTheme }) => {
       btnGradientHoverTransform: "translateY(-1px)",
     },
   };
-
   const styles = themeStyles[theme] || themeStyles.light;
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -261,7 +256,6 @@ const PointOfSale = ({ theme, setTheme }) => {
           axios.get("http://localhost:5000/api/settings"),
           axios.get("http://localhost:5000/api/print"),
         ]);
-
         setProducts(productsRes.data);
         setMobiles(mobilesRes.data);
         setAccessories(accessoriesRes.data);
@@ -279,10 +273,8 @@ const PointOfSale = ({ theme, setTheme }) => {
         console.error("Error fetching data:", err);
       }
     };
-
     fetchData();
   }, []);
-
   useEffect(() => {
     const fetchCustomerSuggestions = async () => {
       if (customerName.trim() || customerPhone.trim()) {
@@ -299,12 +291,9 @@ const PointOfSale = ({ theme, setTheme }) => {
         setCustomerSuggestions([]);
       }
     };
-
     fetchCustomerSuggestions();
   }, [customerName, customerPhone]);
-
   const categories = ["All", ...new Set(products.map((p) => p.category))];
-
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
@@ -314,7 +303,6 @@ const PointOfSale = ({ theme, setTheme }) => {
       (selectedCategory === "Accessories" && product.accessoryType === selectedModel);
     return matchesSearch && matchesCategory && matchesModel;
   });
-
   const addToCart = (product) => {
     const existingItem = cart.find((item) => item.id === product._id);
     if (existingItem) {
@@ -331,7 +319,6 @@ const PointOfSale = ({ theme, setTheme }) => {
       setCart([...cart, { ...product, id: product._id, quantity: 1 }]);
     }
   };
-
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity === 0) {
       setCart(cart.filter((item) => item.id !== id));
@@ -348,36 +335,29 @@ const PointOfSale = ({ theme, setTheme }) => {
       }
     }
   };
-
   const removeFromCart = (id) => {
     setCart(cart.filter((item) => item.id !== id));
   };
-
   const selectCustomer = (customer) => {
     setCustomerName(customer.name);
     setCustomerPhone(customer.phone);
     setSelectedCustomer(customer);
     setCustomerSuggestions([]);
   };
-
   const selectModel = (model) => {
     setSelectedModel(model);
     setShowModelPopup(false);
   };
-
   const getSubtotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
-
   const getTax = () => {
     if (!enableGst) return 0;
     return getSubtotal() * (gstPercentage / 100);
   };
-
   const getTotal = () => {
     return getSubtotal() + getTax();
   };
-
   const processSale = async () => {
     if (cart.length === 0) {
       alert("Cart is empty!");
@@ -387,7 +367,6 @@ const PointOfSale = ({ theme, setTheme }) => {
       alert("Please enter customer details!");
       return;
     }
-
     const saleData = {
       customer: {
         name: customerName,
@@ -408,7 +387,6 @@ const PointOfSale = ({ theme, setTheme }) => {
       invoiceId: `INV-${Date.now()}`,
       gstPercentage: enableGst ? gstPercentage : 0,
     };
-
     try {
       await axios.post("http://localhost:5000/api/sales", saleData);
       setProducts((prevProducts) =>
@@ -433,7 +411,6 @@ const PointOfSale = ({ theme, setTheme }) => {
       alert("Failed to process sale. Please try again.");
     }
   };
-
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
     printWindow.document.write(`
@@ -441,55 +418,55 @@ const PointOfSale = ({ theme, setTheme }) => {
         <head>
           <title>Invoice ${invoiceData.invoiceId}</title>
           <style>
-            body { 
-              font-family: Arial, sans-serif; 
-              margin: 20px; 
-              font-size: 12px; 
-              background-color: ${styles.cardBg}; 
-              color: ${styles.textColor}; 
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+              font-size: 12px;
+              background-color: ${styles.cardBg};
+              color: ${styles.textColor};
             }
-            .invoice { 
-              max-width: 300px; 
-              margin: auto; 
-              border: 1px solid ${styles.border}; 
-              padding: 10px; 
-              background-color: ${styles.cardBg}; 
+            .invoice {
+              max-width: 300px;
+              margin: auto;
+              border: 1px solid ${styles.border};
+              padding: 10px;
+              background-color: ${styles.cardBg};
             }
-            .header { 
-              text-align: center; 
-              border-bottom: 1px dashed ${styles.border}; 
-              padding-bottom: 10px; 
-              margin-bottom: 10px; 
+            .header {
+              text-align: center;
+              border-bottom: 1px dashed ${styles.border};
+              padding-bottom: 10px;
+              margin-bottom: 10px;
             }
-            .header h1 { 
-              font-size: 16px; 
-              margin: 5px 0; 
+            .header h1 {
+              font-size: 16px;
+              margin: 5px 0;
             }
-            .details, .items, .totals { 
-              margin-bottom: 10px; 
+            .details, .items, .totals {
+              margin-bottom: 10px;
             }
-            .items table { 
-              width: 100%; 
-              border-collapse: collapse; 
+            .items table {
+              width: 100%;
+              border-collapse: collapse;
             }
-            .items th, .items td { 
-              border: 1px solid ${styles.border}; 
-              padding: 5px; 
-              text-align: left; 
+            .items th, .items td {
+              border: 1px solid ${styles.border};
+              padding: 5px;
+              text-align: left;
             }
-            .totals div { 
-              display: flex; 
-              justify-content: space-between; 
-              margin: 5px 0; 
+            .totals div {
+              display: flex;
+              justify-content: space-between;
+              margin: 5px 0;
             }
-            .footer { 
-              text-align: center; 
-              border-top: 1px dashed ${styles.border}; 
-              padding-top: 10px; 
-              margin-top: 10px; 
+            .footer {
+              text-align: center;
+              border-top: 1px dashed ${styles.border};
+              padding-top: 10px;
+              margin-top: 10px;
             }
-            @media print { 
-              .no-print { display: none; } 
+            @media print {
+              .no-print { display: none; }
               body { background-color: #ffffff; color: #000000; }
               .invoice { border: 1px solid #000000; background-color: #ffffff; }
               .header { border-bottom: 1px dashed #000000; }
@@ -559,26 +536,21 @@ const PointOfSale = ({ theme, setTheme }) => {
     `);
     printWindow.document.close();
   };
-
   const themeOptions = [
     { id: "light", label: "Light", icon: Sun },
     { id: "dark", label: "Dark", icon: Moon },
     { id: "nature", label: "Nature", icon: Leaf },
     { id: "sunset", label: "Sunset", icon: Grid },
   ];
-
   const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
-
   if (loading) {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading products...</div>;
   }
-
   if (error) {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
   }
-
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", display: "flex" }}>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", display: "flex", overflowX: "hidden" }}>
       <div style={{ flexGrow: 1, padding: "2rem", overflow: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <div>
@@ -588,51 +560,51 @@ const PointOfSale = ({ theme, setTheme }) => {
             </p>
           </div>
           <div style={{ position: "relative" }}>
-            <div 
-              onClick={() => setShowThemeDropdown(!showThemeDropdown)} 
-              style={{ 
-                display: "flex", 
-                alignItems: "center", 
-                gap: "0.5rem", 
-                padding: "0.5rem 1rem", 
-                backgroundColor: styles.card, 
-                color: styles.primary, 
-                border: `1px solid ${styles.border}`, 
-                borderRadius: styles.radius, 
-                cursor: "pointer", 
-                fontWeight: "500", 
-                transition: "all 0.2s ease-in-out" 
+            <div
+              onClick={() => setShowThemeDropdown(!showThemeDropdown)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1rem",
+                backgroundColor: styles.card,
+                color: styles.primary,
+                border: `1px solid ${styles.border}`,
+                borderRadius: styles.radius,
+                cursor: "pointer",
+                fontWeight: "500",
+                transition: "all 0.2s ease-in-out"
               }}
             >
               {selectedTheme && <selectedTheme.icon size={16} />}
               {selectedTheme && selectedTheme.label}
             </div>
             {showThemeDropdown && (
-              <div style={{ 
-                position: "absolute", 
+              <div style={{
+                position: "absolute",
                 right: 0,
                 top: "100%",
-                backgroundColor: styles.dropdownBg, 
-                border: `1px solid ${styles.border}`, 
-                borderRadius: styles.radius, 
-                marginTop: "0.5rem", 
-                zIndex: 10 
+                backgroundColor: styles.dropdownBg,
+                border: `1px solid ${styles.border}`,
+                borderRadius: styles.radius,
+                marginTop: "0.5rem",
+                zIndex: 10
               }}>
                 {themeOptions.map((option) => (
-                  <button 
-                    key={option.id} 
-                    onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }} 
-                    style={{ 
-                      display: "flex", 
-                      alignItems: "center", 
-                      gap: "0.5rem", 
-                      padding: "0.5rem", 
-                      backgroundColor: theme === option.id ? styles.primary : "transparent", 
-                      color: theme === option.id ? styles.primaryForeground : styles.foreground, 
-                      border: "none", 
-                      borderRadius: styles.radius, 
-                      cursor: "pointer", 
-                      textAlign: "left" 
+                  <button
+                    key={option.id}
+                    onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.5rem",
+                      backgroundColor: theme === option.id ? styles.primary : "transparent",
+                      color: theme === option.id ? styles.primaryForeground : styles.foreground,
+                      border: "none",
+                      borderRadius: styles.radius,
+                      cursor: "pointer",
+                      textAlign: "left"
                     }}
                   >
                     <option.icon size={16} />
@@ -648,51 +620,51 @@ const PointOfSale = ({ theme, setTheme }) => {
             <SearchIcon style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} />
             <input
               type="text"
-              style={{ 
-                paddingLeft: "2.5rem", 
-                width: "100%", 
-                padding: "0.5rem", 
-                border: `1px solid ${styles.border}`, 
-                borderRadius: styles.radius, 
-                backgroundColor: styles.input, 
-                color: styles.foreground 
+              style={{
+                paddingLeft: "2.5rem",
+                width: "100%",
+                padding: "0.5rem",
+                border: `1px solid ${styles.border}`,
+                borderRadius: styles.radius,
+                backgroundColor: styles.input,
+                color: styles.foreground
               }}
               placeholder="Search products..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  style={{ 
-                    padding: "0.5rem 1rem", 
-                    backgroundColor: selectedCategory === category ? styles.primary : styles.buttonOutlineBg, 
-                    color: selectedCategory === category ? styles.primaryForeground : styles.buttonOutlineText, 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    cursor: "pointer" 
-                  }}
-                  onClick={() => {
-                    setSelectedCategory(category);
-                    setSelectedModel("");
-                  }}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            {categories.map((category) => (
+              <button
+                key={category}
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: selectedCategory === category ? styles.primary : styles.buttonOutlineBg,
+                  color: selectedCategory === category ? styles.primaryForeground : styles.buttonOutlineText,
+                  border: `1px solid ${styles.border}`,
+                  borderRadius: styles.radius,
+                  cursor: "pointer"
+                }}
+                onClick={() => {
+                  setSelectedCategory(category);
+                  setSelectedModel("");
+                }}
+              >
+                {category}
+              </button>
+            ))}
             {(selectedCategory === "Mobile" || selectedCategory === "Accessories") && (
               <button
-                style={{ 
-                  padding: "0.5rem 1rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: styles.buttonOutlineBg,
+                  color: styles.buttonOutlineText,
+                  border: `1px solid ${styles.border}`,
+                  borderRadius: styles.radius,
+                  cursor: "pointer"
                 }}
                 onClick={() => setShowModelPopup(true)}
               >
@@ -700,72 +672,70 @@ const PointOfSale = ({ theme, setTheme }) => {
               </button>
             )}
           </div>
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(12rem, 1fr))", gap: "1rem" }}>
-          {filteredProducts.map((product) => (
-            <div
-              key={product._id}
-              style={{ 
-                backgroundColor: styles.cardBg, 
-                borderRadius: styles.radius, 
-                boxShadow: styles.shadowCard, 
-                cursor: "pointer",
-                transition: "all 0.2s"
-              }}
-              onClick={() => addToCart(product)}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}
-            >
-              <div style={{ padding: "1rem" }}>
-                <div style={{ textAlign: "center" }}>
-                  <div
-                    style={{ 
-                      height: "8rem", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center", 
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(12rem, 1fr))", gap: "1rem", maxWidth: "60rem" }}>
+            {filteredProducts.map((product) => (
+              <div
+                key={product._id}
+                style={{
+                  backgroundColor: styles.cardBg,
+                  borderRadius: styles.radius,
+                  boxShadow: styles.shadowCard,
+                  cursor: "pointer",
+                  transition: "all 0.2s"
+                }}
+                onClick={() => addToCart(product)}
+                onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }}
+                onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}
+              >
+                <div style={{ padding: "1rem" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{
+                      height: "8rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       marginBottom: "1rem",
                       backgroundColor: styles.muted
-                    }}
-                  >
-                    {product.image ? (
-                      <img
-                        src={`http://localhost:5000${product.image}`}
-                        alt={product.name}
-                        style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
-                      />
-                    ) : (
-                      <Smartphone size={48} style={{ color: styles.mutedForeground }} />
-                    )}
-                  </div>
-                  <h3 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "0.5rem", color: styles.textColor }}>{product.name}</h3>
-                  <p style={{ color: styles.primary, fontWeight: "600", marginBottom: "0.5rem" }}>₹{product.price.toLocaleString()}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span
-                      style={{
-                        padding: "0.25rem 0.5rem",
-                        borderRadius: styles.radius,
-                        backgroundColor: product.stock > 10 ? styles.statusSuccess : product.stock > 0 ? styles.statusWarning : styles.statusDestructive,
-                        color: product.stock > 10 ? styles.successForeground : product.stock > 0 ? styles.warningForeground : styles.destructiveForeground
-                      }}
-                    >
-                      Stock: {product.stock}
-                    </span>
-                    <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.secondary, color: styles.secondaryForeground }}>
-                      {product.category}
-                    </span>
+                    }}>
+                      {product.image ? (
+                        <img
+                          src={`http://localhost:5000${product.image}`}
+                          alt={product.name}
+                          style={{ maxHeight: "100%", maxWidth: "100%", objectFit: "contain" }}
+                        />
+                      ) : (
+                        <Smartphone size={48} style={{ color: styles.mutedForeground }} />
+                      )}
+                    </div>
+                    <h3 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "0.5rem", color: styles.textColor }}>{product.name}</h3>
+                    <p style={{ color: styles.primary, fontWeight: "600", marginBottom: "0.5rem" }}>₹{product.price.toLocaleString()}</p>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span
+                        style={{
+                          padding: "0.25rem 0.5rem",
+                          borderRadius: styles.radius,
+                          backgroundColor: product.stock > 10 ? styles.statusSuccess : product.stock > 0 ? styles.statusWarning : styles.statusDestructive,
+                          color: product.stock > 10 ? styles.successForeground : product.stock > 0 ? styles.warningForeground : styles.destructiveForeground
+                        }}
+                      >
+                        Stock: {product.stock}
+                      </span>
+                      <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.secondary, color: styles.secondaryForeground }}>
+                        {product.category}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
       <div style={{ width: "25rem", minWidth: "24rem", backgroundColor: styles.cardBg, borderLeft: `1px solid ${styles.border}` }}>
         <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
           <h2 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.textColor }}>
             <ShoppingCart size={20} />
-            Cart ({cart.length})
+            Cart ({cart.length || 0})
           </h2>
         </div>
         <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
@@ -773,13 +743,13 @@ const PointOfSale = ({ theme, setTheme }) => {
           <div style={{ position: "relative", marginBottom: "0.5rem" }}>
             <input
               type="text"
-              style={{ 
-                width: "100%", 
-                padding: "0.5rem", 
-                border: `1px solid ${styles.border}`, 
-                borderRadius: styles.radius, 
-                backgroundColor: styles.input, 
-                color: styles.foreground 
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                border: `1px solid ${styles.border}`,
+                borderRadius: styles.radius,
+                backgroundColor: styles.input,
+                color: styles.foreground
               }}
               placeholder="Customer Name"
               value={customerName}
@@ -790,23 +760,23 @@ const PointOfSale = ({ theme, setTheme }) => {
             />
             {customerSuggestions.length > 0 && !selectedCustomer && (
               <ul
-                style={{ 
-                  position: "absolute", 
-                  width: "100%", 
-                  backgroundColor: styles.dropdownBg, 
-                  border: `1px solid ${styles.border}`, 
-                  borderRadius: styles.radius, 
-                  maxHeight: "200px", 
-                  overflowY: "auto", 
-                  zIndex: 10 
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  backgroundColor: styles.dropdownBg,
+                  border: `1px solid ${styles.border}`,
+                  borderRadius: styles.radius,
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  zIndex: 10
                 }}
               >
                 {customerSuggestions.map((customer) => (
                   <li
                     key={customer._id}
-                    style={{ 
-                      padding: "0.5rem", 
-                      cursor: "pointer", 
+                    style={{
+                      padding: "0.5rem",
+                      cursor: "pointer",
                       color: styles.textColor,
                       transition: "background-color 0.2s"
                     }}
@@ -823,13 +793,13 @@ const PointOfSale = ({ theme, setTheme }) => {
           <div style={{ position: "relative" }}>
             <input
               type="text"
-              style={{ 
-                width: "100%", 
-                padding: "0.5rem", 
-                border: `1px solid ${styles.border}`, 
-                borderRadius: styles.radius, 
-                backgroundColor: styles.input, 
-                color: styles.foreground 
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                border: `1px solid ${styles.border}`,
+                borderRadius: styles.radius,
+                backgroundColor: styles.input,
+                color: styles.foreground
               }}
               placeholder="Phone Number"
               value={customerPhone}
@@ -840,23 +810,23 @@ const PointOfSale = ({ theme, setTheme }) => {
             />
             {customerSuggestions.length > 0 && !selectedCustomer && (
               <ul
-                style={{ 
-                  position: "absolute", 
-                  width: "100%", 
-                  backgroundColor: styles.dropdownBg, 
-                  border: `1px solid ${styles.border}`, 
-                  borderRadius: styles.radius, 
-                  maxHeight: "200px", 
-                  overflowY: "auto", 
-                  zIndex: 10 
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  backgroundColor: styles.dropdownBg,
+                  border: `1px solid ${styles.border}`,
+                  borderRadius: styles.radius,
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  zIndex: 10
                 }}
               >
                 {customerSuggestions.map((customer) => (
                   <li
                     key={customer._id}
-                    style={{ 
-                      padding: "0.5rem", 
-                      cursor: "pointer", 
+                    style={{
+                      padding: "0.5rem",
+                      cursor: "pointer",
                       color: styles.textColor,
                       transition: "background-color 0.2s"
                     }}
@@ -888,23 +858,23 @@ const PointOfSale = ({ theme, setTheme }) => {
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "0.75rem", 
-                    padding: "0.75rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    marginBottom: "0.75rem" 
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    padding: "0.75rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    marginBottom: "0.75rem"
                   }}
                 >
                   <div
-                    style={{ 
-                      width: "3rem", 
-                      height: "3rem", 
-                      display: "flex", 
-                      alignItems: "center", 
-                      justifyContent: "center", 
+                    style={{
+                      width: "3rem",
+                      height: "3rem",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                       borderRadius: styles.radius,
                       backgroundColor: styles.muted
                     }}
@@ -925,11 +895,11 @@ const PointOfSale = ({ theme, setTheme }) => {
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                     <button
-                      style={{ 
-                        padding: "0.25rem 0.5rem", 
-                        backgroundColor: styles.buttonOutlineBg, 
-                        color: styles.buttonOutlineText, 
-                        border: `1px solid ${styles.border}`, 
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        backgroundColor: styles.buttonOutlineBg,
+                        color: styles.buttonOutlineText,
+                        border: `1px solid ${styles.border}`,
                         borderRadius: styles.radius,
                         cursor: "pointer"
                       }}
@@ -939,11 +909,11 @@ const PointOfSale = ({ theme, setTheme }) => {
                     </button>
                     <span style={{ padding: "0 0.5rem" }}>{item.quantity}</span>
                     <button
-                      style={{ 
-                        padding: "0.25rem 0.5rem", 
-                        backgroundColor: styles.buttonOutlineBg, 
-                        color: styles.buttonOutlineText, 
-                        border: `1px solid ${styles.border}`, 
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        backgroundColor: styles.buttonOutlineBg,
+                        color: styles.buttonOutlineText,
+                        border: `1px solid ${styles.border}`,
                         borderRadius: styles.radius,
                         cursor: "pointer"
                       }}
@@ -952,11 +922,11 @@ const PointOfSale = ({ theme, setTheme }) => {
                       <Plus size={12} />
                     </button>
                     <button
-                      style={{ 
-                        padding: "0.25rem 0.5rem", 
-                        backgroundColor: styles.destructive, 
-                        color: styles.destructiveForeground, 
-                        border: "none", 
+                      style={{
+                        padding: "0.25rem 0.5rem",
+                        backgroundColor: styles.destructive,
+                        color: styles.destructiveForeground,
+                        border: "none",
                         borderRadius: styles.radius,
                         cursor: "pointer"
                       }}
@@ -992,12 +962,12 @@ const PointOfSale = ({ theme, setTheme }) => {
               <label style={{ display: "block", marginBottom: "0.5rem", color: styles.textColor }}>Payment Method:</label>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <button
-                  style={{ 
-                    flexGrow: 1, 
-                    padding: "0.5rem", 
-                    backgroundColor: paymentMethod === "cash" ? styles.primary : styles.buttonOutlineBg, 
-                    color: paymentMethod === "cash" ? styles.primaryForeground : styles.buttonOutlineText, 
-                    border: `1px solid ${styles.border}`, 
+                  style={{
+                    flexGrow: 1,
+                    padding: "0.5rem",
+                    backgroundColor: paymentMethod === "cash" ? styles.primary : styles.buttonOutlineBg,
+                    color: paymentMethod === "cash" ? styles.primaryForeground : styles.buttonOutlineText,
+                    border: `1px solid ${styles.border}`,
                     borderRadius: styles.radius,
                     cursor: "pointer",
                     display: "flex",
@@ -1011,12 +981,12 @@ const PointOfSale = ({ theme, setTheme }) => {
                   Cash
                 </button>
                 <button
-                  style={{ 
-                    flexGrow: 1, 
-                    padding: "0.5rem", 
-                    backgroundColor: paymentMethod === "card" ? styles.primary : styles.buttonOutlineBg, 
-                    color: paymentMethod === "card" ? styles.primaryForeground : styles.buttonOutlineText, 
-                    border: `1px solid ${styles.border}`, 
+                  style={{
+                    flexGrow: 1,
+                    padding: "0.5rem",
+                    backgroundColor: paymentMethod === "card" ? styles.primary : styles.buttonOutlineBg,
+                    color: paymentMethod === "card" ? styles.primaryForeground : styles.buttonOutlineText,
+                    border: `1px solid ${styles.border}`,
                     borderRadius: styles.radius,
                     cursor: "pointer",
                     display: "flex",
@@ -1031,13 +1001,13 @@ const PointOfSale = ({ theme, setTheme }) => {
                 </button>
               </div>
             </div>
-            <button 
-              style={{ 
-                width: "100%", 
-                padding: "0.5rem", 
-                backgroundColor: styles.primary, 
-                color: styles.primaryForeground, 
-                border: "none", 
+            <button
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                backgroundColor: styles.primary,
+                color: styles.primaryForeground,
+                border: "none",
                 borderRadius: styles.radius,
                 cursor: "pointer"
               }}
@@ -1050,26 +1020,26 @@ const PointOfSale = ({ theme, setTheme }) => {
       </div>
       {showModelPopup && (
         <div
-          style={{ 
-            position: "fixed", 
-            top: 0, 
-            left: 0, 
-            width: "100%", 
-            height: "100%", 
-            backgroundColor: "rgba(0,0,0,0.5)", 
-            display: "flex", 
-            justifyContent: "center", 
-            alignItems: "center", 
-            zIndex: 1000 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000
           }}
         >
           <div
-            style={{ 
-              backgroundColor: styles.popupBg, 
-              borderRadius: styles.radius, 
-              padding: "1rem", 
-              width: "400px", 
-              maxHeight: "80vh", 
+            style={{
+              backgroundColor: styles.popupBg,
+              borderRadius: styles.radius,
+              padding: "1rem",
+              width: "400px",
+              maxHeight: "80vh",
               overflowY: "auto",
               boxShadow: styles.shadowElegant
             }}
@@ -1077,11 +1047,11 @@ const PointOfSale = ({ theme, setTheme }) => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>Select Model</h3>
               <button
-                style={{ 
-                  padding: "0.25rem 0.5rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
+                style={{
+                  padding: "0.25rem 0.5rem",
+                  backgroundColor: styles.buttonOutlineBg,
+                  color: styles.buttonOutlineText,
+                  border: `1px solid ${styles.border}`,
                   borderRadius: styles.radius,
                   cursor: "pointer"
                 }}
@@ -1100,11 +1070,11 @@ const PointOfSale = ({ theme, setTheme }) => {
               mobiles.map((mobile) => (
                 <div
                   key={mobile._id}
-                  style={{ 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    marginBottom: "0.5rem", 
+                  style={{
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    marginBottom: "0.5rem",
                     cursor: "pointer",
                     color: styles.textColor,
                     transition: "background-color 0.2s"
@@ -1120,11 +1090,11 @@ const PointOfSale = ({ theme, setTheme }) => {
               accessories.map((accessory) => (
                 <div
                   key={accessory._id}
-                  style={{ 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    marginBottom: "0.5rem", 
+                  style={{
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    marginBottom: "0.5rem",
                     cursor: "pointer",
                     color: styles.textColor,
                     transition: "background-color 0.2s"
@@ -1141,26 +1111,26 @@ const PointOfSale = ({ theme, setTheme }) => {
       )}
       {showPrintPreview && invoiceData && (
         <div
-          style={{ 
-            position: "fixed", 
-            top: 0, 
-            left: 0, 
-            width: "100%", 
-            height: "100%", 
-            backgroundColor: "rgba(0,0,0,0.5)", 
-            display: "flex", 
-            justifyContent: "center", 
-            alignItems: "center", 
-            zIndex: 1000 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000
           }}
         >
           <div
-            style={{ 
-              backgroundColor: styles.popupBg, 
-              borderRadius: styles.radius, 
-              padding: "1rem", 
-              width: "350px", 
-              maxHeight: "80vh", 
+            style={{
+              backgroundColor: styles.popupBg,
+              borderRadius: styles.radius,
+              padding: "1rem",
+              width: "350px",
+              maxHeight: "80vh",
               overflowY: "auto",
               boxShadow: styles.shadowElegant
             }}
@@ -1168,11 +1138,11 @@ const PointOfSale = ({ theme, setTheme }) => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
               <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>Invoice Preview</h3>
               <button
-                style={{ 
-                  padding: "0.25rem 0.5rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
+                style={{
+                  padding: "0.25rem 0.5rem",
+                  backgroundColor: styles.buttonOutlineBg,
+                  color: styles.buttonOutlineText,
+                  border: `1px solid ${styles.border}`,
                   borderRadius: styles.radius,
                   cursor: "pointer"
                 }}
@@ -1269,13 +1239,13 @@ const PointOfSale = ({ theme, setTheme }) => {
               </div>
             </div>
             <div style={{ display: "flex", gap: "0.5rem", marginTop: "1rem" }}>
-              <button 
-                style={{ 
-                  flex: 1, 
-                  padding: "0.5rem", 
-                  backgroundColor: styles.primary, 
-                  color: styles.primaryForeground, 
-                  border: "none", 
+              <button
+                style={{
+                  flex: 1,
+                  padding: "0.5rem",
+                  backgroundColor: styles.primary,
+                  color: styles.primaryForeground,
+                  border: "none",
                   borderRadius: styles.radius,
                   cursor: "pointer"
                 }}
@@ -1284,12 +1254,12 @@ const PointOfSale = ({ theme, setTheme }) => {
                 Print Invoice
               </button>
               <button
-                style={{ 
-                  flex: 1, 
-                  padding: "0.5rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
+                style={{
+                  flex: 1,
+                  padding: "0.5rem",
+                  backgroundColor: styles.buttonOutlineBg,
+                  color: styles.buttonOutlineText,
+                  border: `1px solid ${styles.border}`,
                   borderRadius: styles.radius,
                   cursor: "pointer"
                 }}
@@ -1304,5 +1274,4 @@ const PointOfSale = ({ theme, setTheme }) => {
     </div>
   );
 };
-
 export default PointOfSale;

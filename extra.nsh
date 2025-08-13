@@ -5,7 +5,7 @@
 !define APP_VERSION "1.0.0"
 !define COMPANY_NAME "Your Company"
 !define TEMP_DIR "$APPDATA\${APP_NAME}Temp"
-!define INSTALLER_ICON "public\kyle-logo.ico"
+!define INSTALLER_ICON "public\tmt-logo.ico"
 
 ; Request admin privileges for installation
 RequestExecutionLevel admin
@@ -101,7 +101,7 @@ RequestExecutionLevel admin
   RMDir /r "$INSTDIR\mongodb-binaries"
   RMDir /r "$INSTDIR\flask_server"
   Delete "$INSTDIR\LICENSE.txt"
-  Delete "$INSTDIR\kyle-logo.ico"
+  Delete "$INSTDIR\tmt-logo.ico"
 
   ; Remove the installation directory if empty
   RMDir "$INSTDIR"

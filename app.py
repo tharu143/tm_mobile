@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import sys
 import logging
@@ -20,18 +19,27 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from apscheduler.schedulers.background import BackgroundScheduler
+# Workaround for numpy initialization issue in PyInstaller
+try:
+    import numpy as np
+except RuntimeError as e:
+    if "CPU dispatcher tracer already initialized" in str(e):
+        import numpy.core.multiarray # Force reinitialization
+        np = __import__('numpy')
+    else:
+        raise
 scheduler = BackgroundScheduler()
 # Initialize Flask app
 def get_base_dir():
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
-CONFIG_DIR = os.getenv('CONFIG_DIR', get_base_dir())
+BASE_DIR = get_base_dir()
+CONFIG_DIR = os.getenv('CONFIG_DIR', BASE_DIR)
 os.makedirs(CONFIG_DIR, exist_ok=True)
 CONFIG_FILE_PATH = os.path.join(CONFIG_DIR, 'config.json')
-BASE_DIR = get_base_dir()
 STATIC_FOLDER_PATH = os.path.join(BASE_DIR, 'dist')
-BACKUP_DIR = os.path.join(BASE_DIR, 'backups')
+BACKUP_DIR = os.getenv('BACKUP_DIR', os.path.join(BASE_DIR, 'backups'))
 os.makedirs(BACKUP_DIR, exist_ok=True)
 app = Flask(__name__, static_folder=STATIC_FOLDER_PATH, static_url_path='/')
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
@@ -84,7 +92,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 def allowed_excel_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXCEL_EXTENSIONS
- 
 @app.route('/api/upload/images', methods=['POST'])
 def upload_images():
     try:
@@ -124,7 +131,7 @@ def export_mobiles_to_excel():
         ws.title = "Mobile Products"
         ws.append(headers)
         # Fetch mobile products
-        mobile_products = list(products_collection.find({"category": "Mobile"}))
+        mobile_products = list(products_collection.find({"category": {"$regex": "^mobile$", "$options": "i"}}))
         for row_idx, product in enumerate(mobile_products, start=2):
             image_path = product.get('image_path')
             image_id = product.get('image_id')
@@ -200,7 +207,7 @@ def export_accessories_to_excel():
         ws.title = "Accessories Products"
         ws.append(headers)
         # Fetch accessory products
-        accessory_products = list(products_collection.find({"category": "Accessories"}))
+        accessory_products = list(products_collection.find({"category": {"$regex": "^accessories$", "$options": "i"}}))
         for row_idx, product in enumerate(accessory_products, start=2):
             image_path = product.get('image_path')
             image_id = product.get('image_id')
@@ -548,6 +555,54 @@ def delete_product(id):
     except Exception as e:
         logger.error(f"Error deleting product {id}: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
+@app.route('/api/products/all', methods=['DELETE'])
+def delete_all_products():
+    try:
+        products = list(products_collection.find())
+        for product in products:
+            if 'image_id' in product and product['image_id'] and ObjectId.is_valid(product['image_id']):
+                fs.delete(ObjectId(product['image_id']))
+        result = products_collection.delete_many({})
+        return jsonify({"message": f"Deleted {result.deleted_count} products successfully!"})
+    except Exception as e:
+        logger.error(f"Error deleting all products: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+@app.route('/api/products/mobile', methods=['DELETE'])
+def delete_mobile_products():
+    try:
+        products = list(products_collection.find({"category": {"$regex": "^mobile$", "$options": "i"}}))
+        for product in products:
+            if 'image_id' in product and product['image_id'] and ObjectId.is_valid(product['image_id']):
+                fs.delete(ObjectId(product['image_id']))
+        result = products_collection.delete_many({"category": {"$regex": "^mobile$", "$options": "i"}})
+        return jsonify({"message": f"Deleted {result.deleted_count} mobile products successfully!"})
+    except Exception as e:
+        logger.error(f"Error deleting mobile products: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+@app.route('/api/products/accessories', methods=['DELETE'])
+def delete_accessories_products():
+    try:
+        products = list(products_collection.find({"category": {"$regex": "^accessories$", "$options": "i"}}))
+        for product in products:
+            if 'image_id' in product and product['image_id'] and ObjectId.is_valid(product['image_id']):
+                fs.delete(ObjectId(product['image_id']))
+        result = products_collection.delete_many({"category": {"$regex": "^accessories$", "$options": "i"}})
+        return jsonify({"message": f"Deleted {result.deleted_count} accessories products successfully!"})
+    except Exception as e:
+        logger.error(f"Error deleting accessories products: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
+@app.route('/api/products/category/<category>', methods=['DELETE'])
+def delete_products_by_category(category):
+    try:
+        products = list(products_collection.find({"category": {"$regex": f"^{category}$", "$options": "i"}}))
+        for product in products:
+            if 'image_id' in product and product['image_id'] and ObjectId.is_valid(product['image_id']):
+                fs.delete(ObjectId(product['image_id']))
+        result = products_collection.delete_many({"category": {"$regex": f"^{category}$", "$options": "i"}})
+        return jsonify({"message": f"Deleted {result.deleted_count} products in category {category} successfully!"})
+    except Exception as e:
+        logger.error(f"Error deleting products in category {category}: {e}")
+        return jsonify({"error": "An unexpected error occurred"}), 500
 @app.route('/api/products/<id>/stock', methods=['PUT'])
 def update_product_stock(id):
     try:
@@ -746,7 +801,7 @@ def process_sale():
                 'name': customer['name'],
                 'phone': customer['phone'],
                 'email': '', 'address': '', 'city': '', 'pincode': '', 'dateOfBirth': '',
-                'purchases': 1, 'totalPurchases': data['total'], 'lastPurchase': data['timestamp'][:10], 'posBalance': 0
+                'purchases': 1, 'totalPurchases': data['total'], 'totalPurchases': data['total'], 'lastPurchase': data['timestamp'][:10], 'posBalance': 0
             }
             result = customers_collection.insert_one(new_customer)
             customer_id = str(result.inserted_id)
@@ -867,7 +922,7 @@ def restock_low_stock():
         data = request.get_json() or {}
         restock_amount = int(data.get('restockAmount', 10))
         low_stock_items = list(products_collection.find({"$expr": {"$lte": ["$stock", "$minStock"]}}))
-     
+   
         if not low_stock_items:
             return jsonify({"message": "No low stock items to restock", "updatedItems": []}), 200
         updated_items = []
@@ -902,7 +957,7 @@ def restock_manual():
     try:
         data = request.get_json() or {}
         items = data.get('items', [])
-     
+   
         if not items:
             return jsonify({"error": "No items provided for restocking"}), 400
         updated_items = []
@@ -1191,7 +1246,7 @@ def get_monthly_report():
         year = int(request.args.get('year'))
         month = int(request.args.get('month'))
         start, end = get_month_range(year, month)
-     
+  
         sales_pipeline = [
             {"$match": {"timestamp": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$unwind": "$items"},
@@ -1204,7 +1259,7 @@ def get_monthly_report():
         sales_data = list(sales_collection.aggregate(sales_pipeline))
         for sale in sales_data:
             sale['_id'] = str(sale['_id'])
-     
+  
         additions_pipeline = [
             {"$match": {"date": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$group": {"_id": "$product_id", "totalAdded": {"$sum": "$quantity"}}}
@@ -1212,11 +1267,11 @@ def get_monthly_report():
         additions_data = list(stock_additions_collection.aggregate(additions_pipeline))
         for addition in additions_data:
             addition['_id'] = str(addition['_id'])
-     
+  
         current_stock = list(products_collection.find({}, {"_id": 1, "stock": 1, "name": 1}))
         for stock in current_stock:
             stock['_id'] = str(stock['_id'])
-     
+  
         report = {
             "sales": sales_data,
             "additions": additions_data,
@@ -1232,7 +1287,7 @@ def get_yearly_report():
     try:
         year = int(request.args.get('year'))
         start, end = get_year_range(year)
-     
+  
         sales_pipeline = [
             {"$match": {"timestamp": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$unwind": "$items"},
@@ -1245,7 +1300,7 @@ def get_yearly_report():
         sales_data = list(sales_collection.aggregate(sales_pipeline))
         for sale in sales_data:
             sale['_id'] = str(sale['_id'])
-     
+  
         additions_pipeline = [
             {"$match": {"date": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$group": {"_id": "$product_id", "totalAdded": {"$sum": "$quantity"}}}
@@ -1253,11 +1308,11 @@ def get_yearly_report():
         additions_data = list(stock_additions_collection.aggregate(additions_pipeline))
         for addition in additions_data:
             addition['_id'] = str(addition['_id'])
-     
+  
         current_stock = list(products_collection.find({}, {"_id": 1, "stock": 1, "name": 1}))
         for stock in current_stock:
             stock['_id'] = str(stock['_id'])
-     
+   
         report = {
             "sales": sales_data,
             "additions": additions_data,

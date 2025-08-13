@@ -1,6 +1,6 @@
 {
   "name": "retail",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Retail application with Flask backend and Electron frontend",
   "author": "Your Name <your.email@example.com>",
@@ -80,7 +80,7 @@
       "flask_server/dist/**/*",
       "Uploads/**/*",
       "LICENSE.txt",
-      "public/kyle-logo.ico",
+      "public/tmt-logo.ico",
       "node_modules/**/*"
     ],
     "extraResources": [
@@ -106,13 +106,13 @@
         "to": "LICENSE.txt"
       },
       {
-        "from": "public/kyle-logo.ico",
-        "to": "public/kyle-logo.ico"
+        "from": "public/tmt-logo.ico",
+        "to": "public/tmt-logo.ico"
       }
     ],
     "win": {
       "target": "nsis",
-      "icon": "public/kyle-logo.ico"
+      "icon": "public/tmt-logo.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -120,8 +120,8 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "installerIcon": "public/kyle-logo.ico",
-      "uninstallerIcon": "public/kyle-logo.ico",
+      "installerIcon": "public/tmt-logo.ico",
+      "uninstallerIcon": "public/tmt-logo.ico",
       "artifactName": "RetailApp-Setup-${version}.exe"
     },
     "directories": {

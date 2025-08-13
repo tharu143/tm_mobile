@@ -1,7 +1,5 @@
-# -*- mode: python ; coding: utf-8 -*-
-
+# app.spec (PyInstaller spec file)
 block_cipher = None
-
 a = Analysis(
     ['app.py'],
     pathex=['C:\\manoj\\retail'],
@@ -18,20 +16,19 @@ a = Analysis(
         'flask', 'jinja2', 'waitress', 'et_xmlfile', 'charset_normalizer', 'certifi',
         'dns.rdata', 'packaging', 'platformdirs', 'wheel', 'zipp', 'importlib_metadata',
         'more_itertools', 'jaraco.text', 'jaraco.functools', 'jaraco.context',
-        'backports.tarfile', 'tomli'
+        'backports.tarfile', 'tomli', 'numpy', 'numpy.core.multiarray',
+        'numpy.core._multiarray_umath', 'apscheduler.schedulers.background'
     ],
-    hookspath=[],
+    hookspath=['.'], # Include the directory with hook-numpy.py
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['tkinter', 'PyQt5', 'numpy'],
+    excludes=['tkinter', 'PyQt5'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
     noarchive=False,
 )
-
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
 exe = EXE(
     pyz,
     a.scripts,
@@ -46,14 +43,13 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    console=False,
+    console=True, # Set to True for debugging; change to False for production
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
 )
-
 coll = COLLECT(
     exe,
     a.binaries,

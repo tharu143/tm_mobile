@@ -68,6 +68,103 @@ const AlertModal = ({ message, onClose, theme }) => {
     </div>
   );
 };
+// Custom Bulk Delete Modal Component
+const BulkDeleteModal = ({ categories, onClose, onDelete, theme }) => {
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectAll, setSelectAll] = useState(false);
+  const themeStyles = {
+    light: {
+      bgColor: "#ffffff",
+      textColor: "#1f2937",
+      borderColor: "#d1d5db",
+      buttonBg: "#3b82f6",
+      buttonText: "#ffffff"
+    },
+    dark: {
+      bgColor: "#374151",
+      textColor: "#ffffff",
+      borderColor: "#4b5563",
+      buttonBg: "#2563eb",
+      buttonText: "#ffffff"
+    },
+    nature: {
+      bgColor: "#f0f7f4",
+      textColor: "#1f2937",
+      borderColor: "#a7d4a0",
+      buttonBg: "#4caf50",
+      buttonText: "#ffffff"
+    },
+    sunset: {
+      bgColor: "#fff7ed",
+      textColor: "#1f2937",
+      borderColor: "#fdba74",
+      buttonBg: "#ff9800",
+      buttonText: "#ffffff"
+    },
+  };
+  const styles = themeStyles[theme] || themeStyles.light;
+  const filteredCategories = categories.filter(cat =>
+    cat.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const handleSelectAll = (e) => {
+    setSelectAll(e.target.checked);
+    if (e.target.checked) {
+      setSelectedCategories(filteredCategories);
+    } else {
+      setSelectedCategories([]);
+    }
+  };
+  const handleCategorySelect = (e, cat) => {
+    if (e.target.checked) {
+      setSelectedCategories([...selectedCategories, cat]);
+    } else {
+      setSelectedCategories(selectedCategories.filter(c => c !== cat));
+    }
+  };
+  const handleDelete = () => {
+    if (selectAll) {
+      onDelete(['all']);
+    } else {
+      onDelete(selectedCategories);
+    }
+    onClose();
+  };
+  return (
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+      <div style={{ backgroundColor: styles.bgColor, padding: "1.5rem", borderRadius: "0.5rem", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", maxWidth: "32rem", width: "100%", textAlign: "center" }}>
+        <p style={{ color: styles.textColor, marginBottom: "1rem" }}>Select categories to delete:</p>
+        <input
+          type="text"
+          placeholder="Search categories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem", border: `1px solid ${styles.borderColor}`, borderRadius: "0.25rem" }}
+        />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", maxHeight: "200px", overflowY: "auto" }}>
+          <label>
+            <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
+            All Products
+          </label>
+          {!selectAll && filteredCategories.map((cat) => (
+            <label key={cat}>
+              <input
+                type="checkbox"
+                checked={selectedCategories.includes(cat)}
+                onChange={(e) => handleCategorySelect(e, cat)}
+              />
+              {cat}
+            </label>
+          ))}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-around", marginTop: "1rem" }}>
+          <button onClick={handleDelete} style={{ padding: "0.5rem 1rem", backgroundColor: "#dc2626", color: "#ffffff", border: "none", borderRadius: "0.25rem", cursor: "pointer" }}>Delete Selected</button>
+          <button onClick={onClose} style={{ padding: "0.5rem 1rem", backgroundColor: "#e5e7eb", color: "#4b5563", border: "none", borderRadius: "0.25rem", cursor: "pointer" }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const InventoryManagement = ({ theme, setTheme }) => {
   const [products, setProducts] = useState([]);
   const [mobiles, setMobiles] = useState([]);
@@ -110,121 +207,122 @@ const InventoryManagement = ({ theme, setTheme }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const productsPerPage = 5;
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
-  const categoryOptions = ["Mobile", "Accessories"];
   const themeStyles = {
     light: {
-      bgColor: "hsl(240 20% 98%)",
-      foreground: "hsl(220 25% 15%)",
+      bgColor: "#f8fafc",
+      foreground: "#1e293b",
       card: "#ffffff",
-      cardForeground: "hsl(220 25% 15%)",
-      primary: "hsl(217 91% 60%)",
+      cardForeground: "#1e293b",
+      primary: "#3b82f6",
       primaryForeground: "#ffffff",
-      secondary: "hsl(210 40% 96%)",
-      secondaryForeground: "hsl(220 25% 15%)",
-      muted: "hsl(220 13% 95%)",
-      mutedForeground: "hsl(220 9% 46%)",
-      accent: "hsl(38 92% 50%)",
+      secondary: "#f1f5f9",
+      secondaryForeground: "#1e293b",
+      muted: "#f1f5f9",
+      mutedForeground: "#6b7280",
+      accent: "#f59e0b",
       accentForeground: "#ffffff",
-      success: "hsl(120 60% 50%)",
+      success: "#22c55e",
       successForeground: "#ffffff",
-      warning: "hsl(38 92% 50%)",
+      warning: "#f59e0b",
       warningForeground: "#ffffff",
-      destructive: "hsl(0 84% 60%)",
+      destructive: "#ef4444",
       destructiveForeground: "#ffffff",
-      border: "hsl(220 13% 91%)",
-      input: "hsl(220 13% 91%)",
-      ring: "hsl(217 91% 60%)",
-      gradientPrimary: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
-      gradientAccent: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
-      shadowElegant: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
-      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.1)",
+      border: "#e5e7eb",
+      input: "#e5e7eb",
+      ring: "#3b82f6",
+      gradientPrimary: "linear-gradient(135deg, #3b82f6, #60a5fa)",
+      gradientAccent: "linear-gradient(135deg, #f59e0b, #fbbf24)",
+      shadowElegant: "0 4px 20px -2px rgba(59,130,246,0.15)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.1)",
       radius: "0.75rem",
-      textColor: "hsl(220 25% 15%)",
-      secondaryTextColor: "hsl(220 9% 46%)",
+      textColor: "#1e293b",
+      secondaryTextColor: "#6b7280",
       cardBg: "#ffffff",
-      borderColor: "hsl(220 13% 91%) / 50%",
+      borderColor: "rgba(229,231,235,0.5)",
       inputBg: "#ffffff",
-      buttonBg: "hsl(217 91% 60%)",
+      buttonBg: "#3b82f6",
       buttonText: "#ffffff",
-      buttonAddMobile: "hsl(217 91% 60%)",
-      buttonAddAccessory: "hsl(217 91% 60%)",
-      buttonMobileList: "hsl(210 40% 96%)",
-      buttonAccessoriesList: "hsl(210 40% 96%)",
-      buttonExcel: "hsl(217 91% 60%)",
-      buttonUploadImage: "hsl(217 91% 60%)",
+      buttonAddMobile: "#3b82f6",
+      buttonAddAccessory: "#3b82f6",
+      buttonMobileList: "#f1f5f9",
+      buttonAccessoriesList: "#f1f5f9",
+      buttonExcel: "#3b82f6",
+      buttonUploadImage: "#3b82f6",
       dropdownBg: "#ffffff",
-      disabledBg: "hsl(220 13% 95%)",
+      disabledBg: "#f1f5f9",
       shadow: "0 1px 3px rgba(0,0,0,0.1)",
       popupBg: "#ffffff",
-      inputReadOnlyBg: "hsl(220 13% 95%)",
-      placeholderImageBg: "hsl(220 13% 95%)",
-      placeholderImageText: "hsl(220 9% 46%)",
-      statusSuccess: "hsl(120 60% 50%)",
-      statusWarning: "hsl(38 92% 50%)",
-      statusDestructive: "hsl(0 84% 60%)",
-      cardHoverShadow: "0 4px 20px -2px hsla(217 91% 60% / 0.15)",
+      inputReadOnlyBg: "#f1f5f9",
+      placeholderImageBg: "#f1f5f9",
+      placeholderImageText: "#6b7280",
+      statusSuccess: "#22c55e",
+      statusWarning: "#f59e0b",
+      statusDestructive: "#ef4444",
+      cardHoverShadow: "0 4px 20px -2px rgba(59,130,246,0.15)",
       cardHoverTransform: "translateY(-2px)",
-      btnGradientBg: "linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))",
-      btnGradientHoverBg: "linear-gradient(135deg, hsl(38 92% 50%), hsl(45 92% 60%))",
+      btnGradientBg: "linear-gradient(135deg, #3b82f6, #60a5fa)",
+      btnGradientHoverBg: "linear-gradient(135deg, #f59e0b, #fbbf24)",
       btnGradientHoverTransform: "translateY(-1px)",
     },
     dark: {
-      bgColor: "hsl(240 10% 8%)",
+      bgColor: "#0f172a",
       foreground: "#ffffff",
-      card: "hsl(240 10% 12%)",
+      card: "#1e293b",
       cardForeground: "#ffffff",
-      primary: "hsl(262 83% 58%)",
+      primary: "#a855f7",
       primaryForeground: "#ffffff",
-      secondary: "hsl(240 4% 16%)",
+      secondary: "#334155",
       secondaryForeground: "#ffffff",
-      muted: "hsl(240 4% 16%)",
-      mutedForeground: "hsl(240 5% 65%)",
-      accent: "hsl(142 71% 45%)",
+      muted: "#334155",
+      mutedForeground: "#94a3b8",
+      accent: "#10b981",
       accentForeground: "#ffffff",
-      success: "hsl(120 60% 50%)",
+      success: "#22c55e",
       successForeground: "#ffffff",
-      warning: "hsl(38 92% 50%)",
+      warning: "#f59e0b",
       warningForeground: "#ffffff",
-      destructive: "hsl(0 84% 60%)",
+      destructive: "#ef4444",
       destructiveForeground: "#ffffff",
-      border: "hsl(240 4% 16%)",
-      input: "hsl(240 4% 16%)",
-      ring: "hsl(262 83% 58%)",
-      gradientPrimary: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
-      gradientAccent: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
-      shadowElegant: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
-      shadowCard: "0 2px 10px -2px hsla(0 0% 0% / 0.3)",
+      border: "#334155",
+      input: "#334155",
+      ring: "#a855f7",
+      gradientPrimary: "linear-gradient(135deg, #a855f7, #c084fc)",
+      gradientAccent: "linear-gradient(135deg, #10b981, #34d399)",
+      shadowElegant: "0 4px 20px -2px rgba(168,85,247,0.25)",
+      shadowCard: "0 2px 10px -2px rgba(0,0,0,0.3)",
       radius: "0.75rem",
       textColor: "#ffffff",
-      secondaryTextColor: "hsl(240 5% 65%)",
-      cardBg: "hsl(240 10% 12%)",
-      borderColor: "hsl(240 4% 16%) / 50%",
-      inputBg: "hsl(240 4% 16%)",
-      buttonBg: "hsl(262 83% 58%)",
+      secondaryTextColor: "#94a3b8",
+      cardBg: "#1e293b",
+      borderColor: "rgba(51,65,85,0.5)",
+      inputBg: "#334155",
+      buttonBg: "#a855f7",
       buttonText: "#ffffff",
-      buttonAddMobile: "hsl(262 83% 58%)",
-      buttonAddAccessory: "hsl(262 83% 58%)",
-      buttonMobileList: "hsl(240 4% 16%)",
-      buttonAccessoriesList: "hsl(240 4% 16%)",
-      buttonExcel: "hsl(262 83% 58%)",
-      buttonUploadImage: "hsl(262 83% 58%)",
-      dropdownBg: "hsl(240 10% 12%)",
-      disabledBg: "hsl(240 4% 16%)",
+      buttonAddMobile: "#a855f7",
+      buttonAddAccessory: "#a855f7",
+      buttonMobileList: "#334155",
+      buttonAccessoriesList: "#334155",
+      buttonExcel: "#a855f7",
+      buttonUploadImage: "#a855f7",
+      dropdownBg: "#1e293b",
+      disabledBg: "#334155",
       shadow: "0 1px 3px rgba(0,0,0,0.3)",
-      popupBg: "hsl(240 10% 12%)",
-      inputReadOnlyBg: "hsl(240 4% 16%)",
-      placeholderImageBg: "hsl(240 4% 16%)",
-      placeholderImageText: "hsl(240 5% 65%)",
-      statusSuccess: "hsl(120 60% 50%)",
-      statusWarning: "hsl(38 92% 50%)",
-      statusDestructive: "hsl(0 84% 60%)",
-      cardHoverShadow: "0 4px 20px -2px hsla(262 83% 58% / 0.25)",
+      popupBg: "#1e293b",
+      inputReadOnlyBg: "#334155",
+      placeholderImageBg: "#334155",
+      placeholderImageText: "#94a3b8",
+      statusSuccess: "#22c55e",
+      statusWarning: "#f59e0b",
+      statusDestructive: "#ef4444",
+      cardHoverShadow: "0 4px 20px -2px rgba(168,85,247,0.25)",
       cardHoverTransform: "translateY(-2px)",
-      btnGradientBg: "linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%))",
-      btnGradientHoverBg: "linear-gradient(135deg, hsl(142 71% 45%), hsl(142 71% 55%))",
+      btnGradientBg: "linear-gradient(135deg, #a855f7, #c084fc)",
+      btnGradientHoverBg: "linear-gradient(135deg, #10b981, #34d399)",
       btnGradientHoverTransform: "translateY(-1px)",
     },
     nature: {
@@ -257,7 +355,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
       textColor: "#1f2937",
       secondaryTextColor: "#4b5563",
       cardBg: "#ffffff",
-      borderColor: "#a7d4a0 / 50%",
+      borderColor: "rgba(167,212,160,0.5)",
       inputBg: "#ffffff",
       buttonBg: "#4caf50",
       buttonText: "#ffffff",
@@ -313,7 +411,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
       textColor: "#1f2937",
       secondaryTextColor: "#4b5563",
       cardBg: "#ffffff",
-      borderColor: "#fdba74 / 50%",
+      borderColor: "rgba(253,186,116,0.5)",
       inputBg: "#ffffff",
       buttonBg: "#ff9800",
       buttonText: "#ffffff",
@@ -383,14 +481,16 @@ const InventoryManagement = ({ theme, setTheme }) => {
       console.error("Error fetching accessories:", error);
     }
   };
+  const uniqueCategories = [...new Set(products.map((product) => product.category))];
   const filteredProducts = products.filter(
     (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (categoryFilter === "all" || product.category === categoryFilter) &&
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (product.supplier && product.supplier.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.model && product.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (product.type && product.type.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (product.accessoryType && product.accessoryType.toLowerCase().includes(searchTerm.toLowerCase()))
+      (product.accessoryType && product.accessoryType.toLowerCase().includes(searchTerm.toLowerCase())))
   );
   const lowStockProducts = products.filter((product) => product.stock <= product.minStock);
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -430,7 +530,6 @@ const InventoryManagement = ({ theme, setTheme }) => {
     setEditingAccessory(null);
     setShowConfirmModal(false);
     setShowAlertModal(false);
-    setUploadedImages([]);
   };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -657,6 +756,23 @@ const InventoryManagement = ({ theme, setTheme }) => {
       }
     });
   };
+  const handleBulkDelete = async (selected) => {
+    try {
+      if (selected.includes('all')) {
+        await axios.delete("http://localhost:5000/api/products/all");
+        showAlert("All products deleted successfully!");
+      } else {
+        for (const cat of selected) {
+          await axios.delete(`http://localhost:5000/api/products/category/${encodeURIComponent(cat)}`);
+        }
+        showAlert(`${selected.length} categories' products deleted successfully!`);
+      }
+      fetchProducts();
+    } catch (error) {
+      console.error("Error in bulk delete:", error);
+      showAlert(`Failed to bulk delete. Error: ${error.response?.data?.error || error.message}`);
+    }
+  };
   const updateStock = async (id, newStock) => {
     try {
       await axios.put(`http://localhost:5000/api/products/${id}/stock`, { stock: Number(newStock) });
@@ -754,7 +870,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
     totalProducts: products.length,
     lowStockItems: lowStockProducts.length,
     totalStockValue: products.reduce((sum, p) => sum + (p.price * p.stock), 0),
-    categories: [...new Set(products.map(p => p.category))].length,
+    categories: uniqueCategories.length,
   };
   const themeOptions = [
     { id: "light", label: "Light", icon: Sun },
@@ -763,6 +879,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
     { id: "sunset", label: "Sunset", icon: Grid },
   ];
   const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
+  const SelectedIcon = selectedTheme.icon;
   return (
     <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
@@ -787,8 +904,8 @@ const InventoryManagement = ({ theme, setTheme }) => {
               transition: "all 0.2s ease-in-out"
             }}
           >
-            {selectedTheme && <selectedTheme.icon size={16} />}
-            {selectedTheme && selectedTheme.label}
+            <SelectedIcon size={16} />
+            {selectedTheme.label}
           </div>
           {showThemeDropdown && (
             <div style={{
@@ -801,27 +918,30 @@ const InventoryManagement = ({ theme, setTheme }) => {
               marginTop: "0.5rem",
               zIndex: 10
             }}>
-              {themeOptions.map((option) => (
-                <button
-                  key={option.id}
-                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    padding: "0.5rem",
-                    backgroundColor: theme === option.id ? styles.primary : "transparent",
-                    color: theme === option.id ? styles.primaryForeground : styles.foreground,
-                    border: "none",
-                    borderRadius: styles.radius,
-                    cursor: "pointer",
-                    textAlign: "left"
-                  }}
-                >
-                  <option.icon size={16} />
-                  {option.label}
-                </button>
-              ))}
+              {themeOptions.map((option) => {
+                const OptionIcon = option.icon;
+                return (
+                  <button
+                    key={option.id}
+                    onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      padding: "0.5rem",
+                      backgroundColor: theme === option.id ? styles.primary : "transparent",
+                      color: theme === option.id ? styles.primaryForeground : styles.foreground,
+                      border: "none",
+                      borderRadius: styles.radius,
+                      cursor: "pointer",
+                      textAlign: "left"
+                    }}
+                  >
+                    <OptionIcon size={16} />
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -845,7 +965,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
         </div>
       </div>
       <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-        <button onClick={() => openAddForm("product")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", background: styles.gradientPrimary, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.background = styles.gradientAccent; e.currentTarget.style.transform = styles.btnGradientHoverTransform; }} onMouseLeave={(e) => { e.currentTarget.style.background = styles.gradientPrimary; e.currentTarget.style.transform = "translateY(0)"; }}>
+        <button onClick={() => openAddForm("product")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundImage: styles.gradientPrimary, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundImage = styles.gradientAccent; e.currentTarget.style.transform = styles.btnGradientHoverTransform; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundImage = styles.gradientPrimary; e.currentTarget.style.transform = "translateY(0)"; }}>
           <PackagePlus size={16} /> Add Product
         </button>
         <button onClick={() => openAddForm("mobile")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonAddMobile, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Add Mobile Type</button>
@@ -853,6 +973,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
         <button onClick={() => setShowMobilePopup(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonMobileList, color: styles.secondaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Mobile List</button>
         <button onClick={() => setShowAccessoriesPopup(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonAccessoriesList, color: styles.secondaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Accessories List</button>
         <button onClick={() => { setShowExcelOptions(!showExcelOptions); setShowAddForm(false); }} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonExcel, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Excel Options</button>
+        <button onClick={() => setShowBulkDeleteModal(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Bulk Delete</button>
         {showExcelOptions && (
           <div style={{ display: "flex", gap: "1rem" }}>
             <button onClick={handleExportMobiles} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Export Mobiles Template</button>
@@ -864,6 +985,21 @@ const InventoryManagement = ({ theme, setTheme }) => {
           </div>
         )}
       </div>
+      {uploadedImages.length > 0 && (
+        <div style={{ marginTop: "2rem" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Uploaded Images</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
+            {uploadedImages.map((img, index) => (
+              <div key={index} style={{ position: "relative" }}>
+                <div style={{ width: "150px", height: "150px", overflow: "hidden", borderRadius: styles.radius, boxShadow: styles.shadow }}>
+                  <img src={img.image_path} alt={`Uploaded ${index}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <p style={{ textAlign: "center", marginTop: "0.5rem", color: styles.secondaryTextColor }}>{img.image_id}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div style={{ position: "relative", marginBottom: "2rem" }}>
         <Search style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} size={16} />
         <input placeholder="Search products..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} style={{ paddingLeft: "2.5rem", width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, backgroundColor: styles.input, color: styles.foreground }} />
@@ -888,10 +1024,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
                 </div>
                 <div>
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Category *</label>
-                  <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value, model: "", accessoryType: "", newMobile: "", newAccessoryName: "", newAccessoryModel: "", type: "" })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
-                    <option value="">Select a category</option>
-                    {categoryOptions.map((category) => <option key={category} value={category}>{category}</option>)}
-                  </select>
+                  <input type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value, model: "", accessoryType: "", newMobile: "", newAccessoryName: "", newAccessoryModel: "", type: "" })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
                 {formData.category === "Mobile" && (
                   <>
@@ -954,7 +1087,11 @@ const InventoryManagement = ({ theme, setTheme }) => {
                 <div>
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Product Image</label>
                   <input type="file" accept="image/*" onChange={handleImageChange} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
-                  {imagePreview && <img src={imagePreview} alt="Preview" style={{ marginTop: "0.5rem", maxWidth: "100%", height: "auto", borderRadius: styles.radius }} />}
+                  {imagePreview && (
+                    <div style={{ width: "150px", height: "150px", overflow: "hidden", borderRadius: styles.radius, marginTop: "0.5rem" }}>
+                      <img src={imagePreview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -990,9 +1127,40 @@ const InventoryManagement = ({ theme, setTheme }) => {
         </form>
       )}
       <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Product List</h2>
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+        <button
+          onClick={() => { setCategoryFilter("all"); setCurrentPage(1); }}
+          style={{
+            padding: "0.5rem 1rem",
+            backgroundColor: categoryFilter === "all" ? styles.primary : styles.secondary,
+            color: categoryFilter === "all" ? styles.primaryForeground : styles.secondaryForeground,
+            border: "none",
+            borderRadius: styles.radius,
+            cursor: "pointer"
+          }}
+        >
+          All
+        </button>
+        {uniqueCategories.map((category) => (
+          <button
+            key={category}
+            onClick={() => { setCategoryFilter(category); setCurrentPage(1); }}
+            style={{
+              padding: "0.5rem 1rem",
+              backgroundColor: categoryFilter === category ? styles.primary : styles.secondary,
+              color: categoryFilter === category ? styles.primaryForeground : styles.secondaryForeground,
+              border: "none",
+              borderRadius: styles.radius,
+              cursor: "pointer"
+            }}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))", gap: "1rem" }}>
         {currentProducts.map((product) => (
-          <div key={product._id} style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}>
+          <div key={product._id} style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, transition: "all 0.2s", maxWidth: "16rem" }} onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}>
             <img src={product.image || `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`} alt={product.name} style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: styles.radius, marginBottom: "0.5rem", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`; }} />
             <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>{product.name}</h3>
             <p style={{ color: styles.secondaryTextColor }}>₹{product.price.toLocaleString()}</p>
@@ -1049,6 +1217,14 @@ const InventoryManagement = ({ theme, setTheme }) => {
             </div>
           ))}
         </div>
+      )}
+      {showBulkDeleteModal && (
+        <BulkDeleteModal
+          categories={uniqueCategories}
+          onClose={() => setShowBulkDeleteModal(false)}
+          onDelete={handleBulkDelete}
+          theme={theme}
+        />
       )}
       {showConfirmModal && <ConfirmModal message={confirmMessage} onConfirm={onConfirmAction} onCancel={() => setShowConfirmModal(false)} theme={theme} />}
       {showAlertModal && <AlertModal message={alertMessage} onClose={() => setShowAlertModal(false)} theme={theme} />}
