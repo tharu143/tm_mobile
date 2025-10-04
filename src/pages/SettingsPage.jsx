@@ -8,6 +8,12 @@ const SettingsPage = ({ theme, setTheme }) => {
   const [shopName, setShopName] = useState("");
   const [address, setAddress] = useState("");
   const [gstin, setGstin] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [panNumber, setPanNumber] = useState("");
+  const [shopColor, setShopColor] = useState("#000000");
+  const [enableGstinPrint, setEnableGstinPrint] = useState(true);
+  const [enablePanPrint, setEnablePanPrint] = useState(true);
+  const [enableTermsPrint, setEnableTermsPrint] = useState(true);
   const [emailAddress, setEmailAddress] = useState("");
   const [fromEmailAddress, setFromEmailAddress] = useState("");
   const [appPassword, setAppPassword] = useState("");
@@ -29,7 +35,6 @@ const SettingsPage = ({ theme, setTheme }) => {
   const [activeTab, setActiveTab] = useState("GST");
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [backupUrl, setBackupUrl] = useState(null);
-
   const themeStyles = {
     light: {
       bgColor: "hsl(240 20% 98%)",
@@ -241,6 +246,12 @@ const SettingsPage = ({ theme, setTheme }) => {
     },
   };
   const styles = themeStyles[theme] || themeStyles.light;
+  const hexToRgba = (hex, alpha = 0.2) => {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -256,6 +267,12 @@ const SettingsPage = ({ theme, setTheme }) => {
         setShopName(printResponse.data.shopName || "Your Shop Name");
         setAddress(printResponse.data.address || "123 Shop Street, City, Country");
         setGstin(printResponse.data.gstin || "12ABCDE1234F1Z5");
+        setPhoneNumber(printResponse.data.phoneNumber || "");
+        setPanNumber(printResponse.data.panNumber || "");
+        setShopColor(printResponse.data.shopColor || "#000000");
+        setEnableGstinPrint(printResponse.data.enableGstinPrint !== undefined ? printResponse.data.enableGstinPrint : true);
+        setEnablePanPrint(printResponse.data.enablePanPrint !== undefined ? printResponse.data.enablePanPrint : true);
+        setEnableTermsPrint(printResponse.data.enableTermsPrint !== undefined ? printResponse.data.enableTermsPrint : true);
         setSavedEmailSettings(emailResponse.data);
         setEmailAddress("");
         setFromEmailAddress("");
@@ -285,7 +302,6 @@ const SettingsPage = ({ theme, setTheme }) => {
         gstPercentage: parseFloat(gstPercentage) || 0,
         enableGst: enableGst,
       });
-      setSuccess("GST settings saved successfully!");
       setGstPercentage(response.data.gstPercentage);
       setEnableGst(response.data.enableGst);
     } catch (err) {
@@ -305,11 +321,22 @@ const SettingsPage = ({ theme, setTheme }) => {
         shopName,
         address,
         gstin,
+        phoneNumber,
+        panNumber,
+        shopColor,
+        enableGstinPrint,
+        enablePanPrint,
+        enableTermsPrint,
       });
-      setSuccess("Print settings saved successfully!");
       setShopName(response.data.shopName);
       setAddress(response.data.address);
       setGstin(response.data.gstin);
+      setPhoneNumber(response.data.phoneNumber);
+      setPanNumber(response.data.panNumber);
+      setShopColor(response.data.shopColor);
+      setEnableGstinPrint(response.data.enableGstinPrint);
+      setEnablePanPrint(response.data.enablePanPrint);
+      setEnableTermsPrint(response.data.enableTermsPrint);
     } catch (err) {
       setError(`Failed to save print settings: ${err.response?.data?.error || err.message}`);
       console.error("Error saving print settings:", err);
@@ -328,7 +355,6 @@ const SettingsPage = ({ theme, setTheme }) => {
         fromEmailAddress,
         appPassword,
       });
-      setSuccess("Email settings saved successfully!");
       setSavedEmailSettings(response.data);
       setEmailAddress("");
       setFromEmailAddress("");
@@ -347,7 +373,6 @@ const SettingsPage = ({ theme, setTheme }) => {
     setSuccess(null);
     try {
       await axios.delete("http://localhost:5000/api/email");
-      setSuccess("Email settings deleted successfully!");
       setSavedEmailSettings(null);
       setEmailAddress("");
       setFromEmailAddress("");
@@ -373,7 +398,6 @@ const SettingsPage = ({ theme, setTheme }) => {
         weeklyDay,
         monthlyDay,
       });
-      setSuccess("Backup settings saved successfully!");
       setSavedBackupSettings(response.data);
       setBackupEmails([]);
       setNewBackupEmail("");
@@ -395,7 +419,6 @@ const SettingsPage = ({ theme, setTheme }) => {
     setSuccess(null);
     try {
       await axios.delete("http://localhost:5000/api/backup/settings");
-      setSuccess("Backup settings deleted successfully!");
       setSavedBackupSettings(null);
       setBackupEmails([]);
       setNewBackupEmail("");
@@ -418,7 +441,6 @@ const SettingsPage = ({ theme, setTheme }) => {
     setBackupUrl(null);
     try {
       const response = await axios.get("http://localhost:5000/api/backup");
-      setSuccess(response.data.message || "Backup created and sent successfully!");
       setBackupUrl(response.data.downloadUrl);
       // Refresh last backup date
       const lastResponse = await axios.get("http://localhost:5000/api/backup/last");
@@ -447,7 +469,7 @@ const SettingsPage = ({ theme, setTheme }) => {
   ];
   const selectedTheme = themeOptions.find((t) => t.id === theme) || themeOptions[0];
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }} className="container">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <div>
           <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Settings</h1>
@@ -651,8 +673,8 @@ const SettingsPage = ({ theme, setTheme }) => {
             {error && (
               <div
                 style={{
-                  backgroundColor: styles.statusDestructive,
-                  color: styles.destructiveForeground,
+                  backgroundColor: styles.statusWarning,
+                  color: styles.warningForeground,
                   padding: "0.75rem",
                   borderRadius: styles.radius,
                   display: "flex",
@@ -662,24 +684,7 @@ const SettingsPage = ({ theme, setTheme }) => {
                 }}
               >
                 <X size={16} />
-                {error}
-              </div>
-            )}
-            {success && (
-              <div
-                style={{
-                  backgroundColor: styles.statusSuccess,
-                  color: styles.successForeground,
-                  padding: "0.75rem",
-                  borderRadius: styles.radius,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                <Save size={16} />
-                {success}
+                Warning: {error}
               </div>
             )}
             <button
@@ -706,135 +711,351 @@ const SettingsPage = ({ theme, setTheme }) => {
             borderRadius: styles.radius,
             boxShadow: styles.shadowCard,
             padding: "1.5rem",
-            maxWidth: "600px",
+            maxWidth: "1200px",
           }}
         >
-          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
-            Print Settings
-          </h2>
-          <form onSubmit={handleSavePrint}>
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
-                htmlFor="shopName"
-              >
-                Shop Name
-              </label>
-              <input
-                type="text"
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  border: `1px solid ${styles.border}`,
-                  borderRadius: styles.radius,
-                  backgroundColor: styles.input,
-                  color: styles.foreground,
-                }}
-                id="shopName"
-                value={shopName}
-                onChange={(e) => setShopName(e.target.value)}
-                placeholder="Enter shop name"
-                required
-              />
+          <div className="row">
+            <div className="col-md-6">
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
+                Print Settings
+              </h2>
+              <form onSubmit={handleSavePrint}>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="shopName"
+                  >
+                    Shop Name
+                  </label>
+                  <input
+                    type="text"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                    }}
+                    id="shopName"
+                    value={shopName}
+                    onChange={(e) => setShopName(e.target.value)}
+                    placeholder="Enter shop name"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="address"
+                  >
+                    Address
+                  </label>
+                  <textarea
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                      minHeight: "80px",
+                    }}
+                    id="address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Enter shop address"
+                    rows="3"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="gstin"
+                  >
+                    GSTIN
+                  </label>
+                  <input
+                    type="text"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                    }}
+                    id="gstin"
+                    value={gstin}
+                    onChange={(e) => setGstin(e.target.value)}
+                    placeholder="Enter GSTIN (e.g., 12ABCDE1234F1Z5)"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="phoneNumber"
+                  >
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                    }}
+                    id="phoneNumber"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="Enter phone number (e.g., +91 9811278197)"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="panNumber"
+                  >
+                    PAN Number
+                  </label>
+                  <input
+                    type="text"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                    }}
+                    id="panNumber"
+                    value={panNumber}
+                    onChange={(e) => setPanNumber(e.target.value)}
+                    placeholder="Enter PAN number (e.g., AVHPC9999A)"
+                    required
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label
+                    style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
+                    htmlFor="shopColor"
+                  >
+                    Shop Name Color
+                  </label>
+                  <input
+                    type="color"
+                    style={{
+                      width: "100%",
+                      padding: "0.5rem",
+                      border: `1px solid ${styles.border}`,
+                      borderRadius: styles.radius,
+                      backgroundColor: styles.input,
+                      color: styles.foreground,
+                    }}
+                    id="shopColor"
+                    value={shopColor}
+                    onChange={(e) => setShopColor(e.target.value)}
+                  />
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: styles.secondaryTextColor }}>
+                    <input
+                      type="checkbox"
+                      style={{ margin: 0 }}
+                      checked={enableGstinPrint}
+                      onChange={(e) => setEnableGstinPrint(e.target.checked)}
+                    />
+                    Show GSTIN in Print
+                  </label>
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: styles.secondaryTextColor }}>
+                    <input
+                      type="checkbox"
+                      style={{ margin: 0 }}
+                      checked={enablePanPrint}
+                      onChange={(e) => setEnablePanPrint(e.target.checked)}
+                    />
+                    Show PAN Number in Print
+                  </label>
+                </div>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: styles.secondaryTextColor }}>
+                    <input
+                      type="checkbox"
+                      style={{ margin: 0 }}
+                      checked={enableTermsPrint}
+                      onChange={(e) => setEnableTermsPrint(e.target.checked)}
+                    />
+                    Show Terms & Conditions in Print
+                  </label>
+                </div>
+                {error && (
+                  <div
+                    style={{
+                      backgroundColor: styles.statusWarning,
+                      color: styles.warningForeground,
+                      padding: "0.75rem",
+                      borderRadius: styles.radius,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <X size={16} />
+                    Warning: {error}
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  style={{
+                    padding: "0.5rem 1rem",
+                    backgroundColor: styles.primary,
+                    color: styles.primaryForeground,
+                    border: "none",
+                    borderRadius: styles.radius,
+                    cursor: loading ? "not-allowed" : "pointer",
+                  }}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Print Settings"}
+                </button>
+              </form>
             </div>
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
-                htmlFor="address"
-              >
-                Address
-              </label>
-              <textarea
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  border: `1px solid ${styles.border}`,
-                  borderRadius: styles.radius,
-                  backgroundColor: styles.input,
-                  color: styles.foreground,
-                  minHeight: "80px",
-                }}
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter shop address"
-                rows="3"
-                required
-              />
-            </div>
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}
-                htmlFor="gstin"
-              >
-                GSTIN
-              </label>
-              <input
-                type="text"
-                style={{
-                  width: "100%",
-                  padding: "0.5rem",
-                  border: `1px solid ${styles.border}`,
-                  borderRadius: styles.radius,
-                  backgroundColor: styles.input,
-                  color: styles.foreground,
-                }}
-                id="gstin"
-                value={gstin}
-                onChange={(e) => setGstin(e.target.value)}
-                placeholder="Enter GSTIN (e.g., 12ABCDE1234F1Z5)"
-                required
-              />
-            </div>
-            {error && (
+            <div className="col-md-6">
+              <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
+                Invoice Preview
+              </h2>
               <div
                 style={{
-                  backgroundColor: styles.statusDestructive,
-                  color: styles.destructiveForeground,
-                  padding: "0.75rem",
-                  borderRadius: styles.radius,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "1rem",
+                  backgroundColor: "#ffffff",
+                  padding: "1rem",
+                  border: "1px solid #000",
+                  borderRadius: "0.25rem",
+                  fontFamily: "Arial, sans-serif",
+                  fontSize: "0.875rem",
+                  color: "#000000",
+                  maxWidth: "500px",
+                  margin: "0 auto",
                 }}
               >
-                <X size={16} />
-                {error}
+                <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+                  <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: shopColor || "#000000" }}>{shopName || "Akash Enterprises"}</h1>
+                  <p style={{ margin: 0 }}>{address || "Ajmer Road, Jaipur, Rajasthan 302020"}</p>
+                  <p style={{ margin: 0 }}>Phone: {phoneNumber || "+91 9811278197"}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    {enableGstinPrint && <p style={{ margin: 0 }}>GSTIN: {gstin || "08AALCR2857A1ZD"}</p>}
+                    {enablePanPrint && <p style={{ margin: 0 }}>PAN Number: {panNumber || "AVHPC9999A"}</p>}
+                  </div>
+                </div>
+                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1rem" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>
+                        <strong>BILL TO</strong><br />
+                        Sampath Singh<br />
+                        04, KK Buildings, Ajmer Gate, Jodhpur, Rajasthan, 304582<br />
+                        Phone: +91 9811028177<br />
+                        PAN Number: BBHPC9999A<br />
+                        GSTIN: 08HULMP2839A1AB<br />
+                        Place of Supply: Rajasthan
+                      </td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>
+                        <strong>Invoice No</strong><br />
+                        501
+                      </td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>
+                        <strong>Invoice Date</strong><br />
+                        11 August 2023
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1rem" }}>
+                  <thead>
+                    <tr style={{ backgroundColor: hexToRgba(shopColor || "#000000", 0.2) }}>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Sr. No.</th>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Items</th>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Quantity</th>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Price / Unit</th>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Tax / Unit</th>
+                      <th style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "left" }}>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>1</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Apple normal</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>5 KG</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 100.00</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 5.00 (5%)</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 525.00</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>2</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Orange</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>10 KG</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 40.00</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 2.00 (5%)</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 420.00</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>3</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Orange</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>5 KG</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 40.00</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 2.00 (5%)</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 210.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "1rem" }}>
+                  <tbody>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "right" }}><strong>Sub Total</strong></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>20 KG</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "right" }}>Rs. 1100.00</td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "right" }}><strong>GST</strong></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}>Rs. 55.00</td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "right" }}>Rs. 55.00</td>
+                    </tr>
+                    <tr style={{ backgroundColor: hexToRgba(shopColor || "#000000", 0.2) }}>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}><strong>Grand Total</strong></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem" }}></td>
+                      <td style={{ border: "1px solid #000", padding: "0.5rem", textAlign: "right" }}>Rs. 1155.00</td>
+                    </tr>
+                  </tbody>
+                </table>
+                {enableTermsPrint && (
+                  <div style={{ marginBottom: "1rem" }}>
+                    <strong>Terms & Conditions</strong>
+                    <ol style={{ margin: 0, paddingLeft: "1rem" }}>
+                      <li>Note: Verbal Deal</li>
+                      <li>Customer will pay the GST</li>
+                      <li>Customer will pay the Delivery charges</li>
+                      <li>Pay due amount within 15 days</li>
+                    </ol>
+                  </div>
+                )}
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ borderBottom: "1px solid #000", width: "200px", margin: "2rem auto 0.5rem" }}></div>
+                  <strong>Authorized Signature for {shopName || "Akash Enterprises"}</strong>
+                </div>
               </div>
-            )}
-            {success && (
-              <div
-                style={{
-                  backgroundColor: styles.statusSuccess,
-                  color: styles.successForeground,
-                  padding: "0.75rem",
-                  borderRadius: styles.radius,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                <Save size={16} />
-                {success}
-              </div>
-            )}
-            <button
-              type="submit"
-              style={{
-                padding: "0.5rem 1rem",
-                backgroundColor: styles.primary,
-                color: styles.primaryForeground,
-                border: "none",
-                borderRadius: styles.radius,
-                cursor: loading ? "not-allowed" : "pointer",
-              }}
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Save Print Settings"}
-            </button>
-          </form>
+            </div>
+          </div>
         </div>
       )}
       {activeTab === "Email" && (
@@ -847,8 +1068,8 @@ const SettingsPage = ({ theme, setTheme }) => {
             maxWidth: "600px",
           }}
         >
-          <div style={{ display: "flex", gap: "2rem" }}>
-            <div style={{ width: "50%" }}>
+          <div className="row">
+            <div className="col-md-6">
               <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
                 Email Settings
               </h2>
@@ -939,8 +1160,8 @@ const SettingsPage = ({ theme, setTheme }) => {
                 {error && (
                   <div
                     style={{
-                      backgroundColor: styles.statusDestructive,
-                      color: styles.destructiveForeground,
+                      backgroundColor: styles.statusWarning,
+                      color: styles.warningForeground,
                       padding: "0.75rem",
                       borderRadius: styles.radius,
                       display: "flex",
@@ -950,24 +1171,7 @@ const SettingsPage = ({ theme, setTheme }) => {
                     }}
                   >
                     <X size={16} />
-                    {error}
-                  </div>
-                )}
-                {success && (
-                  <div
-                    style={{
-                      backgroundColor: styles.statusSuccess,
-                      color: styles.successForeground,
-                      padding: "0.75rem",
-                      borderRadius: styles.radius,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    <Save size={16} />
-                    {success}
+                    Warning: {error}
                   </div>
                 )}
                 <button
@@ -986,7 +1190,7 @@ const SettingsPage = ({ theme, setTheme }) => {
                 </button>
               </form>
             </div>
-            <div style={{ width: "50%" }}>
+            <div className="col-md-6">
               <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
                 Saved Email Settings
               </h2>
@@ -1059,8 +1263,8 @@ const SettingsPage = ({ theme, setTheme }) => {
             maxWidth: "600px",
           }}
         >
-          <div style={{ display: "flex", gap: "2rem" }}>
-            <div style={{ width: "50%" }}>
+          <div className="row">
+            <div className="col-md-6">
               <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
                 Backup Settings
               </h2>
@@ -1261,8 +1465,8 @@ const SettingsPage = ({ theme, setTheme }) => {
                 {error && (
                   <div
                     style={{
-                      backgroundColor: styles.statusDestructive,
-                      color: styles.destructiveForeground,
+                      backgroundColor: styles.statusWarning,
+                      color: styles.warningForeground,
                       padding: "0.75rem",
                       borderRadius: styles.radius,
                       display: "flex",
@@ -1272,24 +1476,7 @@ const SettingsPage = ({ theme, setTheme }) => {
                     }}
                   >
                     <X size={16} />
-                    {error}
-                  </div>
-                )}
-                {success && (
-                  <div
-                    style={{
-                      backgroundColor: styles.statusSuccess,
-                      color: styles.successForeground,
-                      padding: "0.75rem",
-                      borderRadius: styles.radius,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.5rem",
-                      marginBottom: "1rem",
-                    }}
-                  >
-                    <Save size={16} />
-                    {success}
+                    Warning: {error}
                   </div>
                 )}
                 <button
@@ -1308,7 +1495,7 @@ const SettingsPage = ({ theme, setTheme }) => {
                 </button>
               </form>
             </div>
-            <div style={{ width: "50%" }}>
+            <div className="col-md-6">
               <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
                 Saved Backup Settings
               </h2>
@@ -1426,8 +1613,8 @@ const SettingsPage = ({ theme, setTheme }) => {
           {error && (
             <div
               style={{
-                backgroundColor: styles.statusDestructive,
-                color: styles.destructiveForeground,
+                backgroundColor: styles.statusWarning,
+                color: styles.warningForeground,
                 padding: "0.75rem",
                 borderRadius: styles.radius,
                 display: "flex",
@@ -1437,33 +1624,7 @@ const SettingsPage = ({ theme, setTheme }) => {
               }}
             >
               <X size={16} />
-              {error}
-            </div>
-          )}
-          {success && (
-            <div
-              style={{
-                backgroundColor: styles.statusSuccess,
-                color: styles.successForeground,
-                padding: "0.75rem",
-                borderRadius: styles.radius,
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                marginTop: "1rem",
-              }}
-            >
-              <Save size={16} />
-              {success}
-              {backupUrl && (
-                <a
-                  href={backupUrl}
-                  download
-                  style={{ marginLeft: "0.5rem", color: styles.primary, textDecoration: "underline" }}
-                >
-                  Download Excel File
-                </a>
-              )}
+              Warning: {error}
             </div>
           )}
         </div>

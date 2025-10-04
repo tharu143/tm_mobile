@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Plus, Minus, Trash2, CreditCard, Banknote, Smartphone, ShoppingCart, Sun, Moon, Leaf, Grid } from "lucide-react";
 // Inline SVG Icons
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const SearchIcon = ({ style }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
     <circle cx="11" cy="11" r="8"></circle>
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
@@ -30,10 +30,19 @@ const PointOfSale = ({ theme, setTheme }) => {
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [invoiceData, setInvoiceData] = useState(null);
   const [shopDetails, setShopDetails] = useState({
-    shopName: "Your Shop Name",
-    address: "123 Shop Street, City, Country",
-    gstin: "12ABCDE1234F1Z5",
+    shopName: "Mobile Shop",
+    address: "143 Shop Street, City, Country",
+    gstin: "12345g1q2334",
   });
+  const [shopColor, setShopColor] = useState("#000000");
+  const [enableGstinPrint, setEnableGstinPrint] = useState(true);
+  const [enablePanPrint, setEnablePanPrint] = useState(true);
+  const [enableTermsPrint, setEnableTermsPrint] = useState(true);
+  const [phoneNumber, setPhoneNumber] = useState("8921083090");
+  const [panNumber, setPanNumber] = useState("AVHPC9999A");
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [warning, setWarning] = useState("");
+  const [manualTotal, setManualTotal] = useState("");
   const themeStyles = {
     light: {
       bgColor: "hsl(240 20% 98%)",
@@ -245,6 +254,19 @@ const PointOfSale = ({ theme, setTheme }) => {
     },
   };
   const styles = themeStyles[theme] || themeStyles.light;
+  const hexToRgba = (hex, alpha = 0.2) => {
+    let r = parseInt(hex.slice(1, 3), 16);
+    let g = parseInt(hex.slice(3, 5), 16);
+    let b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -262,10 +284,16 @@ const PointOfSale = ({ theme, setTheme }) => {
         setGstPercentage(settingsRes.data.gstPercentage || 18);
         setEnableGst(settingsRes.data.enableGst !== undefined ? settingsRes.data.enableGst : true);
         setShopDetails({
-          shopName: printRes.data.shopName || "Your Shop Name",
-          address: printRes.data.address || "123 Shop Street, City, Country",
-          gstin: printRes.data.gstin || "12ABCDE1234F1Z5",
+          shopName: printRes.data.shopName || "Mobile Shop",
+          address: printRes.data.address || "143 Shop Street, City, Country",
+          gstin: printRes.data.gstin || "12345g1q2334",
         });
+        setShopColor(printRes.data.shopColor || "#000000");
+        setEnableGstinPrint(printRes.data.enableGstinPrint !== undefined ? printRes.data.enableGstinPrint : true);
+        setEnablePanPrint(printRes.data.enablePanPrint !== undefined ? printRes.data.enablePanPrint : true);
+        setEnableTermsPrint(printRes.data.enableTermsPrint !== undefined ? printRes.data.enableTermsPrint : true);
+        setPhoneNumber(printRes.data.phoneNumber || "8921083090");
+        setPanNumber(printRes.data.panNumber || "AVHPC9999A");
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch data");
@@ -293,6 +321,10 @@ const PointOfSale = ({ theme, setTheme }) => {
     };
     fetchCustomerSuggestions();
   }, [customerName, customerPhone]);
+  const showWarning = (msg) => {
+    setWarning(msg);
+    setTimeout(() => setWarning(""), 5000);
+  };
   const categories = ["All", ...new Set(products.map((p) => p.category))];
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -313,7 +345,7 @@ const PointOfSale = ({ theme, setTheme }) => {
           )
         );
       } else {
-        alert("Not enough stock available!");
+        showWarning("Not enough stock available!");
       }
     } else {
       setCart([...cart, { ...product, id: product._id, quantity: 1 }]);
@@ -331,12 +363,12 @@ const PointOfSale = ({ theme, setTheme }) => {
           )
         );
       } else {
-        alert("Not enough stock available!");
+        showWarning("Not enough stock available!");
       }
     }
   };
   const removeFromCart = (id) => {
-    setCart(cart.filter((item) => item.id !== id));
+    setCart(cart.filter((item) => item.id === id));
   };
   const selectCustomer = (customer) => {
     setCustomerName(customer.name);
@@ -360,13 +392,15 @@ const PointOfSale = ({ theme, setTheme }) => {
   };
   const processSale = async () => {
     if (cart.length === 0) {
-      alert("Cart is empty!");
+      showWarning("Cart is empty!");
       return;
     }
     if (!customerName || !customerPhone) {
-      alert("Please enter customer details!");
+      showWarning("Please enter customer details!");
       return;
     }
+    const calculatedTotal = getTotal();
+    const finalTotal = manualTotal ? parseFloat(manualTotal) : calculatedTotal;
     const saleData = {
       customer: {
         name: customerName,
@@ -381,7 +415,8 @@ const PointOfSale = ({ theme, setTheme }) => {
       })),
       subtotal: getSubtotal(),
       tax: getTax(),
-      total: getTotal(),
+      total: calculatedTotal,
+      manualTotal: manualTotal ? parseFloat(manualTotal) : null,
       paymentMethod: paymentMethod,
       timestamp: new Date().toISOString(),
       invoiceId: `INV-${Date.now()}`,
@@ -406,9 +441,10 @@ const PointOfSale = ({ theme, setTheme }) => {
       setSelectedCustomer(null);
       setCustomerSuggestions([]);
       setSelectedModel("");
+      setManualTotal("");
     } catch (err) {
       console.error("Error processing sale:", err);
-      alert("Failed to process sale. Please try again.");
+      showWarning("Failed to process sale. Please try again.");
     }
   };
   const handlePrint = () => {
@@ -418,60 +454,81 @@ const PointOfSale = ({ theme, setTheme }) => {
         <head>
           <title>Invoice ${invoiceData.invoiceId}</title>
           <style>
+            @page {
+              size: A4;
+              margin: 1cm;
+            }
             body {
               font-family: Arial, sans-serif;
-              margin: 20px;
-              font-size: 12px;
-              background-color: ${styles.cardBg};
-              color: ${styles.textColor};
+              margin: 0;
+              padding: 1rem;
+              font-size: 0.875rem;
+              color: #000000;
+              background-color: #ffffff;
             }
             .invoice {
-              max-width: 300px;
-              margin: auto;
-              border: 1px solid ${styles.border};
-              padding: 10px;
-              background-color: ${styles.cardBg};
+              max-width: 210mm;
+              margin: 0 auto;
+              border: 1px solid #000;
+              border-radius: 0.25rem;
+              padding: 1rem;
             }
             .header {
               text-align: center;
-              border-bottom: 1px dashed ${styles.border};
-              padding-bottom: 10px;
-              margin-bottom: 10px;
+              margin-bottom: 1rem;
             }
             .header h1 {
-              font-size: 16px;
-              margin: 5px 0;
+              font-size: 1.5rem;
+              font-weight: bold;
+              color: ${shopColor || "#000000"};
             }
-            .details, .items, .totals {
-              margin-bottom: 10px;
+            .header p {
+              margin: 0;
             }
-            .items table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            .items th, .items td {
-              border: 1px solid ${styles.border};
-              padding: 5px;
-              text-align: left;
-            }
-            .totals div {
+            .details {
               display: flex;
               justify-content: space-between;
-              margin: 5px 0;
+              margin-bottom: 1rem;
             }
-            .footer {
+            .bill-to {
+              border: 1px solid #000;
+              padding: 0.5rem;
+            }
+            .invoice-info {
+              border: 1px solid #000;
+              padding: 0.5rem;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 1rem;
+            }
+            th, td {
+              border: 1px solid #000;
+              padding: 0.5rem;
+              text-align: left;
+            }
+            th {
+              background-color: ${hexToRgba(shopColor || "#000000", 0.2)};
+            }
+            .totals tr:last-child {
+              background-color: ${hexToRgba(shopColor || "#000000", 0.2)};
+            }
+            .terms {
+              margin-bottom: 1rem;
+            }
+            .signature {
               text-align: center;
-              border-top: 1px dashed ${styles.border};
-              padding-top: 10px;
-              margin-top: 10px;
+            }
+            .signature-line {
+              border-bottom: 1px solid #000;
+              width: 200px;
+              margin: 2rem auto 0.5rem;
             }
             @media print {
-              .no-print { display: none; }
-              body { background-color: #ffffff; color: #000000; }
-              .invoice { border: 1px solid #000000; background-color: #ffffff; }
-              .header { border-bottom: 1px dashed #000000; }
-              .items th, .items td { border: 1px solid #000000; }
-              .footer { border-top: 1px dashed #000000; }
+              .invoice {
+                border: none;
+              }
             }
           </style>
         </head>
@@ -480,56 +537,92 @@ const PointOfSale = ({ theme, setTheme }) => {
             <div class="header">
               <h1>${shopDetails.shopName}</h1>
               <p>${shopDetails.address}</p>
-              <p>GSTIN: ${shopDetails.gstin}</p>
-              <p>Invoice: ${invoiceData.invoiceId}</p>
-              <p>Date: ${new Date(invoiceData.timestamp).toLocaleString()}</p>
+              <p>Phone: ${phoneNumber}</p>
+              <div class="details">
+                ${enableGstinPrint ? `<p>GSTIN: ${shopDetails.gstin}</p>` : ''}
+                ${enablePanPrint ? `<p>PAN Number: ${panNumber}</p>` : ''}
+              </div>
             </div>
-            <div class="details">
-              <p><strong>Customer:</strong> ${invoiceData.customer.name}</p>
-              <p><strong>Phone:</strong> ${invoiceData.customer.phone}</p>
-            </div>
-            <div class="items">
-              <table>
+            <table>
+              <tbody>
                 <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total</th>
+                  <td class="bill-to">
+                    <strong>BILL TO</strong><br />
+                    ${invoiceData.customer.name}<br />
+                    Phone: ${invoiceData.customer.phone}
+                  </td>
+                  <td class="invoice-info">
+                    <strong>Invoice No</strong><br />
+                    ${invoiceData.invoiceId}
+                  </td>
+                  <td class="invoice-info">
+                    <strong>Invoice Date</strong><br />
+                    ${new Date(invoiceData.timestamp).toLocaleString()}
+                  </td>
                 </tr>
-                ${invoiceData.items
-                  .map(
-                    (item) => `
+              </tbody>
+            </table>
+            <table>
+              <thead>
+                <tr>
+                  <th>Sr. No.</th>
+                  <th>Items</th>
+                  <th>Quantity</th>
+                  <th>Price / Unit</th>
+                  <th>Tax Rate</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${invoiceData.items.map((item, index) => `
                   <tr>
+                    <td>${index + 1}</td>
                     <td>${item.name}</td>
                     <td>${item.quantity}</td>
-                    <td>₹${item.price.toLocaleString()}</td>
-                    <td>₹${(item.price * item.quantity).toLocaleString()}</td>
+                    <td>Rs. ${item.price.toFixed(2)}</td>
+                    <td>${gstPercentage}%</td>
+                    <td>Rs. ${(item.price * item.quantity + item.price * item.quantity * (gstPercentage / 100)).toFixed(2)}</td>
                   </tr>
-                `
-                  )
-                  .join("")}
-              </table>
+                `).join('')}
+              </tbody>
+            </table>
+            <table class="totals">
+              <tbody>
+                <tr>
+                  <td style="text-align: right"><strong>Sub Total</strong></td>
+                  <td></td>
+                  <td></td>
+                  <td style="text-align: right">Rs. ${invoiceData.subtotal.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td style="text-align: right"><strong>GST</strong></td>
+                  <td></td>
+                  <td>Rs. ${invoiceData.tax.toFixed(2)}</td>
+                  <td style="text-align: right">Rs. ${invoiceData.tax.toFixed(2)}</td>
+                </tr>
+                <tr>
+                  <td><strong>Grand Total</strong></td>
+                  <td></td>
+                  <td></td>
+                  <td style="text-align: right">Rs. ${invoiceData.total.toFixed(2)}</td>
+                </tr>
+              </tbody>
+            </table>
+            ${enableTermsPrint ? `
+              <div class="terms">
+                <strong>Terms & Conditions</strong>
+                <ol>
+                  <li>Note: Verbal Deal</li>
+                  <li>Customer will pay the GST</li>
+                  <li>Customer will pay the Delivery charges</li>
+                  <li>Pay due amount within 15 days</li>
+                </ol>
+              </div>
+            ` : ''}
+            <div class="signature">
+              <div class="signature-line"></div>
+              <strong>Authorized Signature for ${shopDetails.shopName}</strong>
             </div>
-            <div class="totals">
-              <div><span>Subtotal:</span><span>₹${invoiceData.subtotal.toLocaleString()}</span></div>
-              ${
-                invoiceData.tax > 0
-                  ? `<div><span>GST (${invoiceData.gstPercentage}%):</span><span>₹${invoiceData.tax.toLocaleString()}</span></div>`
-                  : ""
-              }
-              <div><strong>Total:</strong><strong>₹${invoiceData.total.toLocaleString()}</strong></div>
-              <div><span>Payment Method:</span><span>${
-                invoiceData.paymentMethod.charAt(0).toUpperCase() + invoiceData.paymentMethod.slice(1)
-              }</span></div>
-            </div>
-            <div class="footer">
-              <p>Generated by Your Shop POS System</p>
-              <p>Thank you for using our services!</p>
-            </div>
-          </div>
-          <div style="text-align: center; margin-top: 10px;" class="no-print">
-            <button onclick="window.print()" style="padding: 5px 10px; background-color: ${styles.primary}; color: ${styles.primaryForeground}; border: none; border-radius: ${styles.radius}; cursor: pointer;">Print</button>
-            <button onclick="window.close()" style="padding: 5px 10px; background-color: ${styles.secondary}; color: ${styles.secondaryForeground}; border: none; border-radius: ${styles.radius}; cursor: pointer; margin-left: 5px;">Close</button>
           </div>
         </body>
       </html>
@@ -542,7 +635,7 @@ const PointOfSale = ({ theme, setTheme }) => {
     { id: "nature", label: "Nature", icon: Leaf },
     { id: "sunset", label: "Sunset", icon: Grid },
   ];
-  const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
+  const selectedTheme = themeOptions.find((t) => t.id === theme) || themeOptions[0];
   if (loading) {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading products...</div>;
   }
@@ -550,7 +643,7 @@ const PointOfSale = ({ theme, setTheme }) => {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
   }
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", display: "flex", overflowX: "hidden" }}>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", overflowX: "hidden" }}>
       <div style={{ flexGrow: 1, padding: "2rem", overflow: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <div>
@@ -672,7 +765,7 @@ const PointOfSale = ({ theme, setTheme }) => {
               </button>
             )}
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, minmax(12rem, 1fr))", gap: "1rem", maxWidth: "60rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem" }}>
             {filteredProducts.map((product) => (
               <div
                 key={product._id}
@@ -731,7 +824,7 @@ const PointOfSale = ({ theme, setTheme }) => {
           </div>
         </div>
       </div>
-      <div style={{ width: "25rem", minWidth: "24rem", backgroundColor: styles.cardBg, borderLeft: `1px solid ${styles.border}` }}>
+      <div style={{ width: isMobile ? "100%" : "25rem", minWidth: isMobile ? "auto" : "24rem", backgroundColor: styles.cardBg, borderLeft: isMobile ? "none" : `1px solid ${styles.border}`, borderTop: isMobile ? `1px solid ${styles.border}` : "none" }}>
         <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
           <h2 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.textColor }}>
             <ShoppingCart size={20} />
@@ -957,6 +1050,22 @@ const PointOfSale = ({ theme, setTheme }) => {
                 <span style={{ color: styles.textColor }}>Total:</span>
                 <span style={{ color: styles.textColor }}>₹{getTotal().toLocaleString()}</span>
               </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                <span style={{ color: styles.textColor }}>Manual Total:</span>
+                <input
+                  type="number"
+                  style={{
+                    width: "100px",
+                    padding: "0.25rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    backgroundColor: styles.input,
+                    color: styles.foreground
+                  }}
+                  value={manualTotal}
+                  onChange={(e) => setManualTotal(e.target.value)}
+                />
+              </div>
             </div>
             <div style={{ marginBottom: "1rem" }}>
               <label style={{ display: "block", marginBottom: "0.5rem", color: styles.textColor }}>Payment Method:</label>
@@ -1038,7 +1147,7 @@ const PointOfSale = ({ theme, setTheme }) => {
               backgroundColor: styles.popupBg,
               borderRadius: styles.radius,
               padding: "1rem",
-              width: "400px",
+              width: isMobile ? "90%" : "400px",
               maxHeight: "80vh",
               overflowY: "auto",
               boxShadow: styles.shadowElegant
@@ -1129,9 +1238,9 @@ const PointOfSale = ({ theme, setTheme }) => {
               backgroundColor: styles.popupBg,
               borderRadius: styles.radius,
               padding: "1rem",
-              width: "350px",
-              maxHeight: "80vh",
-              overflowY: "auto",
+              width: isMobile ? "90%" : "500px",
+              height: "auto",
+              overflowY: "visible",
               boxShadow: styles.shadowElegant
             }}
           >
@@ -1169,18 +1278,22 @@ const PointOfSale = ({ theme, setTheme }) => {
                   marginBottom: "10px",
                 }}
               >
-                <h1 style={{ fontSize: "16px", margin: "5px 0", color: styles.textColor }}>{shopDetails.shopName}</h1>
-                <p style={{ color: styles.textColor }}>{shopDetails.address}</p>
-                <p style={{ color: styles.textColor }}>GSTIN: {shopDetails.gstin}</p>
-                <p style={{ color: styles.textColor }}>Invoice: {invoiceData.invoiceId}</p>
-                <p style={{ color: styles.textColor }}>Date: {new Date(invoiceData.timestamp).toLocaleString()}</p>
+                <h1 style={{ fontSize: "16px", margin: "5px 0", color: styles.textColor }}>${shopDetails.shopName}</h1>
+                <p style={{ color: styles.textColor }}>${shopDetails.address}</p>
+                <p style={{ color: styles.textColor }}>Phone: ${phoneNumber}</p>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <p style={{ color: styles.textColor }}>${enableGstinPrint ? `GSTIN: ${shopDetails.gstin}` : ''}</p>
+                  <p style={{ color: styles.textColor }}>${enablePanPrint ? `PAN Number: ${panNumber}` : ''}</p>
+                </div>
+                <p style={{ color: styles.textColor }}>Invoice: ${invoiceData.invoiceId}</p>
+                <p style={{ color: styles.textColor }}>Date: ${new Date(invoiceData.timestamp).toLocaleString()}</p>
               </div>
               <div style={{ marginBottom: "10px" }}>
                 <p style={{ color: styles.textColor }}>
-                  <strong>Customer:</strong> {invoiceData.customer.name}
+                  <strong>Customer:</strong> ${invoiceData.customer.name}
                 </p>
                 <p style={{ color: styles.textColor }}>
-                  <strong>Phone:</strong> {invoiceData.customer.phone}
+                  <strong>Phone:</strong> ${invoiceData.customer.phone}
                 </p>
               </div>
               <div style={{ marginBottom: "10px" }}>
@@ -1189,42 +1302,67 @@ const PointOfSale = ({ theme, setTheme }) => {
                     <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Item</th>
                     <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Qty</th>
                     <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Price</th>
+                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Tax Rate</th>
                     <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Total</th>
                   </tr>
-                  {invoiceData.items.map((item) => (
-                    <tr key={item.id}>
-                      <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>{item.name}</td>
-                      <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>{item.quantity}</td>
-                      <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>
-                        ₹{item.price.toLocaleString()}
-                      </td>
-                      <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>
-                        ₹{(item.price * item.quantity).toLocaleString()}
-                      </td>
-                    </tr>
-                  ))}
+                  ${invoiceData.items
+                    .map(
+                      (item) => `
+                  <tr>
+                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>${item.name}</td>
+                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>${item.quantity}</td>
+                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
+                      ₹${item.price.toLocaleString()}
+                    </td>
+                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
+                      ${invoiceData.gstPercentage}%
+                    </td>
+                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
+                      ₹${(item.price * item.quantity + item.price * item.quantity * (invoiceData.gstPercentage / 100)).toLocaleString()}
+                    </td>
+                  </tr>
+                `
+                  )
+                    .join("")}
                 </table>
               </div>
               <div style={{ marginBottom: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
                   <span>Subtotal:</span>
-                  <span>₹{invoiceData.subtotal.toLocaleString()}</span>
+                  <span>₹${invoiceData.subtotal.toLocaleString()}</span>
                 </div>
-                {invoiceData.tax > 0 && (
+                ${invoiceData.tax > 0 ? `
                   <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
-                    <span>GST ({invoiceData.gstPercentage}%):</span>
-                    <span>₹{invoiceData.tax.toLocaleString()}</span>
+                    <span>GST (${invoiceData.gstPercentage}%):</span>
+                    <span>₹${invoiceData.tax.toLocaleString()}</span>
                   </div>
-                )}
+                ` : ""}
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", fontWeight: "bold", color: styles.textColor }}>
-                  <span>Total:</span>
-                  <span>₹{invoiceData.total.toLocaleString()}</span>
+                  <span>Calculated Total:</span>
+                  <span>₹${invoiceData.total.toLocaleString()}</span>
                 </div>
+                ${invoiceData.manualTotal ? `
+                  <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", fontWeight: "bold", color: styles.textColor }}>
+                    <span>Manual Total:</span>
+                    <span>₹${invoiceData.manualTotal.toLocaleString()}</span>
+                  </div>
+                ` : ""}
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
                   <span>Payment Method:</span>
-                  <span>{invoiceData.paymentMethod.charAt(0).toUpperCase() + invoiceData.paymentMethod.slice(1)}</span>
+                  <span>${invoiceData.paymentMethod.charAt(0).toUpperCase() + invoiceData.paymentMethod.slice(1)}</span>
                 </div>
               </div>
+              ${enableTermsPrint ? `
+                <div style={{ marginBottom: "1rem" }}>
+                  <strong>Terms & Conditions</strong>
+                  <ol>
+                    <li>Note: Verbal Deal</li>
+                    <li>Customer will pay the GST</li>
+                    <li>Customer will pay the Delivery charges</li>
+                    <li>Pay due amount within 15 days</li>
+                  </ol>
+                </div>
+              ` : ''}
               <div
                 style={{
                   textAlign: "center",
@@ -1269,6 +1407,24 @@ const PointOfSale = ({ theme, setTheme }) => {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {warning && (
+        <div
+          style={{
+            position: "fixed",
+            top: "20px",
+            right: "20px",
+            backgroundColor: styles.warning,
+            color: styles.warningForeground,
+            padding: "1rem",
+            borderRadius: styles.radius,
+            boxShadow: styles.shadow,
+            zIndex: 1001,
+            maxWidth: "300px"
+          }}
+        >
+          {warning}
         </div>
       )}
     </div>

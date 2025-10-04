@@ -50,7 +50,7 @@ const ConfirmModal = ({ message, onConfirm, onCancel, theme }) => {
     </div>
   );
 };
-// Custom Alert Modal Component
+// Custom Alert Modal Component (Repurposed for warnings and errors)
 const AlertModal = ({ message, onClose, theme }) => {
   const themeStyles = {
     light: { bgColor: "#ffffff", textColor: "#1f2937", buttonBg: "#3b82f6" },
@@ -209,7 +209,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
-  const productsPerPage = 5;
+  const productsPerPage = 4;
   const fileInputRef = useRef(null);
   const imageInputRef = useRef(null);
   const themeStyles = {
@@ -439,7 +439,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
     },
   };
   const styles = themeStyles[theme] || themeStyles.light;
-  const showAlert = (message) => {
+  const showWarning = (message) => {
     setAlertMessage(message);
     setShowAlertModal(true);
   };
@@ -550,10 +550,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
     try {
       const response = await axios.post("http://localhost:5000/api/upload/images", formData, { headers: { "Content-Type": "multipart/form-data" } });
       setUploadedImages((prev) => [...prev, ...response.data.uploadedImages]);
-      showAlert("Images uploaded successfully!");
+      // No success alert, only warning for errors
     } catch (error) {
       console.error("Error uploading images:", error);
-      showAlert(`Failed to upload images. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to upload images. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const handleSubmit = async (e) => {
@@ -561,7 +561,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
     const dataToSend = new FormData();
     if (formType === "product") {
       if (!formData.name || !formData.price || !formData.stock || !formData.category) {
-        showAlert("Please fill all required fields for product (Name, Price, Stock, Category).");
+        showWarning("Please fill all required fields for product (Name, Price, Stock, Category).");
         return;
       }
       dataToSend.append("name", formData.name);
@@ -604,7 +604,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
       else if (editingProduct && !imagePreview && (editingProduct.image_id || editingProduct.image_path)) dataToSend.append("image_path", "");
     } else if (formType === "accessories") {
       if (!formData.newAccessoryName || !formData.newAccessoryModel) {
-        showAlert("Please fill all required fields for accessory (Accessory Name, Accessory Model).");
+        showWarning("Please fill all required fields for accessory (Accessory Name, Accessory Model).");
         return;
       }
       dataToSend.append("accessoryName", formData.newAccessoryName);
@@ -613,7 +613,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
       dataToSend.append("type", formData.type || "");
     } else if (formType === "mobile") {
       if (!formData.newMobile) {
-        showAlert("Mobile name is required.");
+        showWarning("Mobile name is required.");
         return;
       }
       dataToSend.append("name", formData.newMobile);
@@ -629,14 +629,14 @@ const InventoryManagement = ({ theme, setTheme }) => {
         : `http://localhost:5000/api/${formType === "product" ? "products" : formType === "mobile" ? "mobiles" : "accessories"}`;
       const method = editingProduct || editingMobile || editingAccessory ? "put" : "post";
       await axios[method](endpoint, dataToSend, { headers: { "Content-Type": "multipart/form-data" } });
-      showAlert(`${editingProduct ? "Product" : editingMobile ? "Mobile" : editingAccessory ? "Accessory" : formType} ${editingProduct || editingMobile || editingAccessory ? "updated" : "added"} successfully!`);
+      // No success alert, only refresh
       fetchProducts();
       fetchMobiles();
       fetchAccessories();
       resetForm();
     } catch (error) {
       console.error("Error saving:", error);
-      showAlert(`Failed to save ${formType}. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to save ${formType}. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const editProduct = (product) => {
@@ -719,10 +719,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
       try {
         await axios.delete(`http://localhost:5000/api/products/${id}`);
         setProducts(products.filter((product) => product._id !== id));
-        showAlert("Product deleted successfully!");
+        // No success alert
       } catch (error) {
         console.error("Error deleting product:", error);
-        showAlert(`Failed to delete product. Error: ${error.response?.data?.error || error.message}`);
+        showWarning(`Failed to delete product. Error: ${error.response?.data?.error || error.message}`);
       } finally {
         setShowConfirmModal(false);
       }
@@ -733,10 +733,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
       try {
         await axios.delete(`http://localhost:5000/api/mobiles/${id}`);
         setMobiles(mobiles.filter((mobile) => mobile._id !== id));
-        showAlert("Mobile type deleted successfully!");
+        // No success alert
       } catch (error) {
         console.error("Error deleting mobile:", error);
-        showAlert(`Failed to delete mobile type. Error: ${error.response?.data?.error || error.message}`);
+        showWarning(`Failed to delete mobile type. Error: ${error.response?.data?.error || error.message}`);
       } finally {
         setShowConfirmModal(false);
       }
@@ -747,10 +747,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
       try {
         await axios.delete(`http://localhost:5000/api/accessories/${id}`);
         setAccessories(accessories.filter((accessory) => accessory._id !== id));
-        showAlert("Accessory type deleted successfully!");
+        // No success alert
       } catch (error) {
         console.error("Error deleting accessory:", error);
-        showAlert(`Failed to delete accessory. Error: ${error.response?.data?.error || error.message}`);
+        showWarning(`Failed to delete accessory. Error: ${error.response?.data?.error || error.message}`);
       } finally {
         setShowConfirmModal(false);
       }
@@ -760,17 +760,17 @@ const InventoryManagement = ({ theme, setTheme }) => {
     try {
       if (selected.includes('all')) {
         await axios.delete("http://localhost:5000/api/products/all");
-        showAlert("All products deleted successfully!");
+        // No success alert
       } else {
         for (const cat of selected) {
           await axios.delete(`http://localhost:5000/api/products/category/${encodeURIComponent(cat)}`);
         }
-        showAlert(`${selected.length} categories' products deleted successfully!`);
+        // No success alert
       }
       fetchProducts();
     } catch (error) {
       console.error("Error in bulk delete:", error);
-      showAlert(`Failed to bulk delete. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to bulk delete. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const updateStock = async (id, newStock) => {
@@ -779,7 +779,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
       setProducts(products.map((product) => (product._id === id ? { ...product, stock: newStock } : product)));
     } catch (error) {
       console.error("Error updating stock:", error);
-      showAlert(`Failed to update stock. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to update stock. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const openAddForm = (type) => {
@@ -820,10 +820,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
       link.click();
       link.parentNode.removeChild(link);
       setShowExcelOptions(false);
-      showAlert("Mobile products template exported to Excel successfully!");
+      // No success alert
     } catch (error) {
       console.error("Error exporting mobile products to Excel:", error);
-      showAlert(`Failed to export mobile products template. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to export mobile products template. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const handleExportAccessories = async () => {
@@ -837,10 +837,10 @@ const InventoryManagement = ({ theme, setTheme }) => {
       link.click();
       link.parentNode.removeChild(link);
       setShowExcelOptions(false);
-      showAlert("Accessory products template exported to Excel successfully!");
+      // No success alert
     } catch (error) {
       console.error("Error exporting accessory products to Excel:", error);
-      showAlert(`Failed to export accessory products template. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to export accessory products template. Error: ${error.response?.data?.error || error.message}`);
     }
   };
   const handleImportExcel = async (event) => {
@@ -851,13 +851,13 @@ const InventoryManagement = ({ theme, setTheme }) => {
     try {
       setLoading(true);
       const response = await axios.post("http://localhost:5000/api/import/products", formData, { headers: { "Content-Type": "multipart/form-data" } });
-      showAlert(response.data.message);
+      // No success alert, but refresh
       fetchProducts();
       fetchMobiles();
       fetchAccessories();
     } catch (error) {
       console.error("Error importing products from Excel:", error);
-      showAlert(`Failed to import products. Error: ${error.response?.data?.error || error.message}`);
+      showWarning(`Failed to import products. Error: ${error.response?.data?.error || error.message}`);
     } finally {
       setLoading(false);
       setShowExcelOptions(false);
@@ -881,13 +881,13 @@ const InventoryManagement = ({ theme, setTheme }) => {
   const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
   const SelectedIcon = selectedTheme.icon;
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-        <div>
+    <div className="container-fluid" style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      <div className="row justify-content-between align-items-center mb-3">
+        <div className="col-auto">
           <h1 style={{ fontSize: "1.875rem", fontWeight: "700", marginBottom: "0.5rem", color: styles.textColor }}>Inventory Management</h1>
           <p style={{ fontSize: "1rem", color: styles.secondaryTextColor, marginBottom: "2rem" }}>Manage your product inventory</p>
         </div>
-        <div style={{ position: "relative" }}>
+        <div className="col-auto position-relative">
           <div
             onClick={() => setShowThemeDropdown(!showThemeDropdown)}
             style={{
@@ -946,25 +946,52 @@ const InventoryManagement = ({ theme, setTheme }) => {
           )}
         </div>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
-          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Products</h3>
-          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.totalProducts}</p>
+      <div className="row g-3 mb-4">
+        <div className="col-md-3 col-sm-6">
+          <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+            <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Products</h3>
+            <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.totalProducts}</p>
+          </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
-          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Low Stock Items</h3>
-          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.lowStockItems}</p>
+        <div className="col-md-3 col-sm-6">
+          <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+            <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Low Stock Items</h3>
+            <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.lowStockItems}</p>
+          </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
-          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Stock Value</h3>
-          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.totalStockValue.toLocaleString()}</p>
+        <div className="col-md-3 col-sm-6">
+          <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+            <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Total Stock Value</h3>
+            <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>₹{stats.totalStockValue.toLocaleString()}</p>
+          </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
-          <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Categories</h3>
-          <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.categories}</p>
+        <div className="col-md-3 col-sm-6">
+          <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadow, textAlign: "center" }}>
+            <h3 style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>Categories</h3>
+            <p style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>{stats.categories}</p>
+          </div>
         </div>
       </div>
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      {lowStockProducts.length > 0 && (
+        <div className="mb-4">
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Low Stock Warnings</h2>
+          <div className="row g-3">
+            {lowStockProducts.map((product) => (
+              <div key={product._id} className="col-lg-3 col-md-4 col-sm-6">
+                <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, borderLeft: `4px solid ${styles.warning}` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                    <AlertTriangle size={16} color={styles.warning} />
+                    <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>{product.name}</h3>
+                  </div>
+                  <p style={{ color: styles.secondaryTextColor }}>Stock: {product.stock} (Min: {product.minStock})</p>
+                  <p style={{ color: styles.secondaryTextColor }}>Category: {product.category}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="d-flex flex-wrap gap-2 mb-3">
         <button onClick={() => openAddForm("product")} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundImage: styles.gradientPrimary, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer", transition: "all 0.2s" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundImage = styles.gradientAccent; e.currentTarget.style.transform = styles.btnGradientHoverTransform; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundImage = styles.gradientPrimary; e.currentTarget.style.transform = "translateY(0)"; }}>
           <PackagePlus size={16} /> Add Product
         </button>
@@ -975,7 +1002,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
         <button onClick={() => { setShowExcelOptions(!showExcelOptions); setShowAddForm(false); }} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.buttonExcel, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Excel Options</button>
         <button onClick={() => setShowBulkDeleteModal(true)} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Bulk Delete</button>
         {showExcelOptions && (
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className="d-flex flex-wrap gap-2">
             <button onClick={handleExportMobiles} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Export Mobiles Template</button>
             <button onClick={handleExportAccessories} style={{ display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer", justifyContent: "center" }}>Export Accessories Template</button>
             <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleImportExcel} accept=".xlsx, .xls" />
@@ -986,60 +1013,62 @@ const InventoryManagement = ({ theme, setTheme }) => {
         )}
       </div>
       {uploadedImages.length > 0 && (
-        <div style={{ marginTop: "2rem" }}>
+        <div className="mt-4">
           <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Uploaded Images</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem" }}>
+          <div className="row g-3">
             {uploadedImages.map((img, index) => (
-              <div key={index} style={{ position: "relative" }}>
-                <div style={{ width: "150px", height: "150px", overflow: "hidden", borderRadius: styles.radius, boxShadow: styles.shadow }}>
-                  <img src={img.image_path} alt={`Uploaded ${index}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <div key={index} className="col-md-2 col-sm-4 col-6">
+                <div style={{ position: "relative" }}>
+                  <div style={{ width: "100%", height: "150px", overflow: "hidden", borderRadius: styles.radius, boxShadow: styles.shadow }}>
+                    <img src={img.image_path} alt={`Uploaded ${index}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <p style={{ textAlign: "center", marginTop: "0.5rem", color: styles.secondaryTextColor }}>{img.image_id}</p>
                 </div>
-                <p style={{ textAlign: "center", marginTop: "0.5rem", color: styles.secondaryTextColor }}>{img.image_id}</p>
               </div>
             ))}
           </div>
         </div>
       )}
-      <div style={{ position: "relative", marginBottom: "2rem" }}>
+      <div className="position-relative mb-4">
         <Search style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} size={16} />
         <input placeholder="Search products..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} style={{ paddingLeft: "2.5rem", width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, backgroundColor: styles.input, color: styles.foreground }} />
       </div>
       {showAddForm && (
         <form onSubmit={handleSubmit} style={{ backgroundColor: styles.cardBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadow, marginBottom: "2rem" }}>
           <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>{editingProduct ? "Edit Product" : editingMobile ? "Edit Mobile Type" : editingAccessory ? "Edit Accessory Type" : formType === "mobile" ? "Add Mobile Type" : formType === "accessories" ? "Add Accessory Type" : "Add Product"}</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem" }}>
+          <div className="row g-3">
             {formType === "product" && (
               <>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Name *</label>
                   <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Price (₹) *</label>
                   <input type="number" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Stock Quantity *</label>
                   <input type="number" value={formData.stock} onChange={(e) => setFormData({ ...formData, stock: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Category *</label>
                   <input type="text" value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value, model: "", accessoryType: "", newMobile: "", newAccessoryName: "", newAccessoryModel: "", type: "" })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
                 {formData.category === "Mobile" && (
                   <>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Existing Model</label>
                       <select value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value, newMobile: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
                         <option value="">Select a model</option>
                         {mobiles.map((mobile) => <option key={mobile._id} value={mobile.name}>{mobile.name}</option>)}
                       </select>
                     </div>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Mobile Type</label>
                       <input type="text" value={formData.newMobile} onChange={(e) => setFormData({ ...formData, newMobile: e.target.value, model: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                     </div>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
                       <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                     </div>
@@ -1047,44 +1076,44 @@ const InventoryManagement = ({ theme, setTheme }) => {
                 )}
                 {formData.category === "Accessories" && (
                   <>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Existing Accessory Type</label>
                       <select value={formData.accessoryType} onChange={(e) => setFormData({ ...formData, accessoryType: e.target.value, newAccessoryName: "", newAccessoryModel: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }}>
                         <option value="">Select an accessory type</option>
                         {accessories.map((accessory) => <option key={accessory._id} value={accessory.accessoryType}>{accessory.accessoryModel} - {accessory.accessoryName}</option>)}
                       </select>
                     </div>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Accessory Name</label>
                       <input type="text" value={formData.newAccessoryName} onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value, accessoryType: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                     </div>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>New Accessory Model</label>
                       <input type="text" value={formData.newAccessoryModel} onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value, accessoryType: "" })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                     </div>
-                    <div>
+                    <div className="col-md-6 col-lg-4">
                       <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
                       <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                     </div>
                   </>
                 )}
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Supplier</label>
                   <input type="text" value={formData.supplier} onChange={(e) => setFormData({ ...formData, supplier: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Minimum Stock Level</label>
                   <input type="number" value={formData.minStock} onChange={(e) => setFormData({ ...formData, minStock: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Barcode</label>
                   <input type="text" value={formData.barcode} onChange={(e) => setFormData({ ...formData, barcode: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Image ID (Read-only)</label>
                   <input type="text" value={formData.image_id} readOnly style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.inputReadOnlyBg, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Product Image</label>
                   <input type="file" accept="image/*" onChange={handleImageChange} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                   {imagePreview && (
@@ -1096,29 +1125,29 @@ const InventoryManagement = ({ theme, setTheme }) => {
               </>
             )}
             {formType === "mobile" && (
-              <div>
+              <div className="col-md-6 col-lg-4">
                 <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Mobile Name *</label>
                 <input type="text" value={formData.newMobile} onChange={(e) => setFormData({ ...formData, newMobile: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
               </div>
             )}
             {formType === "accessories" && (
               <>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Accessory Name *</label>
                   <input type="text" value={formData.newAccessoryName} onChange={(e) => setFormData({ ...formData, newAccessoryName: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Accessory Model *</label>
                   <input type="text" value={formData.newAccessoryModel} onChange={(e) => setFormData({ ...formData, newAccessoryModel: e.target.value })} required style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
-                <div>
+                <div className="col-md-6 col-lg-4">
                   <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Type (Brand/General Model)</label>
                   <input type="text" value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} style={{ width: "100%", padding: "0.5rem", border: `1px solid ${styles.border}`, borderRadius: styles.radius, fontSize: "1rem", backgroundColor: styles.input, color: styles.foreground }} />
                 </div>
               </>
             )}
           </div>
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+          <div className="d-flex gap-2 mt-3">
             <button type="submit" style={{ padding: "0.5rem 1rem", backgroundColor: styles.buttonBg, color: styles.buttonText, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>
               {editingProduct ? "Update Product" : editingMobile ? "Update Mobile Type" : editingAccessory ? "Update Accessory Type" : "Add " + (formType === "mobile" ? "Mobile Type" : formType === "accessories" ? "Accessory Type" : "Product")}
             </button>
@@ -1127,7 +1156,7 @@ const InventoryManagement = ({ theme, setTheme }) => {
         </form>
       )}
       <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>Product List</h2>
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap" }}>
+      <div className="d-flex flex-wrap gap-2 mb-3">
         <button
           onClick={() => { setCategoryFilter("all"); setCurrentPage(1); }}
           style={{
@@ -1158,31 +1187,33 @@ const InventoryManagement = ({ theme, setTheme }) => {
           </button>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(16rem, 1fr))", gap: "1rem" }}>
+      <div className="row g-3">
         {currentProducts.map((product) => (
-          <div key={product._id} style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, transition: "all 0.2s", maxWidth: "16rem" }} onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}>
-            <img src={product.image || `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`} alt={product.name} style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: styles.radius, marginBottom: "0.5rem", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`; }} />
-            <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>{product.name}</h3>
-            <p style={{ color: styles.secondaryTextColor }}>₹{product.price.toLocaleString()}</p>
-            <p style={{ color: styles.secondaryTextColor }}>Category: {product.category}</p>
-            {product.model && <p style={{ color: styles.secondaryTextColor }}>Model: {product.model}</p>}
-            {product.type && <p style={{ color: styles.secondaryTextColor }}>Type: {product.type}</p>}
-            {product.accessoryType && <p style={{ color: styles.secondaryTextColor }}>Accessory Type: {product.accessoryType}</p>}
-            {product.image_id && <p style={{ color: styles.secondaryTextColor }}>Image ID: {product.image_id}</p>}
-            {product.image_path && <p style={{ color: styles.secondaryTextColor }}>Image Path: {product.image_path}</p>}
-            <div style={{ marginTop: "0.5rem", padding: "0.25rem 0.5rem", borderRadius: styles.radius, color: product.stock > 20 ? styles.successForeground : product.stock > 0 ? styles.warningForeground : styles.destructiveForeground, backgroundColor: product.stock > 20 ? styles.statusSuccess : product.stock > 0 ? styles.statusWarning : styles.statusDestructive }}>
-              {product.stock > 0 ? `Stock ${product.stock}` : "Out of Stock"}
-            </div>
-            <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
-              <button onClick={() => editProduct(product)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius }}><Edit size={16} /></button>
-              <button onClick={() => deleteProduct(product._id)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius }}><Trash2 size={16} /></button>
+          <div key={product._id} className="col-lg-3 col-md-4 col-sm-6">
+            <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, transition: "all 0.2s", height: "100%" }} onMouseEnter={(e) => { e.currentTarget.style.transform = styles.cardHoverTransform; e.currentTarget.style.boxShadow = styles.cardHoverShadow; }} onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = styles.shadowCard; }}>
+              <img src={product.image || `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`} alt={product.name} style={{ width: "100%", height: "150px", objectFit: "cover", borderRadius: styles.radius, marginBottom: "0.5rem", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/150x150/${styles.placeholderImageBg.slice(1)}/${styles.placeholderImageText.slice(1)}?text=No+Image`; }} />
+              <h3 style={{ fontSize: "1rem", fontWeight: "600", color: styles.textColor }}>{product.name}</h3>
+              <p style={{ color: styles.secondaryTextColor }}>₹{product.price.toLocaleString()}</p>
+              <p style={{ color: styles.secondaryTextColor }}>Category: {product.category}</p>
+              {product.model && <p style={{ color: styles.secondaryTextColor }}>Model: {product.model}</p>}
+              {product.type && <p style={{ color: styles.secondaryTextColor }}>Type: {product.type}</p>}
+              {product.accessoryType && <p style={{ color: styles.secondaryTextColor }}>Accessory Type: {product.accessoryType}</p>}
+              {product.image_id && <p style={{ color: styles.secondaryTextColor }}>Image ID: {product.image_id}</p>}
+              {product.image_path && <p style={{ color: styles.secondaryTextColor }}>Image Path: {product.image_path}</p>}
+              <div style={{ marginTop: "0.5rem", padding: "0.25rem 0.5rem", borderRadius: styles.radius, color: product.stock > 20 ? styles.successForeground : product.stock > 0 ? styles.warningForeground : styles.destructiveForeground, backgroundColor: product.stock > 20 ? styles.statusSuccess : product.stock > 0 ? styles.statusWarning : styles.statusDestructive }}>
+                {product.stock > 0 ? `Stock ${product.stock}` : "Out of Stock"}
+              </div>
+              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem" }}>
+                <button onClick={() => editProduct(product)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius }}><Edit size={16} /></button>
+                <button onClick={() => deleteProduct(product._id)} style={{ padding: "0.25rem 0.5rem", backgroundColor: styles.destructive, color: styles.destructiveForeground, border: "none", borderRadius: styles.radius }}><Trash2 size={16} /></button>
+              </div>
             </div>
           </div>
         ))}
-        {filteredProducts.length === 0 && <p style={{ gridColumn: "1 / -1", textAlign: "center", color: styles.mutedForeground }}>No products found matching your search.</p>}
+        {filteredProducts.length === 0 && <p className="col-12 text-center" style={{ color: styles.mutedForeground }}>No products found matching your search.</p>}
       </div>
       {filteredProducts.length > productsPerPage && (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
+        <div className="d-flex justify-content-center align-items-center gap-3 mt-3">
           <button onClick={handlePrevPage} disabled={currentPage === 1} style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Previous</button>
           <span>Page {currentPage} of {totalPages}</span>
           <button onClick={handleNextPage} disabled={currentPage === totalPages} style={{ padding: "0.5rem 1rem", backgroundColor: styles.primary, color: styles.primaryForeground, border: "none", borderRadius: styles.radius, cursor: "pointer" }}>Next</button>

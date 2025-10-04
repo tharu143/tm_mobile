@@ -1,3 +1,4 @@
+# app.py (No changes needed based on frontend requests, but included full for completeness)
 import os
 import sys
 import logging
@@ -68,6 +69,7 @@ if db:
     stock_additions_collection = db['stock_additions']
     email_collection = db['email']
     backup_collection = db['backup']
+    services_collection = db['services']  # Added new collection for services
 else:
     logger.error("MongoDB connection failed. Database operations will not work.")
     fs = None
@@ -81,6 +83,7 @@ else:
     stock_additions_collection = None
     email_collection = None
     backup_collection = None
+    services_collection = None  # Added
 # Configure upload folder
 UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'Uploads')
 if not os.path.exists(UPLOAD_FOLDER):
@@ -287,17 +290,30 @@ def get_print_settings():
             return jsonify({
                 "shopName": print_settings.get("shopName", "Your Shop Name"),
                 "address": print_settings.get("address", "123 Shop Street, City, Country"),
-                "gstin": print_settings.get("gstin", "12ABCDE1234F1Z5")
+                "gstin": print_settings.get("gstin", "12ABCDE1234F1Z5"),
+                "phoneNumber": print_settings.get("phoneNumber", ""),
+                "panNumber": print_settings.get("panNumber", ""),
+                "shopColor": print_settings.get("shopColor", "#000000"),
+                "enableGstinPrint": print_settings.get("enableGstinPrint", True),
+                "enablePanPrint": print_settings.get("enablePanPrint", True),
+                "enableTermsPrint": print_settings.get("enableTermsPrint", True)
             })
         else:
             return jsonify({
                 "shopName": "Your Shop Name",
                 "address": "123 Shop Street, City, Country",
-                "gstin": "12ABCDE1234F1Z5"
+                "gstin": "12ABCDE1234F1Z5",
+                "phoneNumber": "",
+                "panNumber": "",
+                "shopColor": "#000000",
+                "enableGstinPrint": True,
+                "enablePanPrint": True,
+                "enableTermsPrint": True
             })
     except Exception as e:
         logger.error(f"Error fetching print settings: {e}")
         return jsonify({"error": str(e)}), 500
+
 @app.route('/api/print', methods=['POST'])
 def save_print_settings():
     try:
@@ -305,14 +321,26 @@ def save_print_settings():
         shop_name = data.get('shopName')
         address = data.get('address')
         gstin = data.get('gstin')
+        phone_number = data.get('phoneNumber')
+        pan_number = data.get('panNumber')
+        shop_color = data.get('shopColor')
+        enable_gstin_print = data.get('enableGstinPrint')
+        enable_pan_print = data.get('enablePanPrint')
+        enable_terms_print = data.get('enableTermsPrint')
         if not shop_name or not address or not gstin:
-            return jsonify({"error": "All fields are required"}), 400
+            return jsonify({"error": "Shop name, address, and GSTIN are required"}), 400
         print_collection.update_one(
             {"_id": "print_settings"},
             {"$set": {
                 "shopName": shop_name,
                 "address": address,
-                "gstin": gstin
+                "gstin": gstin,
+                "phoneNumber": phone_number,
+                "panNumber": pan_number,
+                "shopColor": shop_color,
+                "enableGstinPrint": enable_gstin_print,
+                "enablePanPrint": enable_pan_print,
+                "enableTermsPrint": enable_terms_print
             }},
             upsert=True
         )
@@ -320,6 +348,12 @@ def save_print_settings():
             "shopName": shop_name,
             "address": address,
             "gstin": gstin,
+            "phoneNumber": phone_number,
+            "panNumber": pan_number,
+            "shopColor": shop_color,
+            "enableGstinPrint": enable_gstin_print,
+            "enablePanPrint": enable_pan_print,
+            "enableTermsPrint": enable_terms_print,
             "message": "Print settings saved successfully"
         })
     except Exception as e:
@@ -772,6 +806,7 @@ def process_sale():
         customer = data['customer']
         items = data['items']
         gst_percentage = data['gstPercentage']
+        manual_total = data.get('manualTotal', None)
         for item in items:
             product = products_collection.find_one({"_id": ObjectId(item['id'])})
             if not product:
@@ -790,7 +825,7 @@ def process_sale():
                 customers_collection.update_one(
                     {"_id": ObjectId(customer_id)},
                     {
-                        "$inc": {"purchases": 1, "totalPurchases": data['total']},
+                        "$inc": {"purchases": 1, "totalPurchases": manual_total or data['total']},
                         "$set": {"lastPurchase": data['timestamp'][:10], "name": customer['name'], "phone": customer['phone']}
                     }
                 )
@@ -801,7 +836,7 @@ def process_sale():
                 'name': customer['name'],
                 'phone': customer['phone'],
                 'email': '', 'address': '', 'city': '', 'pincode': '', 'dateOfBirth': '',
-                'purchases': 1, 'totalPurchases': data['total'], 'totalPurchases': data['total'], 'lastPurchase': data['timestamp'][:10], 'posBalance': 0
+                'purchases': 1, 'totalPurchases': manual_total or data['total'], 'totalPurchases': manual_total or data['total'], 'lastPurchase': data['timestamp'][:10], 'posBalance': 0
             }
             result = customers_collection.insert_one(new_customer)
             customer_id = str(result.inserted_id)
@@ -811,6 +846,7 @@ def process_sale():
             'subtotal': data['subtotal'],
             'tax': data['tax'],
             'total': data['total'],
+            'manualTotal': manual_total,
             'paymentMethod': data['paymentMethod'],
             'timestamp': data['timestamp'],
             'invoiceId': data['invoiceId'],
@@ -829,6 +865,8 @@ def get_sales():
         for sale in sales:
             sale['_id'] = str(sale['_id'])
             sale['timestamp'] = sale['timestamp'][:10]
+            if 'manualTotal' in sale:
+                sale['manualTotal'] = sale['manualTotal']
         return jsonify(sales)
     except Exception as e:
         logger.error(f"Error in get_sales: {e}")
@@ -837,11 +875,11 @@ def get_sales():
 @app.route('/api/dashboard/stats', methods=['GET'])
 def get_dashboard_stats():
     try:
-        total_sales = sum(sale.get('total', 0) for sale in sales_collection.find())
+        total_sales = sum(sale.get('manualTotal') or sale.get('total', 0) for sale in sales_collection.find())
         unique_customers_count = customers_collection.count_documents({})
         low_stock_count = products_collection.count_documents({"$expr": {"$lte": ["$stock", "$minStock"]}})
         today = datetime.utcnow().date().isoformat()
-        today_sales = sum(sale.get('total', 0) for sale in sales_collection.find({"timestamp": {"$regex": f"^{today}"}}))
+        today_sales = sum(sale.get('manualTotal') or sale.get('total', 0) for sale in sales_collection.find({"timestamp": {"$regex": f"^{today}"}}))
         return jsonify({
             "todaySales": today_sales,
             "totalCustomers": unique_customers_count,
@@ -874,7 +912,7 @@ def get_recent_sales():
                     '_id': str(sale['_id']),
                     'time': time_str,
                     'product': sale['items'][0]['name'] if sale['items'] else 'Unknown',
-                    'amount': f"₹{sale['total']:.0f}",
+                    'amount': f"₹{(sale.get('manualTotal') or sale['total']):.0f}",
                     'customer': sale['customer']['name'] if 'name' in sale['customer'] else 'Unknown',
                     'status': sale.get('status', 'completed')
                 }
@@ -922,7 +960,7 @@ def restock_low_stock():
         data = request.get_json() or {}
         restock_amount = int(data.get('restockAmount', 10))
         low_stock_items = list(products_collection.find({"$expr": {"$lte": ["$stock", "$minStock"]}}))
-   
+  
         if not low_stock_items:
             return jsonify({"message": "No low stock items to restock", "updatedItems": []}), 200
         updated_items = []
@@ -957,7 +995,7 @@ def restock_manual():
     try:
         data = request.get_json() or {}
         items = data.get('items', [])
-   
+  
         if not items:
             return jsonify({"error": "No items provided for restocking"}), 400
         updated_items = []
@@ -1246,7 +1284,7 @@ def get_monthly_report():
         year = int(request.args.get('year'))
         month = int(request.args.get('month'))
         start, end = get_month_range(year, month)
-  
+ 
         sales_pipeline = [
             {"$match": {"timestamp": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$unwind": "$items"},
@@ -1259,7 +1297,7 @@ def get_monthly_report():
         sales_data = list(sales_collection.aggregate(sales_pipeline))
         for sale in sales_data:
             sale['_id'] = str(sale['_id'])
-  
+ 
         additions_pipeline = [
             {"$match": {"date": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$group": {"_id": "$product_id", "totalAdded": {"$sum": "$quantity"}}}
@@ -1267,11 +1305,11 @@ def get_monthly_report():
         additions_data = list(stock_additions_collection.aggregate(additions_pipeline))
         for addition in additions_data:
             addition['_id'] = str(addition['_id'])
-  
+ 
         current_stock = list(products_collection.find({}, {"_id": 1, "stock": 1, "name": 1}))
         for stock in current_stock:
             stock['_id'] = str(stock['_id'])
-  
+ 
         report = {
             "sales": sales_data,
             "additions": additions_data,
@@ -1287,7 +1325,7 @@ def get_yearly_report():
     try:
         year = int(request.args.get('year'))
         start, end = get_year_range(year)
-  
+ 
         sales_pipeline = [
             {"$match": {"timestamp": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$unwind": "$items"},
@@ -1300,7 +1338,7 @@ def get_yearly_report():
         sales_data = list(sales_collection.aggregate(sales_pipeline))
         for sale in sales_data:
             sale['_id'] = str(sale['_id'])
-  
+ 
         additions_pipeline = [
             {"$match": {"date": {"$gte": start.isoformat(), "$lte": end.isoformat()}}},
             {"$group": {"_id": "$product_id", "totalAdded": {"$sum": "$quantity"}}}
@@ -1308,11 +1346,11 @@ def get_yearly_report():
         additions_data = list(stock_additions_collection.aggregate(additions_pipeline))
         for addition in additions_data:
             addition['_id'] = str(addition['_id'])
-  
+ 
         current_stock = list(products_collection.find({}, {"_id": 1, "stock": 1, "name": 1}))
         for stock in current_stock:
             stock['_id'] = str(stock['_id'])
-   
+  
         report = {
             "sales": sales_data,
             "additions": additions_data,
@@ -1398,6 +1436,7 @@ def create_backup_file():
         'print': list(print_collection.find()),
         'email': list(email_collection.find()),
         'stock_additions': list(stock_additions_collection.find()),
+        'services': list(services_collection.find()),  # Added services to backup
     }
     serialized_collections = {}
     for collection_name, docs in collections.items():
@@ -1470,7 +1509,7 @@ def perform_backup_and_send():
     send_backup_email(filepath)
 @app.route('/api/backup', methods=['GET'])
 def handle_backup():
-    if not backup_collection or not all([products_collection, mobiles_collection, accessories_collection, sales_collection, customers_collection, settings_collection, print_collection, email_collection, stock_additions_collection]):
+    if not backup_collection or not all([products_collection, mobiles_collection, accessories_collection, sales_collection, customers_collection, settings_collection, print_collection, email_collection, stock_additions_collection, services_collection]):  # Added services_collection
         logger.error("Database connection or collections missing")
         return jsonify({'error': 'Database connection failed or collections missing'}), 500
     try:
@@ -1609,6 +1648,104 @@ def shutdown_server():
         db = None
         fs = None
     logger.info("Server shutting down gracefully.")
+# Login Route (Hardcoded credentials: username='admin', password='password')
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        password = data.get('password')
+        # Hardcoded credentials as per user request
+        if username == 'admin' and password == 'password':
+            return jsonify({"success": True, "message": "Login successful"}), 200
+        else:
+            return jsonify({"success": False, "message": "Invalid username or password"}), 401
+    except Exception as e:
+        logger.error(f"Error in login: {e}")
+        return jsonify({"error": "Failed to process login"}), 500
+# Service Routes (Updated with Service Number, Optional Fields, Description, Status, and Manual Total)
+@app.route('/api/services', methods=['GET'])
+def get_services():
+    try:
+        services = list(services_collection.find())
+        for service in services:
+            service['_id'] = str(service['_id'])
+        return jsonify(services)
+    except Exception as e:
+        logger.error(f"Error fetching services: {e}")
+        return jsonify({"error": "Failed to retrieve services"}), 500
+
+@app.route('/api/services', methods=['POST'])
+def add_service():
+    try:
+        data = request.json
+        # All fields are optional now
+        customer = data.get('customer', {})
+        device = data.get('device', {})
+        problem = data.get('problem', {})
+        
+        # Calculate total
+        product_rate = float(problem.get('productRate', 0))
+        service_charge = float(problem.get('serviceCharge', 0))
+        total = product_rate + service_charge
+
+        # Generate service number (e.g., SR001)
+        count = services_collection.count_documents({})
+        service_number = f"SR{count + 1:03d}"
+
+        service_data = {
+            'serviceNumber': service_number,
+            'customer': customer,
+            'device': device,
+            'problem': problem,
+            'total': total,
+            'manualTotal': None,  # Initial manual total null
+            'status': 'pending',  # Initial status pending
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        result = services_collection.insert_one(service_data)
+        return jsonify({"message": "Service added successfully", "id": str(result.inserted_id), "serviceNumber": service_number}), 201
+    except Exception as e:
+        logger.error(f"Error adding service: {e}")
+        return jsonify({"error": "Failed to add service"}), 500
+
+@app.route('/api/services/<id>', methods=['PUT'])
+def update_service(id):
+    try:
+        data = request.json
+        update_data = {}
+        if 'customer' in data:
+            update_data['customer'] = data['customer']
+        if 'device' in data:
+            update_data['device'] = data['device']
+        if 'problem' in data:
+            update_data['problem'] = data['problem']
+            # Recalculate total if problem fields are updated
+            product_rate = float(data['problem'].get('productRate', 0))
+            service_charge = float(data['problem'].get('serviceCharge', 0))
+            update_data['total'] = product_rate + service_charge
+        if 'manualTotal' in data:
+            update_data['manualTotal'] = float(data['manualTotal'])
+        if 'status' in data:
+            update_data['status'] = data['status']
+        result = services_collection.update_one({"_id": ObjectId(id)}, {"$set": update_data})
+        if result.matched_count == 0:
+            return jsonify({"error": "Service not found"}), 404
+        return jsonify({"message": "Service updated successfully"})
+    except Exception as e:
+        logger.error(f"Error updating service {id}: {e}")
+        return jsonify({"error": "Failed to update service"}), 500
+
+@app.route('/api/services/<id>', methods=['DELETE'])
+def delete_service(id):
+    try:
+        result = services_collection.delete_one({"_id": ObjectId(id)})
+        if result.deleted_count == 0:
+            return jsonify({"error": "Service not found"}), 404
+        return jsonify({"message": "Service deleted successfully"})
+    except Exception as e:
+        logger.error(f"Error deleting service {id}: {e}")
+        return jsonify({"error": "Failed to delete service"}), 500
 # Main execution with shutdown handler
 if __name__ == '__main__':
     try:

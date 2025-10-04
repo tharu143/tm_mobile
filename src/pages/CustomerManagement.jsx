@@ -49,6 +49,7 @@ const CustomerManagement = ({ theme, setTheme }) => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const customersPerPage = 10;
@@ -273,18 +274,19 @@ const CustomerManagement = ({ theme, setTheme }) => {
     setShowAddForm(false);
     setEditingCustomer(null);
     setError(null);
+    setSuccess(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
       return;
     }
-
     setLoading(true);
+    setError(null);
+    setSuccess(null);
     try {
       const customerData = {
         ...formData,
@@ -295,7 +297,6 @@ const CustomerManagement = ({ theme, setTheme }) => {
           : new Date().toISOString().split("T")[0],
         posBalance: editingCustomer ? editingCustomer.posBalance : 0,
       };
-
       let updatedCustomers;
       if (editingCustomer) {
         updatedCustomers = customers.map((c) =>
@@ -305,13 +306,11 @@ const CustomerManagement = ({ theme, setTheme }) => {
         customerData._id = String(customers.length + 1);
         updatedCustomers = [...customers, customerData];
       }
-
       setCustomers(updatedCustomers);
-      alert(editingCustomer ? "Customer updated successfully" : "Customer added successfully");
+      setSuccess(editingCustomer ? "Customer updated successfully" : "Customer added successfully");
       resetForm();
     } catch (err) {
       setError(err.message);
-      alert(err.message);
     } finally {
       setLoading(false);
     }
@@ -330,6 +329,7 @@ const CustomerManagement = ({ theme, setTheme }) => {
       dateOfBirth: "",
     });
     setError(null);
+    setSuccess(null);
   };
 
   const editCustomer = (customer) => {
@@ -345,17 +345,19 @@ const CustomerManagement = ({ theme, setTheme }) => {
     setEditingCustomer(customer);
     setShowAddForm(true);
     setError(null);
+    setSuccess(null);
   };
 
   const deleteCustomer = async (id) => {
     if (window.confirm("Are you sure you want to delete this customer?")) {
       setLoading(true);
+      setError(null);
+      setSuccess(null);
       try {
         setCustomers(customers.filter((c) => c._id !== id));
-        alert("Customer deleted successfully");
+        setSuccess("Customer deleted successfully");
       } catch (err) {
         setError(err.message);
-        alert(err.message);
       } finally {
         setLoading(false);
       }
@@ -372,58 +374,60 @@ const CustomerManagement = ({ theme, setTheme }) => {
   const selectedTheme = themeOptions.find(t => t.id === theme) || themeOptions[0];
 
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "1rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", gap: "1rem" }}>
         <div>
-          <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Customer Management</h1>
-          <p style={{ fontSize: "1rem", color: styles.secondaryTextColor, marginBottom: "1rem" }}>Manage your customer database</p>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "700", color: styles.textColor }}>Customer Management</h1>
+          <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.5rem" }}>Manage your customer database</p>
         </div>
-        <div style={{ position: "relative" }}>
-          <div 
-            onClick={() => setShowThemeDropdown(!showThemeDropdown)} 
-            style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "0.5rem", 
-              padding: "0.5rem 1rem", 
-              backgroundColor: styles.card, 
-              color: styles.primary, 
-              border: `1px solid ${styles.border}`, 
-              borderRadius: styles.radius, 
-              cursor: "pointer", 
-              fontWeight: "500", 
-              transition: "all 0.2s ease-in-out" 
+        <div style={{ position: "relative", width: "100%", maxWidth: "200px" }}>
+          <div
+            onClick={() => setShowThemeDropdown(!showThemeDropdown)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.5rem 1rem",
+              backgroundColor: styles.card,
+              color: styles.primary,
+              border: `1px solid ${styles.border}`,
+              borderRadius: styles.radius,
+              cursor: "pointer",
+              fontWeight: "500",
+              transition: "all 0.2s ease-in-out"
             }}
           >
             {selectedTheme && <selectedTheme.icon size={16} />}
             {selectedTheme && selectedTheme.label}
           </div>
           {showThemeDropdown && (
-            <div style={{ 
-              position: "absolute", 
+            <div style={{
+              position: "absolute",
               right: 0,
               top: "100%",
-              backgroundColor: styles.dropdownBg, 
-              border: `1px solid ${styles.border}`, 
-              borderRadius: styles.radius, 
-              marginTop: "0.5rem", 
-              zIndex: 10 
+              backgroundColor: styles.dropdownBg,
+              border: `1px solid ${styles.border}`,
+              borderRadius: styles.radius,
+              marginTop: "0.5rem",
+              zIndex: 10,
+              width: "100%"
             }}>
               {themeOptions.map((option) => (
-                <button 
-                  key={option.id} 
-                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }} 
-                  style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "0.5rem", 
-                    padding: "0.5rem", 
-                    backgroundColor: theme === option.id ? styles.primary : "transparent", 
-                    color: theme === option.id ? styles.primaryForeground : styles.foreground, 
-                    border: "none", 
-                    borderRadius: styles.radius, 
-                    cursor: "pointer", 
-                    textAlign: "left" 
+                <button
+                  key={option.id}
+                  onClick={() => { setTheme(option.id); setShowThemeDropdown(false); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    padding: "0.5rem",
+                    backgroundColor: theme === option.id ? styles.primary : "transparent",
+                    color: theme === option.id ? styles.primaryForeground : styles.foreground,
+                    border: "none",
+                    borderRadius: styles.radius,
+                    cursor: "pointer",
+                    textAlign: "left",
+                    width: "100%"
                   }}
                 >
                   <option.icon size={16} />
@@ -434,8 +438,7 @@ const CustomerManagement = ({ theme, setTheme }) => {
           )}
         </div>
       </div>
-
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1rem" }}>
         <div style={{ position: "relative", flex: 1 }}>
           <Search style={{ position: "absolute", left: "0.75rem", top: "0.75rem", color: styles.mutedForeground }} size={16} />
           <input
@@ -444,66 +447,75 @@ const CustomerManagement = ({ theme, setTheme }) => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             disabled={loading}
-            style={{ 
-              paddingLeft: "2.5rem", 
-              width: "100%", 
-              padding: "0.5rem", 
-              border: `1px solid ${styles.border}`, 
-              borderRadius: styles.radius, 
-              backgroundColor: styles.input, 
-              color: styles.foreground 
+            style={{
+              paddingLeft: "2.5rem",
+              width: "100%",
+              padding: "0.5rem",
+              border: `1px solid ${styles.border}`,
+              borderRadius: styles.radius,
+              backgroundColor: styles.input,
+              color: styles.foreground
             }}
           />
         </div>
         <button
           onClick={addCustomer}
           disabled={loading}
-          style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "0.5rem", 
-            padding: "0.5rem 1rem", 
-            background: styles.gradientPrimary, 
-            color: styles.buttonText, 
-            border: "none", 
-            borderRadius: styles.radius, 
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            padding: "0.5rem 1rem",
+            background: styles.gradientPrimary,
+            color: styles.buttonText,
+            border: "none",
+            borderRadius: styles.radius,
             cursor: "pointer",
             transition: "all 0.2s"
           }}
-          onMouseEnter={(e) => { 
-            e.currentTarget.style.background = styles.gradientAccent; 
-            e.currentTarget.style.transform = "translateY(-1px)"; 
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = styles.gradientAccent;
+            e.currentTarget.style.transform = "translateY(-1px)";
           }}
-          onMouseLeave={(e) => { 
-            e.currentTarget.style.background = styles.gradientPrimary; 
-            e.currentTarget.style.transform = "translateY(0)"; 
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = styles.gradientPrimary;
+            e.currentTarget.style.transform = "translateY(0)";
           }}
         >
           <UserPlus size={16} /> Add Customer
         </button>
       </div>
-
       {error && (
-        <div style={{ 
-          backgroundColor: styles.destructive, 
-          color: styles.destructiveForeground, 
-          padding: "1rem", 
-          borderRadius: styles.radius, 
-          marginBottom: "1rem" 
+        <div style={{
+          backgroundColor: styles.destructive,
+          color: styles.destructiveForeground,
+          padding: "1rem",
+          borderRadius: styles.radius,
+          marginBottom: "1rem"
         }}>
           {error}
         </div>
       )}
-
+      {success && (
+        <div style={{
+          backgroundColor: styles.success,
+          color: styles.successForeground,
+          padding: "1rem",
+          borderRadius: styles.radius,
+          marginBottom: "1rem"
+        }}>
+          {success}
+        </div>
+      )}
       {showAddForm && (
-        <div style={{ backgroundColor: styles.cardBg, padding: "1.5rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
+        <div style={{ backgroundColor: styles.cardBg, padding: "1rem", borderRadius: styles.radius, boxShadow: styles.shadowCard, marginBottom: "1.5rem" }}>
+          <h2 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "1rem", color: styles.textColor }}>
             {editingCustomer ? "Edit Customer" : "Add New Customer"}
           </h2>
           <form onSubmit={handleSubmit}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))", gap: "0.75rem" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Customer Name *</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Customer Name *</label>
                 <input
                   type="text"
                   placeholder="Enter name"
@@ -511,19 +523,19 @@ const CustomerManagement = ({ theme, setTheme }) => {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Phone Number *</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Phone Number *</label>
                 <input
                   type="text"
                   placeholder="+91 9876543210"
@@ -531,123 +543,124 @@ const CustomerManagement = ({ theme, setTheme }) => {
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   required
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Email</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Email</label>
                 <input
                   type="email"
                   placeholder="example@gmail.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Date of Birth</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Date of Birth</label>
                 <input
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>City</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>City</label>
                 <input
                   type="text"
                   placeholder="Enter city"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Pincode</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Pincode</label>
                 <input
                   type="text"
                   placeholder="600017"
                   value={formData.pincode}
                   onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor }}>Address</label>
+                <label style={{ display: "block", marginBottom: "0.25rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>Address</label>
                 <input
                   type="text"
                   placeholder="Enter address"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                   disabled={loading}
-                  style={{ 
-                    width: "100%", 
-                    padding: "0.5rem", 
-                    border: `1px solid ${styles.border}`, 
-                    borderRadius: styles.radius, 
-                    fontSize: "1rem", 
-                    backgroundColor: styles.input, 
-                    color: styles.foreground 
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem",
+                    border: `1px solid ${styles.border}`,
+                    borderRadius: styles.radius,
+                    fontSize: "0.875rem",
+                    backgroundColor: styles.input,
+                    color: styles.foreground
                   }}
                 />
               </div>
             </div>
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem", flexWrap: "wrap" }}>
               <button
                 type="submit"
                 disabled={loading}
-                style={{ 
-                  padding: "0.5rem 1rem", 
-                  backgroundColor: styles.buttonBg, 
-                  color: styles.buttonText, 
-                  border: "none", 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: styles.buttonBg,
+                  color: styles.buttonText,
+                  border: "none",
+                  borderRadius: styles.radius,
+                  cursor: "pointer",
+                  minWidth: "120px"
                 }}
               >
                 {loading ? "Processing..." : (editingCustomer ? "Update Customer" : "Add Customer")}
@@ -656,13 +669,14 @@ const CustomerManagement = ({ theme, setTheme }) => {
                 type="button"
                 onClick={resetForm}
                 disabled={loading}
-                style={{ 
-                  padding: "0.5rem 1rem", 
-                  backgroundColor: styles.secondary, 
-                  color: styles.secondaryForeground, 
-                  border: "none", 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
+                style={{
+                  padding: "0.5rem 1rem",
+                  backgroundColor: styles.secondary,
+                  color: styles.secondaryForeground,
+                  border: "none",
+                  borderRadius: styles.radius,
+                  cursor: "pointer",
+                  minWidth: "120px"
                 }}
               >
                 Cancel
@@ -671,23 +685,22 @@ const CustomerManagement = ({ theme, setTheme }) => {
           </form>
         </div>
       )}
-
       <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
-        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, fontSize: "1.25rem", fontWeight: "600", color: styles.textColor }}>
+        <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, fontSize: "1.125rem", fontWeight: "600", color: styles.textColor }}>
           Customer List
         </div>
-        <div style={{ padding: "1.5rem" }}>
+        <div style={{ padding: "1rem" }}>
           {loading && <p style={{ textAlign: "center", color: styles.textColor }}>Loading...</p>}
           {!loading && filteredCustomers.length === 0 ? (
             <p style={{ textAlign: "center", color: styles.mutedForeground }}>No customers found</p>
           ) : (
             <>
               <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
                   <thead>
                     <tr>
                       {["Name", "Phone", "Email", "Address", "City", "Pincode", "Date of Birth", "Purchases", "Total (₹)", "Last Purchase", "Actions"].map((header) => (
-                        <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
+                        <th key={header} style={{ padding: "0.5rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}`, fontSize: "0.875rem" }}>
                           {header}
                         </th>
                       ))}
@@ -696,43 +709,43 @@ const CustomerManagement = ({ theme, setTheme }) => {
                   <tbody>
                     {currentCustomers.map((customer) => (
                       <tr key={customer._id}>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.name}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.phone}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.email}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.address}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.city}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.pincode}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.dateOfBirth || "N/A"}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.purchases}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.totalPurchases.toLocaleString()}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor }}>{customer.lastPurchase || "N/A"}</td>
-                        <td style={{ padding: "0.75rem" }}>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.name}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.phone}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.email}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.address}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.city}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.pincode}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.dateOfBirth || "N/A"}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.purchases}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.totalPurchases.toLocaleString()}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.lastPurchase || "N/A"}</td>
+                        <td style={{ padding: "0.5rem" }}>
                           <div style={{ display: "flex", gap: "0.5rem" }}>
                             <button
                               onClick={() => editCustomer(customer)}
                               disabled={loading}
-                              style={{ 
-                                padding: "0.25rem 0.5rem", 
-                                backgroundColor: styles.primary, 
-                                color: styles.primaryForeground, 
-                                border: "none", 
-                                borderRadius: styles.radius 
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                backgroundColor: styles.primary,
+                                color: styles.primaryForeground,
+                                border: "none",
+                                borderRadius: styles.radius
                               }}
                             >
-                              <Edit size={16} />
+                              <Edit size={14} />
                             </button>
                             <button
                               onClick={() => deleteCustomer(customer._id)}
                               disabled={loading}
-                              style={{ 
-                                padding: "0.25rem 0.5rem", 
-                                backgroundColor: styles.destructive, 
-                                color: styles.destructiveForeground, 
-                                border: "none", 
-                                borderRadius: styles.radius 
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                backgroundColor: styles.destructive,
+                                color: styles.destructiveForeground,
+                                border: "none",
+                                borderRadius: styles.radius
                               }}
                             >
-                              <Trash2 size={16} />
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         </td>
@@ -741,32 +754,34 @@ const CustomerManagement = ({ theme, setTheme }) => {
                   </tbody>
                 </table>
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
                 <button
                   onClick={handlePrevPage}
                   disabled={currentPage === 1 || loading}
-                  style={{ 
-                    padding: "0.5rem 1rem", 
-                    backgroundColor: styles.primary, 
-                    color: styles.primaryForeground, 
-                    border: "none", 
-                    borderRadius: styles.radius, 
-                    cursor: "pointer" 
+                  style={{
+                    padding: "0.5rem 1rem",
+                    backgroundColor: styles.primary,
+                    color: styles.primaryForeground,
+                    border: "none",
+                    borderRadius: styles.radius,
+                    cursor: "pointer",
+                    minWidth: "100px"
                   }}
                 >
                   Previous
                 </button>
-                <span style={{ color: styles.textColor }}>Page {currentPage} of {totalPages}</span>
+                <span style={{ color: styles.textColor, fontSize: "0.875rem" }}>Page {currentPage} of {totalPages}</span>
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages || loading}
-                  style={{ 
-                    padding: "0.5rem 1rem", 
-                    backgroundColor: styles.primary, 
-                    color: styles.primaryForeground, 
-                    border: "none", 
-                    borderRadius: styles.radius, 
-                    cursor: "pointer" 
+                  style={{
+                    padding: "0.5rem 1rem",
+                    backgroundColor: styles.primary,
+                    color: styles.primaryForeground,
+                    border: "none",
+                    borderRadius: styles.radius,
+                    cursor: "pointer",
+                    minWidth: "100px"
                   }}
                 >
                   Next

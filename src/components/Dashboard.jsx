@@ -18,6 +18,7 @@ const Dashboard = ({ theme, setTheme }) => {
   const [minStockInputs, setMinStockInputs] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
   const [showAllSales, setShowAllSales] = useState(false);
   const [salesChartData, setSalesChartData] = useState(null);
   const [inventoryChartData, setInventoryChartData] = useState(null);
@@ -485,27 +486,27 @@ const Dashboard = ({ theme, setTheme }) => {
         }));
 
       if (restockData.length === 0) {
-        alert("Please enter valid quantities for at least one item.");
+        setError("Please enter valid quantities for at least one item.");
         return;
       }
 
       const response = await axios.post("http://localhost:5000/api/dashboard/restock-manual", { items: restockData });
-      alert(response.data.message);
+      setMessage(response.data.message);
       fetchDashboardData();
     } catch (err) {
       console.error("Error restocking items:", err);
-      alert("Failed to restock items: " + (err.response?.data?.error || "An unexpected error occurred"));
+      setError("Failed to restock items: " + (err.response?.data?.error || "An unexpected error occurred"));
     }
   };
 
   const handleAutoRestock = async () => {
     try {
       const response = await axios.post("http://localhost:5000/api/dashboard/restock");
-      alert(response.data.message);
+      setMessage(response.data.message);
       fetchDashboardData();
     } catch (err) {
       console.error("Error restocking items:", err);
-      alert("Failed to restock items: " + (err.response?.data?.error || "An unexpected error occurred"));
+      setError("Failed to restock items: " + (err.response?.data?.error || "An unexpected error occurred"));
     }
   };
 
@@ -522,20 +523,18 @@ const Dashboard = ({ theme, setTheme }) => {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading dashboard...</div>;
   }
 
-  if (error) {
-    return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
-  }
-
   return (
-    <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-        <div>
+    <div className="container-fluid" style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", padding: "2rem" }}>
+      {error && <div className="alert alert-danger">{error}</div>}
+      {message && <div className="alert alert-success">{message}</div>}
+      <div className="row justify-content-between align-items-center mb-3">
+        <div className="col-auto">
           <h1 style={{ fontSize: "1.875rem", fontWeight: "700", color: styles.textColor }}>Dashboard</h1>
           <p style={{ fontSize: "1rem", color: styles.secondaryTextColor }}>
             Welcome back! Here's what's happening at your shop today.
           </p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div className="col-auto d-flex align-items-center gap-3">
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: styles.secondaryTextColor, fontSize: "0.875rem" }}>
             <Phone size={16} />
             Last updated: {new Date().toLocaleTimeString()}
@@ -598,289 +597,303 @@ const Dashboard = ({ theme, setTheme }) => {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
-                <DollarSign size={20} style={{ color: styles.statusSuccess }} />
+      <div className="row g-3 mb-4">
+        <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                  <DollarSign size={20} style={{ color: styles.statusSuccess }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Today's Sales</p>
+                  <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.todaySales.toLocaleString()}</h5>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Today's Sales</p>
-                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.todaySales.toLocaleString()}</h5>
-              </div>
+              <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.statusSuccess }}>+12%</span>
             </div>
-            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.statusSuccess }}>+12%</span>
           </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
-                <Users size={20} style={{ color: styles.primary }} />
+        <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                  <Users size={20} style={{ color: styles.primary }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Customers</p>
+                  <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.totalCustomers}</h5>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Customers</p>
-                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.totalCustomers}</h5>
-              </div>
+              <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.primary }}>+5%</span>
             </div>
-            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.primary.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.primary }}>+5%</span>
           </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusDestructive.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
-                <AlertTriangle size={20} style={{ color: styles.statusDestructive }} />
+        <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.statusDestructive.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                  <AlertTriangle size={20} style={{ color: styles.statusDestructive }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Low Stock Items</p>
+                  <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.lowStockItems}</h5>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Low Stock Items</p>
-                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>{stats.lowStockItems}</h5>
-              </div>
+              <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusDestructive, color: styles.destructiveForeground }}>Alert</span>
             </div>
-            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.statusDestructive, color: styles.destructiveForeground }}>Alert</span>
           </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
-                <TrendingUp size={20} style={{ color: styles.accent }} />
+        <div className="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard, padding: "1rem" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <div style={{ padding: "0.5rem", borderRadius: "0.5rem", backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)') }}>
+                  <TrendingUp size={20} style={{ color: styles.accent }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Revenue</p>
+                  <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.totalRevenue.toLocaleString()}</h5>
+                </div>
               </div>
-              <div>
-                <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>Total Revenue</p>
-                <h5 style={{ fontSize: "1.25rem", fontWeight: "700", color: styles.textColor, margin: 0 }}>₹{stats.totalRevenue.toLocaleString()}</h5>
-              </div>
+              <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.accent }}>+8%</span>
             </div>
-            <span style={{ padding: "0.25rem 0.5rem", borderRadius: styles.radius, backgroundColor: styles.accent.replace('hsl', 'hsla').replace(')', ', 0.1)'), color: styles.accent }}>+8%</span>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "1rem" }}>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
-          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.textColor, margin: 0 }}>
-              <ShoppingCart size={20} />
-              Recent Sales
-            </h5>
-            {allTodaySales.length > 3 && (
-              <button 
-                style={{ 
-                  padding: "0.5rem 1rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
-                }} 
-                onClick={showAllSales ? handleShowLess : handleViewAll}
-              >
-                {showAllSales ? "Show Less" : "View All"}
-              </button>
-            )}
-          </div>
-          <div style={{ padding: "1rem" }}>
-            {recentSales.length === 0 ? (
-              <p style={{ textAlign: "center", color: styles.mutedForeground }}>No sales today</p>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr>
-                      {["Invoice ID", "Date", "Customer", "Product", "Quantity", "Amount", "Grand Total", "Payment", "Actions"].map((header) => (
-                        <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentSales.map((sale) => (
-                      <tr 
-                        key={sale._id}
-                        style={{ transition: "background-color 0.2s" }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = styles.muted}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.cardBg}
-                      >
-                        <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{sale.invoiceId}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{new Date(sale.timestamp).toLocaleDateString()}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.customer?.name || "N/A"}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
-                          {sale.items.map((item, index) => (
-                            <div key={index}>
-                              {item.name} (₹{item.price.toLocaleString()} x {item.quantity})
-                            </div>
-                          ))}
-                        </td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.subtotal.toLocaleString()}</td>
-                        <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.total.toLocaleString()}</td>
-                        <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
-                          <span
-                            style={{
-                              padding: "0.25rem 0.5rem",
-                              borderRadius: styles.radius,
-                              backgroundColor: sale.paymentMethod === "cash" ? styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') : styles.secondary,
-                              color: sale.paymentMethod === "cash" ? styles.statusSuccess : styles.secondaryForeground
-                            }}
-                          >
-                            {sale.paymentMethod}
-                          </span>
-                        </td>
-                        <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
-                          <button 
-                            style={{ 
-                              padding: "0.25rem 0.5rem", 
-                              backgroundColor: styles.buttonOutlineBg, 
-                              color: styles.buttonOutlineText, 
-                              border: `1px solid ${styles.border}`, 
-                              borderRadius: styles.radius,
-                              cursor: "pointer"
-                            }}
-                          >
-                            <Eye size={16} />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
-          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
-            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.warning, margin: 0 }}>
-              <AlertTriangle size={20} />
-              Inventory Alerts
-            </h5>
-          </div>
-          <div style={{ padding: "1rem" }}>
-            {lowStockItems.length === 0 ? (
-              <p style={{ textAlign: "center", color: styles.mutedForeground }}>No low stock items</p>
-            ) : (
-              lowStockItems.map((item) => (
-                <div 
-                  key={item._id} 
+      <div className="row g-3">
+        <div className="col-lg-8 col-md-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+            <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}`, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.textColor, margin: 0 }}>
+                <ShoppingCart size={20} />
+                Recent Sales
+              </h5>
+              {allTodaySales.length > 3 && (
+                <button 
                   style={{ 
-                    display: "flex", 
-                    alignItems: "center", 
-                    justifyContent: "space-between", 
-                    padding: "0.75rem", 
+                    padding: "0.5rem 1rem", 
+                    backgroundColor: styles.buttonOutlineBg, 
+                    color: styles.buttonOutlineText, 
                     border: `1px solid ${styles.border}`, 
                     borderRadius: styles.radius, 
-                    marginBottom: "0.75rem" 
-                  }}
+                    cursor: "pointer" 
+                  }} 
+                  onClick={showAllSales ? handleShowLess : handleViewAll}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                    {item.image && (
-                      <img
-                        src={`http://localhost:5000${item.image}`}
-                        alt={item.name}
-                        style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "0.25rem" }}
-                      />
-                    )}
-                    <div>
-                      <p style={{ fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>{item.name}</p>
-                      <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>
-                        Units: {item.stock} left
-                      </p>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <input
-                          type="number"
-                          style={{ 
-                            width: "80px", 
-                            padding: "0.5rem", 
-                            border: `1px solid ${styles.border}`, 
-                            borderRadius: styles.radius, 
-                            backgroundColor: styles.input, 
-                            color: styles.foreground 
-                          }}
-                          placeholder="Restock Qty"
-                          value={stockInputs[item._id] || ''}
-                          onChange={(e) => handleStockInputChange(item._id, e.target.value)}
-                          min="0"
-                        />
-                        <input
-                          type="number"
-                          style={{ 
-                            width: "80px", 
-                            padding: "0.5rem", 
-                            border: `1px solid ${styles.border}`, 
-                            borderRadius: styles.radius, 
-                            backgroundColor: styles.input, 
-                            color: styles.foreground 
-                          }}
-                          placeholder="Min Stock"
-                          value={minStockInputs[item._id] || item.minStock}
-                          onChange={(e) => handleMinStockInputChange(item._id, e.target.value)}
-                          min="1"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <span 
+                  {showAllSales ? "Show Less" : "View All"}
+                </button>
+              )}
+            </div>
+            <div style={{ padding: "1rem" }}>
+              {recentSales.length === 0 ? (
+                <p style={{ textAlign: "center", color: styles.mutedForeground }}>No sales today</p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table table-hover" style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr>
+                        {["Invoice ID", "Date", "Customer", "Product", "Quantity", "Amount", "Grand Total", "Payment", "Actions"].map((header) => (
+                          <th key={header} style={{ padding: "0.75rem", textAlign: "left", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{header}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentSales.map((sale) => (
+                        <tr 
+                          key={sale._id}
+                          style={{ transition: "background-color 0.2s" }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = styles.muted}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.cardBg}
+                        >
+                          <td style={{ padding: "0.75rem", color: styles.textColor, fontWeight: "500", borderBottom: `1px solid ${styles.border}` }}>{sale.invoiceId}</td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{new Date(sale.timestamp).toLocaleDateString()}</td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.customer?.name || "N/A"}</td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>
+                            {sale.items.map((item, index) => (
+                              <div key={index}>
+                                {item.name} (₹{item.price.toLocaleString()} x {item.quantity})
+                              </div>
+                            ))}
+                          </td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>{sale.items.reduce((sum, item) => sum + item.quantity, 0)}</td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.subtotal.toLocaleString()}</td>
+                          <td style={{ padding: "0.75rem", color: styles.textColor, borderBottom: `1px solid ${styles.border}` }}>₹{sale.total.toLocaleString()}</td>
+                          <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
+                            <span
+                              style={{
+                                padding: "0.25rem 0.5rem",
+                                borderRadius: styles.radius,
+                                backgroundColor: sale.paymentMethod === "cash" ? styles.statusSuccess.replace('hsl', 'hsla').replace(')', ', 0.1)') : styles.secondary,
+                                color: sale.paymentMethod === "cash" ? styles.statusSuccess : styles.secondaryForeground
+                              }}
+                            >
+                              {sale.paymentMethod}
+                            </span>
+                          </td>
+                          <td style={{ padding: "0.75rem", borderBottom: `1px solid ${styles.border}` }}>
+                            <button 
+                              style={{ 
+                                padding: "0.25rem 0.5rem", 
+                                backgroundColor: styles.buttonOutlineBg, 
+                                color: styles.buttonOutlineText, 
+                                border: `1px solid ${styles.border}`, 
+                                borderRadius: styles.radius,
+                                cursor: "pointer"
+                              }}
+                            >
+                              <Eye size={16} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="col-lg-4 col-md-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+            <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+              <h5 style={{ fontSize: "1.25rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "0.5rem", color: styles.warning, margin: 0 }}>
+                <AlertTriangle size={20} />
+                Inventory Alerts
+              </h5>
+            </div>
+            <div style={{ padding: "1rem" }}>
+              {lowStockItems.length === 0 ? (
+                <p style={{ textAlign: "center", color: styles.mutedForeground }}>No low stock items</p>
+              ) : (
+                lowStockItems.map((item) => (
+                  <div 
+                    key={item._id} 
                     style={{ 
-                      padding: "0.25rem 0.5rem", 
+                      display: "flex", 
+                      alignItems: "center", 
+                      justifyContent: "space-between", 
+                      padding: "0.75rem", 
+                      border: `1px solid ${styles.border}`, 
                       borderRadius: styles.radius, 
-                      backgroundColor: item.stock === 0 ? styles.statusDestructive : styles.statusWarning,
-                      color: item.stock === 0 ? styles.destructiveForeground : styles.warningForeground
+                      marginBottom: "0.75rem" 
                     }}
                   >
-                    {item.stock === 0 ? "Out of Stock" : "Low Stock"}
-                  </span>
-                </div>
-              ))
-            )}
-            <div style={{ display: "flex", justifyContent: "space-between", gap: "0.5rem", marginTop: "1rem" }}>
-              <button 
-                style={{ 
-                  flex: 1, 
-                  padding: "0.5rem", 
-                  backgroundColor: styles.primary, 
-                  color: styles.primaryForeground, 
-                  border: "none", 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
-                }} 
-                onClick={handleManualRestock}
-              >
-                Restock Selected
-              </button>
-              <button 
-                style={{ 
-                  flex: 1, 
-                  padding: "0.5rem", 
-                  backgroundColor: styles.buttonOutlineBg, 
-                  color: styles.buttonOutlineText, 
-                  border: `1px solid ${styles.border}`, 
-                  borderRadius: styles.radius, 
-                  cursor: "pointer" 
-                }} 
-                onClick={handleAutoRestock}
-              >
-                Auto Restock
-              </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                      {item.image && (
+                        <img
+                          src={`http://localhost:5000${item.image}`}
+                          alt={item.name}
+                          style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "0.25rem" }}
+                        />
+                      )}
+                      <div>
+                        <p style={{ fontWeight: "500", marginBottom: "0.25rem", color: styles.textColor }}>{item.name}</p>
+                        <p style={{ fontSize: "0.875rem", color: styles.secondaryTextColor, marginBottom: "0.25rem" }}>
+                          Units: {item.stock} left
+                        </p>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                          <input
+                            type="number"
+                            style={{ 
+                              width: "80px", 
+                              padding: "0.5rem", 
+                              border: `1px solid ${styles.border}`, 
+                              borderRadius: styles.radius, 
+                              backgroundColor: styles.input, 
+                              color: styles.foreground 
+                            }}
+                            placeholder="Restock Qty"
+                            value={stockInputs[item._id] || ''}
+                            onChange={(e) => handleStockInputChange(item._id, e.target.value)}
+                            min="0"
+                          />
+                          <input
+                            type="number"
+                            style={{ 
+                              width: "80px", 
+                              padding: "0.5rem", 
+                              border: `1px solid ${styles.border}`, 
+                              borderRadius: styles.radius, 
+                              backgroundColor: styles.input, 
+                              color: styles.foreground 
+                            }}
+                            placeholder="Min Stock"
+                            value={minStockInputs[item._id] || item.minStock}
+                            onChange={(e) => handleMinStockInputChange(item._id, e.target.value)}
+                            min="1"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <span 
+                      style={{ 
+                        padding: "0.25rem 0.5rem", 
+                        borderRadius: styles.radius, 
+                        backgroundColor: item.stock === 0 ? styles.statusDestructive : styles.statusWarning,
+                        color: item.stock === 0 ? styles.destructiveForeground : styles.warningForeground
+                      }}
+                    >
+                      {item.stock === 0 ? "Out of Stock" : "Low Stock"}
+                    </span>
+                  </div>
+                ))
+              )}
+              <div className="d-flex justify-content-between gap-2 mt-3">
+                <button 
+                  className="btn flex-fill"
+                  style={{ 
+                    backgroundColor: styles.primary, 
+                    color: styles.primaryForeground, 
+                    border: "none", 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer" 
+                  }} 
+                  onClick={handleManualRestock}
+                >
+                  Restock Selected
+                </button>
+                <button 
+                  className="btn flex-fill"
+                  style={{ 
+                    backgroundColor: styles.buttonOutlineBg, 
+                    color: styles.buttonOutlineText, 
+                    border: `1px solid ${styles.border}`, 
+                    borderRadius: styles.radius, 
+                    cursor: "pointer" 
+                  }} 
+                  onClick={handleAutoRestock}
+                >
+                  Auto Restock
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "1rem" }}>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
-          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
-            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Sales Trend (Last 7 Days)</h5>
-          </div>
-          <div style={{ padding: "1rem" }}>
-            <canvas id="salesChart" style={{ height: '300px' }}></canvas>
+      <div className="row g-3 mt-3">
+        <div className="col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+            <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+              <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Sales Trend (Last 7 Days)</h5>
+            </div>
+            <div style={{ padding: "1rem" }}>
+              <canvas id="salesChart" style={{ height: '300px' }}></canvas>
+            </div>
           </div>
         </div>
-        <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
-          <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
-            <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Low Stock Items Distribution</h5>
-          </div>
-          <div style={{ padding: "1rem" }}>
-            <canvas id="inventoryChart" style={{ height: '300px' }}></canvas>
+        <div className="col-md-6 col-sm-12">
+          <div style={{ backgroundColor: styles.cardBg, borderRadius: styles.radius, boxShadow: styles.shadowCard }}>
+            <div style={{ padding: "1rem", borderBottom: `1px solid ${styles.border}` }}>
+              <h5 style={{ fontSize: "1.25rem", fontWeight: "600", color: styles.textColor, margin: 0 }}>Low Stock Items Distribution</h5>
+            </div>
+            <div style={{ padding: "1rem" }}>
+              <canvas id="inventoryChart" style={{ height: '300px' }}></canvas>
+            </div>
           </div>
         </div>
       </div>

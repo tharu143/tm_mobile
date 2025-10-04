@@ -1,6 +1,7 @@
+// Sidebar.jsx (Modified)
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Home, ShoppingCart, Package, Users, BarChart3, Settings, Phone, LogOut, ChevronLeft, ChevronRight, Moon, Sun } from "lucide-react";
+import { Home, ShoppingCart, Package, Users, BarChart3, Settings, Phone, LogOut, ChevronLeft, ChevronRight, Moon, Sun, Wrench } from "lucide-react";
 
 const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, theme, toggleTheme }) => {
   const menuItems = [
@@ -9,6 +10,7 @@ const Sidebar = ({ activePage, setActivePage, isOpen, setIsOpen, theme, toggleTh
     { id: "inventory", label: "Inventory", icon: Package, badge: "12", path: "/inventory" },
     { id: "customers", label: "Customers", icon: Users, path: "/customers" },
     { id: "reports", label: "Reports", icon: BarChart3, path: "/reports" },
+    { id: "service", label: "Service", icon: Wrench, path: "/service" }, // Added Service menu item
     { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
   ];
 
