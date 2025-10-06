@@ -1,4 +1,4 @@
-# app.py (No changes needed based on frontend requests, but included full for completeness)
+# app.py (Modified to handle soft delete with DELETE route setting deleted: True instead of hard delete)
 import os
 import sys
 import logging
@@ -1728,6 +1728,8 @@ def update_service(id):
             update_data['manualTotal'] = float(data['manualTotal'])
         if 'status' in data:
             update_data['status'] = data['status']
+        if 'deleted' in data:
+            update_data['deleted'] = data['deleted']  # Allow deleted field in update
         result = services_collection.update_one({"_id": ObjectId(id)}, {"$set": update_data})
         if result.matched_count == 0:
             return jsonify({"error": "Service not found"}), 404
@@ -1739,8 +1741,8 @@ def update_service(id):
 @app.route('/api/services/<id>', methods=['DELETE'])
 def delete_service(id):
     try:
-        result = services_collection.delete_one({"_id": ObjectId(id)})
-        if result.deleted_count == 0:
+        result = services_collection.update_one({"_id": ObjectId(id)}, {"$set": {"deleted": True}})
+        if result.matched_count == 0:
             return jsonify({"error": "Service not found"}), 404
         return jsonify({"message": "Service deleted successfully"})
     except Exception as e:

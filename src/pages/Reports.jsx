@@ -1,3 +1,4 @@
+// Reports.jsx (Modified to show deleted services in reports if status is 'completed-paid'; fetches all services, filters by status only)
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { BarChart3, Download, TrendingUp, DollarSign, Printer, RefreshCw, Sun, Moon, Leaf, Grid } from "lucide-react";

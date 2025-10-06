@@ -1,3 +1,4 @@
+// Service.jsx (No changes, but full code provided for completeness. Edit navigates to /service/add with state)
 import React, { useState, useEffect } from 'react';
 import { Button, Table, message, Popconfirm, Input } from 'antd';
 import axios from 'axios';
@@ -28,7 +29,7 @@ const Service = ({ theme }) => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.patch(`/api/services/${id}`, { deleted: true });
+      await axios.delete(`/api/services/${id}`);
       message.success('Service deleted successfully');
       fetchServices();
     } catch (error) {

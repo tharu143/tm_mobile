@@ -1,4 +1,4 @@
-// src/pages/ServiceDetails.jsx (New component for viewing/editing service details)
+// ServiceDetails.jsx (Kept as is for viewing/editing on row click; full code provided)
 import React, { useState, useEffect } from 'react';
 import { Button, Form, Input, InputNumber, DatePicker, Select, message, Row, Col, Typography } from 'antd';
 import axios from 'axios';

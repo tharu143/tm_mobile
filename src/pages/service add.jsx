@@ -1,8 +1,8 @@
-// src/pages/ServiceAdd.jsx (New component for adding service)
-import React from 'react';
+// ServiceAdd.jsx (Modified to handle both add and edit via location.state.service; if state.service exists, it's edit mode, use PUT, set form values)
+import React, { useState, useEffect } from 'react';
 import { Button, Form, Input, InputNumber, DatePicker, Select, message, Row, Col } from 'antd';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -10,6 +10,18 @@ const { TextArea } = Input;
 const ServiceAdd = ({ theme }) => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isEdit, setIsEdit] = useState(false);
+  const [serviceId, setServiceId] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.service) {
+      const service = location.state.service;
+      form.setFieldsValue(service);
+      setIsEdit(true);
+      setServiceId(service._id);
+    }
+  }, [location.state, form]);
 
   const handleFinish = async (values) => {
     try {
@@ -17,10 +29,15 @@ const ServiceAdd = ({ theme }) => {
       const productRate = values.problem?.productRate || 0;
       const serviceCharge = values.problem?.serviceCharge || 0;
       const total = productRate + serviceCharge;
-      const data = { ...values, total, status: 'pending' }; // Initial status pending
+      const data = { ...values, total, status: 'pending' }; // Initial status pending if add
 
-      await axios.post('/api/services', data);
-      message.success('Service added successfully');
+      if (isEdit) {
+        await axios.put(`/api/services/${serviceId}`, data);
+        message.success('Service updated successfully');
+      } else {
+        await axios.post('/api/services', data);
+        message.success('Service added successfully');
+      }
       navigate('/service'); // Back to list
     } catch (error) {
       console.error('Error saving service:', error);
@@ -30,7 +47,7 @@ const ServiceAdd = ({ theme }) => {
 
   return (
     <div className={`service-add-page ${theme}`}>
-      <h1>Add Service</h1>
+      <h1>{isEdit ? 'Edit Service' : 'Add Service'}</h1>
       <Form form={form} onFinish={handleFinish} layout="vertical">
         <Row gutter={16}>
           <Col span={12}>
@@ -99,7 +116,7 @@ const ServiceAdd = ({ theme }) => {
             </Form.Item>
           </Col>
         </Row>
-        <Button type="primary" htmlType="submit">Save</Button>
+        <Button type="primary" htmlType="submit">{isEdit ? 'Update' : 'Save'}</Button>
         <Button onClick={() => navigate('/service')}>Back</Button>
       </Form>
     </div>
