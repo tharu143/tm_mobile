@@ -1,40 +1,11 @@
 import { useState, useEffect } from "react";
 import { Search, UserPlus, Edit, Trash2, Sun, Moon, Leaf, Grid } from "lucide-react";
 
-// Simulated initial customer data
-const initialCustomers = [
-  {
-    _id: "1",
-    name: "Tharun",
-    phone: "6381360779",
-    email: "tharun@gmail.com",
-    address: "dcgf, fggjhg",
-    city: "Theni",
-    pincode: "600025",
-    dateOfBirth: "2025-02-15",
-    purchases: 1,
-    totalPurchases: 11800,
-    lastPurchase: "2025-06-23",
-    posBalance: 0,
-  },
-  {
-    _id: "2",
-    name: "Manoj",
-    phone: "6381360779",
-    email: "manoj@gmail.com",
-    address: "dfghh, dhdg, fgyfg",
-    city: "Theni",
-    pincode: "600021",
-    dateOfBirth: "2025-06-23",
-    purchases: 6,
-    totalPurchases: 16596,
-    lastPurchase: "2025-07-30",
-    posBalance: 0,
-  },
-];
+// API base URL
+const API_BASE_URL = "http://localhost:5000/api";
 
 const CustomerManagement = ({ theme, setTheme }) => {
-  const [customers, setCustomers] = useState(initialCustomers);
+  const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
@@ -199,15 +170,21 @@ const CustomerManagement = ({ theme, setTheme }) => {
 
   const styles = themeStyles[theme] || themeStyles.light;
 
-  // Simulated API fetch
+  // Fetch customers on mount
   useEffect(() => {
     fetchCustomers();
   }, []);
 
   const fetchCustomers = async () => {
     setLoading(true);
+    setError(null);
     try {
-      setCustomers(initialCustomers); // Using provided data for demo
+      const response = await fetch(`${API_BASE_URL}/customers`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch customers");
+      }
+      const data = await response.json();
+      setCustomers(data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -297,17 +274,33 @@ const CustomerManagement = ({ theme, setTheme }) => {
           : new Date().toISOString().split("T")[0],
         posBalance: editingCustomer ? editingCustomer.posBalance : 0,
       };
-      let updatedCustomers;
+
+      let response;
       if (editingCustomer) {
-        updatedCustomers = customers.map((c) =>
-          c._id === editingCustomer._id ? { ...customerData, _id: c._id } : c
-        );
+        response = await fetch(`${API_BASE_URL}/customers/${editingCustomer._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(customerData),
+        });
       } else {
-        customerData._id = String(customers.length + 1);
-        updatedCustomers = [...customers, customerData];
+        response = await fetch(`${API_BASE_URL}/customers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(customerData),
+        });
       }
-      setCustomers(updatedCustomers);
-      setSuccess(editingCustomer ? "Customer updated successfully" : "Customer added successfully");
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save customer");
+      }
+
+      const result = await response.json();
+      setSuccess(result.message);
+
+      // Refresh customers list
+      await fetchCustomers();
+
       resetForm();
     } catch (err) {
       setError(err.message);
@@ -354,8 +347,18 @@ const CustomerManagement = ({ theme, setTheme }) => {
       setError(null);
       setSuccess(null);
       try {
-        setCustomers(customers.filter((c) => c._id !== id));
-        setSuccess("Customer deleted successfully");
+        const response = await fetch(`${API_BASE_URL}/customers/${id}`, {
+          method: "DELETE",
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to delete customer");
+        }
+        const result = await response.json();
+        setSuccess(result.message);
+
+        // Refresh customers list
+        await fetchCustomers();
       } catch (err) {
         setError(err.message);
       } finally {
@@ -711,13 +714,13 @@ const CustomerManagement = ({ theme, setTheme }) => {
                       <tr key={customer._id}>
                         <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.name}</td>
                         <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.phone}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.email}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.address}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.city}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.pincode}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.email || "N/A"}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.address || "N/A"}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.city || "N/A"}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.pincode || "N/A"}</td>
                         <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.dateOfBirth || "N/A"}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.purchases}</td>
-                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.totalPurchases.toLocaleString()}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.purchases || 0}</td>
+                        <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{(customer.totalPurchases || 0).toLocaleString()}</td>
                         <td style={{ padding: "0.5rem", color: styles.textColor, fontSize: "0.875rem" }}>{customer.lastPurchase || "N/A"}</td>
                         <td style={{ padding: "0.5rem" }}>
                           <div style={{ display: "flex", gap: "0.5rem" }}>
