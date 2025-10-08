@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Plus, Minus, Trash2, CreditCard, Banknote, Smartphone, ShoppingCart, Sun, Moon, Leaf, Grid } from "lucide-react";
+
 // Inline SVG Icons
 const SearchIcon = ({ style }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style}>
@@ -8,6 +9,7 @@ const SearchIcon = ({ style }) => (
     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
   </svg>
 );
+
 const PointOfSale = ({ theme, setTheme }) => {
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -43,6 +45,7 @@ const PointOfSale = ({ theme, setTheme }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [warning, setWarning] = useState("");
   const [manualTotal, setManualTotal] = useState("");
+
   const themeStyles = {
     light: {
       bgColor: "hsl(240 20% 98%)",
@@ -253,13 +256,16 @@ const PointOfSale = ({ theme, setTheme }) => {
       btnGradientHoverTransform: "translateY(-1px)",
     },
   };
+
   const styles = themeStyles[theme] || themeStyles.light;
+
   const hexToRgba = (hex, alpha = 0.2) => {
     let r = parseInt(hex.slice(1, 3), 16);
     let g = parseInt(hex.slice(3, 5), 16);
     let b = parseInt(hex.slice(5, 7), 16);
     return `rgba(${r},${g},${b},${alpha})`;
   };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -267,6 +273,7 @@ const PointOfSale = ({ theme, setTheme }) => {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -303,6 +310,7 @@ const PointOfSale = ({ theme, setTheme }) => {
     };
     fetchData();
   }, []);
+
   useEffect(() => {
     const fetchCustomerSuggestions = async () => {
       if (customerName.trim() || customerPhone.trim()) {
@@ -321,11 +329,14 @@ const PointOfSale = ({ theme, setTheme }) => {
     };
     fetchCustomerSuggestions();
   }, [customerName, customerPhone]);
+
   const showWarning = (msg) => {
     setWarning(msg);
     setTimeout(() => setWarning(""), 5000);
   };
+
   const categories = ["All", ...new Set(products.map((p) => p.category))];
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
@@ -335,6 +346,7 @@ const PointOfSale = ({ theme, setTheme }) => {
       (selectedCategory === "Accessories" && product.accessoryType === selectedModel);
     return matchesSearch && matchesCategory && matchesModel;
   });
+
   const addToCart = (product) => {
     const existingItem = cart.find((item) => item.id === product._id);
     if (existingItem) {
@@ -351,6 +363,7 @@ const PointOfSale = ({ theme, setTheme }) => {
       setCart([...cart, { ...product, id: product._id, quantity: 1 }]);
     }
   };
+
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity === 0) {
       setCart(cart.filter((item) => item.id !== id));
@@ -367,29 +380,36 @@ const PointOfSale = ({ theme, setTheme }) => {
       }
     }
   };
+
   const removeFromCart = (id) => {
-    setCart(cart.filter((item) => item.id === id));
+    setCart(cart.filter((item) => item.id !== id));
   };
+
   const selectCustomer = (customer) => {
     setCustomerName(customer.name);
     setCustomerPhone(customer.phone);
     setSelectedCustomer(customer);
     setCustomerSuggestions([]);
   };
+
   const selectModel = (model) => {
     setSelectedModel(model);
     setShowModelPopup(false);
   };
+
   const getSubtotal = () => {
     return cart.reduce((total, item) => total + item.price * item.quantity, 0);
   };
+
   const getTax = () => {
     if (!enableGst) return 0;
     return getSubtotal() * (gstPercentage / 100);
   };
+
   const getTotal = () => {
     return getSubtotal() + getTax();
   };
+
   const processSale = async () => {
     if (cart.length === 0) {
       showWarning("Cart is empty!");
@@ -447,6 +467,7 @@ const PointOfSale = ({ theme, setTheme }) => {
       showWarning("Failed to process sale. Please try again.");
     }
   };
+
   const handlePrint = () => {
     const printWindow = window.open("", "_blank");
     printWindow.document.write(`
@@ -629,19 +650,24 @@ const PointOfSale = ({ theme, setTheme }) => {
     `);
     printWindow.document.close();
   };
+
   const themeOptions = [
     { id: "light", label: "Light", icon: Sun },
     { id: "dark", label: "Dark", icon: Moon },
     { id: "nature", label: "Nature", icon: Leaf },
     { id: "sunset", label: "Sunset", icon: Grid },
   ];
+
   const selectedTheme = themeOptions.find((t) => t.id === theme) || themeOptions[0];
+
   if (loading) {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.textColor }}>Loading products...</div>;
   }
+
   if (error) {
     return <div style={{ textAlign: "center", padding: "2rem", color: styles.destructive }}>{error}</div>;
   }
+
   return (
     <div style={{ backgroundColor: styles.bgColor, color: styles.foreground, minHeight: "100vh", display: "flex", flexDirection: isMobile ? "column" : "row", overflowX: "hidden" }}>
       <div style={{ flexGrow: 1, padding: "2rem", overflow: "auto" }}>
@@ -1278,81 +1304,81 @@ const PointOfSale = ({ theme, setTheme }) => {
                   marginBottom: "10px",
                 }}
               >
-                <h1 style={{ fontSize: "16px", margin: "5px 0", color: styles.textColor }}>${shopDetails.shopName}</h1>
-                <p style={{ color: styles.textColor }}>${shopDetails.address}</p>
-                <p style={{ color: styles.textColor }}>Phone: ${phoneNumber}</p>
+                <h1 style={{ fontSize: "16px", margin: "5px 0", color: styles.textColor }}>{shopDetails.shopName}</h1>
+                <p style={{ color: styles.textColor }}>{shopDetails.address}</p>
+                <p style={{ color: styles.textColor }}>Phone: {phoneNumber}</p>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <p style={{ color: styles.textColor }}>${enableGstinPrint ? `GSTIN: ${shopDetails.gstin}` : ''}</p>
-                  <p style={{ color: styles.textColor }}>${enablePanPrint ? `PAN Number: ${panNumber}` : ''}</p>
+                  <p style={{ color: styles.textColor }}>{enableGstinPrint ? `GSTIN: ${shopDetails.gstin}` : ''}</p>
+                  <p style={{ color: styles.textColor }}>{enablePanPrint ? `PAN Number: ${panNumber}` : ''}</p>
                 </div>
-                <p style={{ color: styles.textColor }}>Invoice: ${invoiceData.invoiceId}</p>
-                <p style={{ color: styles.textColor }}>Date: ${new Date(invoiceData.timestamp).toLocaleString()}</p>
+                <p style={{ color: styles.textColor }}>Invoice: {invoiceData.invoiceId}</p>
+                <p style={{ color: styles.textColor }}>Date: {new Date(invoiceData.timestamp).toLocaleString()}</p>
               </div>
               <div style={{ marginBottom: "10px" }}>
                 <p style={{ color: styles.textColor }}>
-                  <strong>Customer:</strong> ${invoiceData.customer.name}
+                  <strong>Customer:</strong> {invoiceData.customer.name}
                 </p>
                 <p style={{ color: styles.textColor }}>
-                  <strong>Phone:</strong> ${invoiceData.customer.phone}
+                  <strong>Phone:</strong> {invoiceData.customer.phone}
                 </p>
               </div>
               <div style={{ marginBottom: "10px" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <tr>
-                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Item</th>
-                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Qty</th>
-                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Price</th>
-                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Tax Rate</th>
-                    <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Total</th>
-                  </tr>
-                  ${invoiceData.items
-                    .map(
-                      (item) => `
-                  <tr>
-                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>${item.name}</td>
-                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>${item.quantity}</td>
-                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
-                      ₹${item.price.toLocaleString()}
-                    </td>
-                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
-                      ${invoiceData.gstPercentage}%
-                    </td>
-                    <td style={{ border: \`1px solid \${styles.border}\`, padding: "5px", color: styles.textColor }}>
-                      ₹${(item.price * item.quantity + item.price * item.quantity * (invoiceData.gstPercentage / 100)).toLocaleString()}
-                    </td>
-                  </tr>
-                `
-                  )
-                    .join("")}
+                  <thead>
+                    <tr>
+                      <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Item</th>
+                      <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Qty</th>
+                      <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Price</th>
+                      <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Tax Rate</th>
+                      <th style={{ border: `1px solid ${styles.border}`, padding: "5px", textAlign: "left", color: styles.textColor }}>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoiceData.items.map((item, index) => (
+                      <tr key={index}>
+                        <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>{item.name}</td>
+                        <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>{item.quantity}</td>
+                        <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>
+                          ₹{item.price.toLocaleString()}
+                        </td>
+                        <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>
+                          {invoiceData.gstPercentage}%
+                        </td>
+                        <td style={{ border: `1px solid ${styles.border}`, padding: "5px", color: styles.textColor }}>
+                          ₹{(item.price * item.quantity + item.price * item.quantity * (invoiceData.gstPercentage / 100)).toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
               </div>
               <div style={{ marginBottom: "10px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
                   <span>Subtotal:</span>
-                  <span>₹${invoiceData.subtotal.toLocaleString()}</span>
+                  <span>₹{invoiceData.subtotal.toLocaleString()}</span>
                 </div>
-                ${invoiceData.tax > 0 ? `
+                {invoiceData.tax > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
-                    <span>GST (${invoiceData.gstPercentage}%):</span>
-                    <span>₹${invoiceData.tax.toLocaleString()}</span>
+                    <span>GST ({invoiceData.gstPercentage}%):</span>
+                    <span>₹{invoiceData.tax.toLocaleString()}</span>
                   </div>
-                ` : ""}
+                )}
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", fontWeight: "bold", color: styles.textColor }}>
                   <span>Calculated Total:</span>
-                  <span>₹${invoiceData.total.toLocaleString()}</span>
+                  <span>₹{invoiceData.total.toLocaleString()}</span>
                 </div>
-                ${invoiceData.manualTotal ? `
+                {invoiceData.manualTotal && (
                   <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", fontWeight: "bold", color: styles.textColor }}>
                     <span>Manual Total:</span>
-                    <span>₹${invoiceData.manualTotal.toLocaleString()}</span>
+                    <span>₹{invoiceData.manualTotal.toLocaleString()}</span>
                   </div>
-                ` : ""}
+                )}
                 <div style={{ display: "flex", justifyContent: "space-between", margin: "5px 0", color: styles.textColor }}>
                   <span>Payment Method:</span>
-                  <span>${invoiceData.paymentMethod.charAt(0).toUpperCase() + invoiceData.paymentMethod.slice(1)}</span>
+                  <span>{invoiceData.paymentMethod.charAt(0).toUpperCase() + invoiceData.paymentMethod.slice(1)}</span>
                 </div>
               </div>
-              ${enableTermsPrint ? `
+              {enableTermsPrint && (
                 <div style={{ marginBottom: "1rem" }}>
                   <strong>Terms & Conditions</strong>
                   <ol>
@@ -1362,7 +1388,7 @@ const PointOfSale = ({ theme, setTheme }) => {
                     <li>Pay due amount within 15 days</li>
                   </ol>
                 </div>
-              ` : ''}
+              )}
               <div
                 style={{
                   textAlign: "center",
@@ -1430,4 +1456,5 @@ const PointOfSale = ({ theme, setTheme }) => {
     </div>
   );
 };
+
 export default PointOfSale;
